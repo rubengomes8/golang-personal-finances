@@ -1,0 +1,13 @@
+version: '3'
+
+networks:
+  core:
+    driver: bridge
+
+services:
+  db:
+    build: ./docker/db
+    networks:
+      - core
+    ports:
+      - 5432:5432
