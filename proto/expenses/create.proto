@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package expenses;
+
+option go_package = "github.com/rubengomes8/golang-personal-finances/proto/expenses";
+
+message ExpenseCreateRequest {
+    double value = 1;
+    int64 date = 2;
+    string category = 3;
+    string sub_category = 4;
+    string card = 5;
+    string description = 6;
+}
+
+message ExpenseCreateResponse {
+    int64 id = 1;
+}
+
+service ExpensesService {
+    rpc CreateExpense(ExpenseCreateRequest) returns(ExpenseCreateResponse);
+}
