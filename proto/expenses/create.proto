@@ -16,7 +16,3 @@ message ExpenseCreateRequest {
 message ExpenseCreateResponse {
     int64 id = 1;
 }
-
-service ExpensesService {
-    rpc CreateExpense(ExpenseCreateRequest) returns(ExpenseCreateResponse);
-}

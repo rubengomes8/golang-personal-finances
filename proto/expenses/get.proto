@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package expenses;
+
+option go_package = "github.com/rubengomes8/golang-personal-finances/proto/expenses";
+
+// GET Responses
+message ExpenseGetResponse {
+    int64 id = 1;
+    double value = 2;
+    int64 date = 3;
+    string category = 4;
+    string sub_category = 5;
+    string card = 6;
+    string description = 7;
+}
+
+message ExpensesGetResponse {
+    repeated ExpenseGetResponse expenses = 1;
+}
+
+
+// GET Requests
+message ExpensesGetRequestByDate {
+    int64 min_date = 1;
+    int64 max_date = 2;
+}
+
+message ExpensesGetRequestByCategory {
+    string category = 1;
+}
+
+message ExpensesGetRequestBySubCategory {
+    string sub_category = 1;
+}
+
+message ExpensesGetRequestByCard {
+    string card = 1;
+}

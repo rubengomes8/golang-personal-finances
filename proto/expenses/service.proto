@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package expenses;
+
+import "proto/expenses/create.proto";
+import "proto/expenses/get.proto";
+
+option go_package = "github.com/rubengomes8/golang-personal-finances/proto/expenses";
+
+service ExpensesService {
+    rpc CreateExpense(ExpenseCreateRequest) returns(ExpenseCreateResponse);
+    rpc GetExpenseByDate(ExpensesGetRequestByDate) returns(ExpensesGetResponse);
+    rpc GetExpenseByCategory(ExpensesGetRequestByCategory) returns(ExpensesGetResponse);
+    rpc GetExpensesBySubCategory(ExpensesGetRequestBySubCategory) returns(ExpensesGetResponse);
+    rpc GetExpensesByCard(ExpensesGetRequestByCard) returns(ExpensesGetResponse);
+}
