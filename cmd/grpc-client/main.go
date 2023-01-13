@@ -7,7 +7,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	"github.com/rubengomes8/golang-personal-finances/internal/grpc/client"
+	expensesclient "github.com/rubengomes8/golang-personal-finances/internal/grpc/client/expenses"
 	"github.com/rubengomes8/golang-personal-finances/proto/expenses"
 )
 
@@ -20,20 +20,24 @@ func main() {
 	}
 	defer conn.Close()
 
-	c := expenses.NewExpensesServiceClient(conn)
+	cExpenses := expenses.NewExpensesServiceClient(conn)
+	// cCards := cards.NewCardServiceClient(conn)
 
-	client.CreateExpense(c)
-	time.Sleep(2 * time.Second)
+	// cardsclient.CreateCard(cCards)
+	// time.Sleep(500 * time.Millisecond)
 
-	client.GetExpensesByCard(c)
-	time.Sleep(2 * time.Second)
+	expensesclient.CreateExpense(cExpenses)
+	time.Sleep(500 * time.Millisecond)
 
-	client.GetExpensesByCategory(c)
-	time.Sleep(2 * time.Second)
+	// client.GetExpensesByCard(c)
+	// time.Sleep(500 * time.Millisecond)
 
-	client.GetExpensesBySubCategory(c)
-	time.Sleep(2 * time.Second)
+	// client.GetExpensesByCategory(c)
+	// time.Sleep(500 * time.Millisecond)
 
-	client.GetExpensesByDate(c)
-	time.Sleep(2 * time.Second)
+	// client.GetExpensesBySubCategory(c)
+	// time.Sleep(500 * time.Millisecond)
+
+	// client.GetExpensesByDate(c)
+	// time.Sleep(500 * time.Millisecond)
 }

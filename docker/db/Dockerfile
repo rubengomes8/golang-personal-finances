@@ -2,6 +2,7 @@ FROM postgres
 
 ENV POSTGRES_USER=finances@ruben
 ENV POSTGRES_PASSWORD=rub3nF!n4nc3s
+ENV POSTGRES_DB=finances
 
 COPY ./schema/0001-create-table-cards.up.sql /docker-entrypoint-initdb.d/0001-create-table-cards.up.sql
 COPY ./schema/0002-create-table-incomes.up.sql /docker-entrypoint-initdb.d/0002-create-table-incomes.up.sql

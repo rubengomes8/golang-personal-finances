@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"log"
+	"time"
 
 	"github.com/rubengomes8/golang-personal-finances/proto/expenses"
 )
@@ -11,9 +12,11 @@ func CreateExpense(serviceClient expenses.ExpensesServiceClient) {
 
 	log.Println("CreateExpense was invoked")
 
+	unixDate := time.Now().UTC().Unix()
+
 	expense := expenses.ExpenseCreateRequest{
 		Value:       3,
-		Date:        1,
+		Date:        unixDate,
 		Category:    "House",
 		SubCategory: "Rent",
 		Card:        "CGD",

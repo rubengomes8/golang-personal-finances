@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package cards;
+
+option go_package = "github.com/rubengomes8/golang-personal-finances/proto/cards";
+
+message CardCreateRequest {
+    string name = 1;
+}
+
+message CardCreateResponse {
+    int64 id = 1;
+}
