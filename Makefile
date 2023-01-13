@@ -11,9 +11,15 @@ down:
 
 # EXPENSES #
 expenses-create:
-	protoc -Iproto/expenses --go_out=. --go_opt=module=${GO_MODULE} --go-grpc_out=. --go-grpc_opt=module=${GO_MODULE} proto/expenses/create.proto
+	protoc --proto_path=. --go_out=. --go_opt=module=${GO_MODULE} --go-grpc_out=. --go-grpc_opt=module=${GO_MODULE} proto/expenses/create.proto
 
-expenses: expenses-create
+expenses-get:
+	protoc --proto_path=. --go_out=. --go_opt=module=${GO_MODULE} --go-grpc_out=. --go-grpc_opt=module=${GO_MODULE} proto/expenses/get.proto
+
+expenses-service:
+	protoc --proto_path=. --go_out=. --go_opt=module=${GO_MODULE} --go-grpc_out=. --go-grpc_opt=module=${GO_MODULE} proto/expenses/service.proto
+
+expenses: expenses-create expenses-get expenses-service
 
 # BUILD GO #
 build-expenses:
