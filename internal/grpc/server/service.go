@@ -14,6 +14,16 @@ func (s *FinancesServer) CreateExpense(ctx context.Context, req *expenses.Expens
 	}, nil
 }
 
+func (s *FinancesServer) CreateExpenses(ctx context.Context, req *expenses.ExpensesCreateRequest) (*expenses.ExpensesCreateResponse, error) {
+	log.Printf("CreateExpenses was invoked with %v\n", req)
+	return &expenses.ExpensesCreateResponse{
+		Ids: []*expenses.ExpenseCreateResponse{
+			{Id: 1},
+			{Id: 2},
+		},
+	}, nil
+}
+
 func (s *FinancesServer) GetExpensesByDate(ctx context.Context, req *expenses.ExpensesGetRequestByDate) (*expenses.ExpensesGetResponse, error) {
 	log.Printf("GetExpenseByDate was invoked with %v\n", req)
 

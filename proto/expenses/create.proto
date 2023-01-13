@@ -16,3 +16,12 @@ message ExpenseCreateRequest {
 message ExpenseCreateResponse {
     int64 id = 1;
 }
+
+// Bulk
+message ExpensesCreateRequest {
+    repeated ExpenseCreateRequest expenses = 1;
+}
+
+message ExpensesCreateResponse {
+    repeated ExpenseCreateResponse ids = 1;
+}
