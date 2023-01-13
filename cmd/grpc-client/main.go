@@ -1,28 +1,17 @@
 package main
 
 import (
-	"context"
 	"log"
+	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	protoExpenses "github.com/rubengomes8/golang-personal-finances/proto/expenses"
+	"github.com/rubengomes8/golang-personal-finances/internal/grpc/client"
+	"github.com/rubengomes8/golang-personal-finances/proto/expenses"
 )
 
 const ADDR = "0.0.0.0:50051"
-
-func createExpense(serviceClient protoExpenses.ExpensesServiceClient, expense *protoExpenses.ExpenseCreateRequest) {
-
-	log.Println("createExpense was invoked")
-
-	res, err := serviceClient.CreateExpense(context.Background(), expense)
-	if err != nil {
-		log.Fatalf("client could not request for create expense: %v\n", err)
-	}
-
-	log.Printf("Requested create expense with ID: %d\n", res.Id)
-}
 
 func main() {
 	conn, err := grpc.Dial(ADDR, grpc.WithTransportCredentials(insecure.NewCredentials()))
@@ -31,16 +20,20 @@ func main() {
 	}
 	defer conn.Close()
 
-	expense := protoExpenses.ExpenseCreateRequest{
-		Value:       3,
-		Date:        10,
-		Category:    "House",
-		SubCategory: "Rent",
-		Card:        "CGD",
-		Description: "Estefânia 92",
-	}
+	c := expenses.NewExpensesServiceClient(conn)
 
-	client := protoExpenses.NewExpensesServiceClient(conn)
+	client.CreateExpense(c)
+	time.Sleep(2 * time.Second)
 
-	createExpense(client, &expense)
+	client.GetExpensesByCard(c)
+	time.Sleep(2 * time.Second)
+
+	client.GetExpensesByCategory(c)
+	time.Sleep(2 * time.Second)
+
+	client.GetExpensesBySubCategory(c)
+	time.Sleep(2 * time.Second)
+
+	client.GetExpensesByDate(c)
+	time.Sleep(2 * time.Second)
 }

@@ -23,8 +23,8 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ExpensesServiceClient interface {
 	CreateExpense(ctx context.Context, in *ExpenseCreateRequest, opts ...grpc.CallOption) (*ExpenseCreateResponse, error)
-	GetExpenseByDate(ctx context.Context, in *ExpensesGetRequestByDate, opts ...grpc.CallOption) (*ExpensesGetResponse, error)
-	GetExpenseByCategory(ctx context.Context, in *ExpensesGetRequestByCategory, opts ...grpc.CallOption) (*ExpensesGetResponse, error)
+	GetExpensesByDate(ctx context.Context, in *ExpensesGetRequestByDate, opts ...grpc.CallOption) (*ExpensesGetResponse, error)
+	GetExpensesByCategory(ctx context.Context, in *ExpensesGetRequestByCategory, opts ...grpc.CallOption) (*ExpensesGetResponse, error)
 	GetExpensesBySubCategory(ctx context.Context, in *ExpensesGetRequestBySubCategory, opts ...grpc.CallOption) (*ExpensesGetResponse, error)
 	GetExpensesByCard(ctx context.Context, in *ExpensesGetRequestByCard, opts ...grpc.CallOption) (*ExpensesGetResponse, error)
 }
@@ -46,18 +46,18 @@ func (c *expensesServiceClient) CreateExpense(ctx context.Context, in *ExpenseCr
 	return out, nil
 }
 
-func (c *expensesServiceClient) GetExpenseByDate(ctx context.Context, in *ExpensesGetRequestByDate, opts ...grpc.CallOption) (*ExpensesGetResponse, error) {
+func (c *expensesServiceClient) GetExpensesByDate(ctx context.Context, in *ExpensesGetRequestByDate, opts ...grpc.CallOption) (*ExpensesGetResponse, error) {
 	out := new(ExpensesGetResponse)
-	err := c.cc.Invoke(ctx, "/expenses.ExpensesService/GetExpenseByDate", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/expenses.ExpensesService/GetExpensesByDate", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *expensesServiceClient) GetExpenseByCategory(ctx context.Context, in *ExpensesGetRequestByCategory, opts ...grpc.CallOption) (*ExpensesGetResponse, error) {
+func (c *expensesServiceClient) GetExpensesByCategory(ctx context.Context, in *ExpensesGetRequestByCategory, opts ...grpc.CallOption) (*ExpensesGetResponse, error) {
 	out := new(ExpensesGetResponse)
-	err := c.cc.Invoke(ctx, "/expenses.ExpensesService/GetExpenseByCategory", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/expenses.ExpensesService/GetExpensesByCategory", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -87,8 +87,8 @@ func (c *expensesServiceClient) GetExpensesByCard(ctx context.Context, in *Expen
 // for forward compatibility
 type ExpensesServiceServer interface {
 	CreateExpense(context.Context, *ExpenseCreateRequest) (*ExpenseCreateResponse, error)
-	GetExpenseByDate(context.Context, *ExpensesGetRequestByDate) (*ExpensesGetResponse, error)
-	GetExpenseByCategory(context.Context, *ExpensesGetRequestByCategory) (*ExpensesGetResponse, error)
+	GetExpensesByDate(context.Context, *ExpensesGetRequestByDate) (*ExpensesGetResponse, error)
+	GetExpensesByCategory(context.Context, *ExpensesGetRequestByCategory) (*ExpensesGetResponse, error)
 	GetExpensesBySubCategory(context.Context, *ExpensesGetRequestBySubCategory) (*ExpensesGetResponse, error)
 	GetExpensesByCard(context.Context, *ExpensesGetRequestByCard) (*ExpensesGetResponse, error)
 	mustEmbedUnimplementedExpensesServiceServer()
@@ -101,11 +101,11 @@ type UnimplementedExpensesServiceServer struct {
 func (UnimplementedExpensesServiceServer) CreateExpense(context.Context, *ExpenseCreateRequest) (*ExpenseCreateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateExpense not implemented")
 }
-func (UnimplementedExpensesServiceServer) GetExpenseByDate(context.Context, *ExpensesGetRequestByDate) (*ExpensesGetResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetExpenseByDate not implemented")
+func (UnimplementedExpensesServiceServer) GetExpensesByDate(context.Context, *ExpensesGetRequestByDate) (*ExpensesGetResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetExpensesByDate not implemented")
 }
-func (UnimplementedExpensesServiceServer) GetExpenseByCategory(context.Context, *ExpensesGetRequestByCategory) (*ExpensesGetResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetExpenseByCategory not implemented")
+func (UnimplementedExpensesServiceServer) GetExpensesByCategory(context.Context, *ExpensesGetRequestByCategory) (*ExpensesGetResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetExpensesByCategory not implemented")
 }
 func (UnimplementedExpensesServiceServer) GetExpensesBySubCategory(context.Context, *ExpensesGetRequestBySubCategory) (*ExpensesGetResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetExpensesBySubCategory not implemented")
@@ -144,38 +144,38 @@ func _ExpensesService_CreateExpense_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ExpensesService_GetExpenseByDate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ExpensesService_GetExpensesByDate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ExpensesGetRequestByDate)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ExpensesServiceServer).GetExpenseByDate(ctx, in)
+		return srv.(ExpensesServiceServer).GetExpensesByDate(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/expenses.ExpensesService/GetExpenseByDate",
+		FullMethod: "/expenses.ExpensesService/GetExpensesByDate",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ExpensesServiceServer).GetExpenseByDate(ctx, req.(*ExpensesGetRequestByDate))
+		return srv.(ExpensesServiceServer).GetExpensesByDate(ctx, req.(*ExpensesGetRequestByDate))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ExpensesService_GetExpenseByCategory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ExpensesService_GetExpensesByCategory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ExpensesGetRequestByCategory)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ExpensesServiceServer).GetExpenseByCategory(ctx, in)
+		return srv.(ExpensesServiceServer).GetExpensesByCategory(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/expenses.ExpensesService/GetExpenseByCategory",
+		FullMethod: "/expenses.ExpensesService/GetExpensesByCategory",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ExpensesServiceServer).GetExpenseByCategory(ctx, req.(*ExpensesGetRequestByCategory))
+		return srv.(ExpensesServiceServer).GetExpensesByCategory(ctx, req.(*ExpensesGetRequestByCategory))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -228,12 +228,12 @@ var ExpensesService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ExpensesService_CreateExpense_Handler,
 		},
 		{
-			MethodName: "GetExpenseByDate",
-			Handler:    _ExpensesService_GetExpenseByDate_Handler,
+			MethodName: "GetExpensesByDate",
+			Handler:    _ExpensesService_GetExpensesByDate_Handler,
 		},
 		{
-			MethodName: "GetExpenseByCategory",
-			Handler:    _ExpensesService_GetExpenseByCategory_Handler,
+			MethodName: "GetExpensesByCategory",
+			Handler:    _ExpensesService_GetExpensesByCategory_Handler,
 		},
 		{
 			MethodName: "GetExpensesBySubCategory",
