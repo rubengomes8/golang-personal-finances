@@ -28,6 +28,40 @@ func CreateExpense(serviceClient expenses.ExpensesServiceClient) {
 	log.Printf("Requested create expense with ID: %d\n", res.Id)
 }
 
+func CreateExpenses(serviceClient expenses.ExpensesServiceClient) {
+
+	log.Println("CreateExpenses was invoked")
+
+	expenses := expenses.ExpensesCreateRequest{
+
+		Expenses: []*expenses.ExpenseCreateRequest{
+			{
+				Value:       3,
+				Date:        1,
+				Category:    "House",
+				SubCategory: "Rent",
+				Card:        "CGD",
+				Description: "TEST",
+			},
+			{
+				Value:       4,
+				Date:        2,
+				Category:    "House",
+				SubCategory: "Rent",
+				Card:        "CGD",
+				Description: "TEST",
+			},
+		},
+	}
+
+	res, err := serviceClient.CreateExpenses(context.Background(), &expenses)
+	if err != nil {
+		log.Fatalf("client could not request for create expenses: %v\n", err)
+	}
+
+	log.Printf("Requested create expenses with IDs: %v\n", res.Ids)
+}
+
 func GetExpensesByCard(serviceClient expenses.ExpensesServiceClient) {
 
 	log.Println("GetExpensesByCard was invoked")
