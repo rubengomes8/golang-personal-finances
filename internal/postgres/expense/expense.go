@@ -60,7 +60,7 @@ func (e *ExpenseRepo) InsertExpense(ctx context.Context, exp models.Expense) (in
 	var id int64
 	err = e.database.QueryRowContext(ctx, insertStmt, exp.Value, ToTime(exp.Date), exp.Description, category.Id, subCategory.Id, card.Id).Scan(&id)
 	if err != nil {
-		return 0, fmt.Errorf("could not exec insert expense statement: %v", err)
+		return 0, fmt.Errorf("could not exec expense insert statement: %v", err)
 	}
 
 	return id, nil
@@ -90,16 +90,16 @@ func (e *ExpenseRepo) UpdateExpense(ctx context.Context, exp models.Expense) (in
 
 	result, err := e.database.ExecContext(ctx, updateStmt, exp.Value, ToTime(exp.Date), exp.Description, category.Id, subCategory.Id, card.Id, exp.Id)
 	if err != nil {
-		return 0, fmt.Errorf("could not exec update expense statement: %v", err)
+		return 0, fmt.Errorf("could not exec expense update statement: %v", err)
 	}
 
 	numRowsAffected, err := result.RowsAffected()
 	if err != nil {
-		return 0, fmt.Errorf("could not get number of rows affected in exec update statement: %v", err)
+		return 0, fmt.Errorf("could not get number of rows affected in exec expense update statement: %v", err)
 	}
 
 	if numRowsAffected == 0 {
-		return 0, fmt.Errorf("there were no rows affected in exec update statement")
+		return 0, fmt.Errorf("there were no rows affected in exec expense update statement")
 	}
 
 	return exp.Id, nil
@@ -129,8 +129,36 @@ func (e *ExpenseRepo) GetExpenseByID(ctx context.Context, id int64) (models.Expe
 }
 
 /* GET EXPENSES */
-func (e *ExpenseRepo) GetExpensesByDates(ctx context.Context, minDate time.Time, maxDate time.Time) ([]models.ExpenseWithIDs, error) {
-	return []models.ExpenseWithIDs{}, nil
+func (e *ExpenseRepo) GetExpensesByDates(ctx context.Context, minDate int64, maxDate int64) ([]models.ExpenseWithIDs, error) {
+
+	selectStmt := fmt.Sprintf(`SELECT 
+	(value, date, description, category_id, subcategory_id, card_id) FROM %s 
+	WHERE date BETWEEN $1 AND $2`, tableName)
+
+	rows, err := e.database.QueryContext(ctx, selectStmt, minDate, maxDate)
+	if err != nil {
+		return []models.ExpenseWithIDs{}, fmt.Errorf("could not query select expenses by dates statement: %v", err)
+	}
+
+	var date time.Time
+	var expenses []models.ExpenseWithIDs
+	var exp models.ExpenseWithIDs
+	for rows.Next() {
+		err = rows.Scan(&exp.Value, &date, &exp.Description, &exp.CategoryId, &exp.SubCategoryId, &exp.CardId)
+		if err != nil {
+			return []models.ExpenseWithIDs{}, fmt.Errorf("could not scan expense fields in get expenses by dates: %v", err)
+		}
+
+		exp.Date = ToUnix(date)
+		expenses = append(expenses, exp)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return []models.ExpenseWithIDs{}, fmt.Errorf("found error after scanning all expenses fields in get expenses by dates: %v", err)
+	}
+
+	return expenses, nil
 }
 
 func (e *ExpenseRepo) GetExpensesByCategory(ctx context.Context, category string) ([]models.ExpenseWithIDs, error) {
@@ -147,7 +175,26 @@ func (e *ExpenseRepo) GetExpensesByCard(ctx context.Context, card string) ([]mod
 
 /* DELETE */
 func (e *ExpenseRepo) DeleteExpense(ctx context.Context, id int64) error {
+
+	deleteStmt := fmt.Sprintf(`DELETE FROM %s 
+	WHERE id = $1`, tableName)
+
+	result, err := e.database.ExecContext(ctx, deleteStmt, id)
+	if err != nil {
+		return fmt.Errorf("could not exec expense delete statement: %v", err)
+	}
+
+	numRowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("could not get number of rows affected in exec expense delete statement: %v", err)
+	}
+
+	if numRowsAffected == 0 {
+		return fmt.Errorf("there were no rows affected in exec expense delete statement")
+	}
+
 	return nil
+
 }
 
 func ToTime(unixTime int64) time.Time {
