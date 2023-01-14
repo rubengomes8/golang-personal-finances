@@ -7,7 +7,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	expensesclient "github.com/rubengomes8/golang-personal-finances/internal/grpc/client/expenses"
+	client "github.com/rubengomes8/golang-personal-finances/internal/grpc/client/expenses"
 	"github.com/rubengomes8/golang-personal-finances/proto/expenses"
 )
 
@@ -20,17 +20,57 @@ func main() {
 	}
 	defer conn.Close()
 
-	cExpenses := expenses.NewExpensesServiceClient(conn)
-	// cCards := cards.NewCardServiceClient(conn)
-
 	// cardsclient.CreateCard(cCards)
 	// time.Sleep(500 * time.Millisecond)
 
-	expensesclient.CreateExpense(cExpenses)
-	time.Sleep(500 * time.Millisecond)
+	// cCards := cards.NewCardServiceClient(conn)
 
-	// client.GetExpensesByCard(c)
+	cExpenses := expenses.NewExpensesServiceClient(conn)
+	// nowUnixDate := time.Now().UTC().Unix()
+	// expensesclient.CreateExpense(
+	// 	cExpenses,
+	// 	expenses.ExpenseCreateRequest{
+	// 		Value:       10,
+	// 		Date:        nowUnixDate,
+	// 		Category:    "House",
+	// 		SubCategory: "Rent",
+	// 		Card:        "CGD",
+	// 		Description: "TEST",
+	// 	},
+	// )
 	// time.Sleep(500 * time.Millisecond)
+
+	// expensesclient.CreateExpense(
+	// 	cExpenses,
+	// 	expenses.ExpenseCreateRequest{
+	// 		Value:       20,
+	// 		Date:        nowUnixDate,
+	// 		Category:    "Laser",
+	// 		SubCategory: "Restaurants",
+	// 		Card:        "Food allowance",
+	// 		Description: "TEST",
+	// 	},
+	// )
+	// time.Sleep(500 * time.Millisecond)
+
+	// expensesclient.CreateExpense(
+	// 	cExpenses,
+	// 	expenses.ExpenseCreateRequest{
+	// 		Value:       30,
+	// 		Date:        nowUnixDate,
+	// 		Category:    "Laser",
+	// 		SubCategory: "Rent",
+	// 		Card:        "Food allowance",
+	// 		Description: "INVALID TEST",
+	// 	},
+	// )
+	// time.Sleep(500 * time.Millisecond)
+
+	card := expenses.ExpensesGetRequestByCard{
+		Card: "CGD",
+	}
+	client.GetExpensesByCard(cExpenses, &card)
+	time.Sleep(500 * time.Millisecond)
 
 	// client.GetExpensesByCategory(c)
 	// time.Sleep(500 * time.Millisecond)

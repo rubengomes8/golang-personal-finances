@@ -3,27 +3,15 @@ package client
 import (
 	"context"
 	"log"
-	"time"
 
 	"github.com/rubengomes8/golang-personal-finances/proto/expenses"
 )
 
-func CreateExpense(serviceClient expenses.ExpensesServiceClient) {
+func CreateExpense(serviceClient expenses.ExpensesServiceClient, expense *expenses.ExpenseCreateRequest) {
 
 	log.Println("CreateExpense was invoked")
 
-	unixDate := time.Now().UTC().Unix()
-
-	expense := expenses.ExpenseCreateRequest{
-		Value:       3,
-		Date:        unixDate,
-		Category:    "House",
-		SubCategory: "Rent",
-		Card:        "CGD",
-		Description: "TEST",
-	}
-
-	res, err := serviceClient.CreateExpense(context.Background(), &expense)
+	res, err := serviceClient.CreateExpense(context.Background(), expense)
 	if err != nil {
 		log.Fatalf("client could not request for create expense: %v\n", err)
 	}
@@ -65,15 +53,11 @@ func CreateExpenses(serviceClient expenses.ExpensesServiceClient) {
 	log.Printf("Requested create expenses with IDs: %v\n", res.Ids)
 }
 
-func GetExpensesByCard(serviceClient expenses.ExpensesServiceClient) {
+func GetExpensesByCard(serviceClient expenses.ExpensesServiceClient, card *expenses.ExpensesGetRequestByCard) {
 
 	log.Println("GetExpensesByCard was invoked")
 
-	expense := expenses.ExpensesGetRequestByCard{
-		Card: "CGD",
-	}
-
-	res, err := serviceClient.GetExpensesByCard(context.Background(), &expense)
+	res, err := serviceClient.GetExpensesByCard(context.Background(), card)
 	if err != nil {
 		log.Fatalf("client could not request a get expense by card: %v\n", err)
 	}
