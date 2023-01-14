@@ -7,9 +7,9 @@ import (
 )
 
 type ExpenseCategoryRepo interface {
-	InsertExpenseCategory(context.Context, models.ExpenseCategory) (int64, error)
-	UpdateExpenseCategory(context.Context, models.ExpenseCategory) (int64, error)
-	GetExpenseCategoryByID(context.Context, int64) (models.ExpenseCategory, error)
-	GetExpenseCategoryByName(context.Context, string) (models.ExpenseCategory, error)
+	InsertExpenseCategory(context.Context, models.ExpenseCategoryTable) (int64, error)
+	UpdateExpenseCategory(context.Context, models.ExpenseCategoryTable) (int64, error)
+	GetExpenseCategoryByID(context.Context, int64) (models.ExpenseCategoryTable, error)
+	GetExpenseCategoryByName(context.Context, string) (models.ExpenseCategoryTable, error)
 	DeleteExpenseCategory(context.Context, int64) error
 }

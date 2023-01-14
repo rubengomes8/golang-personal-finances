@@ -58,8 +58,7 @@ expenses-service:
 expenses: expenses-create expenses-get expenses-service
 
 # ALL
-all:
-	cards expense_categories expense_subcategories expenses 
+all: cards expense_categories expense_subcategories expenses 
 
 # BUILD GO #
 build-expenses:

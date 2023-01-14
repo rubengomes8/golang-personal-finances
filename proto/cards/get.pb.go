@@ -20,7 +20,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// GET Requests
 type CardGetRequestByName struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -68,7 +67,6 @@ func (x *CardGetRequestByName) GetName() string {
 	return ""
 }
 
-// GET Responses
 type CardGetResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
