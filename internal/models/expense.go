@@ -20,3 +20,13 @@ type ExpenseSubCategory struct {
 	Name       string `json:"name,omitempty"`
 	CategoryId int64  `json:"category_id,omitempty"`
 }
+
+type ExpenseWithIDs struct {
+	Id            int64   `json:"id,omitempty"`
+	Value         float64 `json:"value,omitempty"`
+	Date          int64   `json:"date,omitempty"`
+	CategoryId    int64   `json:"category_id,omitempty"`
+	SubCategoryId int64   `json:"sub_category_id,omitempty"`
+	CardId        int64   `json:"card_id,omitempty"`
+	Description   string  `json:"description,omitempty"`
+}
