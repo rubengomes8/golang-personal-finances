@@ -220,7 +220,7 @@ func (e *ExpenseRepo) GetExpensesBySubCategory(ctx context.Context, subCategory 
 	for rows.Next() {
 		err = rows.Scan(&exp.Value, &date, &exp.Description, &exp.CategoryId, &exp.SubCategoryId, &exp.CardId)
 		if err != nil {
-			return []models.ExpenseWithIDs{}, fmt.Errorf("could not scan expense fields in get expenses by csubategory: %v", err)
+			return []models.ExpenseWithIDs{}, fmt.Errorf("could not scan expense fields in get expenses by subategory: %v", err)
 		}
 
 		exp.Date = ToUnix(date)
@@ -236,7 +236,40 @@ func (e *ExpenseRepo) GetExpensesBySubCategory(ctx context.Context, subCategory 
 }
 
 func (e *ExpenseRepo) GetExpensesByCard(ctx context.Context, card string) ([]models.ExpenseWithIDs, error) {
-	return []models.ExpenseWithIDs{}, nil
+
+	expenseCard, err := e.cardRepo.GetCardByName(ctx, card)
+	if err != nil {
+		return []models.ExpenseWithIDs{}, fmt.Errorf("could not get expense subcategory by name in get expenses by card: %v", err)
+	}
+
+	selectStmt := fmt.Sprintf(`SELECT 
+	(value, date, description, category_id, subcategory_id, card_id) FROM %s 
+	WHERE category_id = $1`, tableName)
+
+	rows, err := e.database.QueryContext(ctx, selectStmt, expenseCard.Id)
+	if err != nil {
+		return []models.ExpenseWithIDs{}, fmt.Errorf("could not query select expenses by card statement: %v", err)
+	}
+
+	var date time.Time
+	var expenses []models.ExpenseWithIDs
+	var exp models.ExpenseWithIDs
+	for rows.Next() {
+		err = rows.Scan(&exp.Value, &date, &exp.Description, &exp.CategoryId, &exp.SubCategoryId, &exp.CardId)
+		if err != nil {
+			return []models.ExpenseWithIDs{}, fmt.Errorf("could not scan expense fields in get expenses by card: %v", err)
+		}
+
+		exp.Date = ToUnix(date)
+		expenses = append(expenses, exp)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return []models.ExpenseWithIDs{}, fmt.Errorf("found error after scanning all expenses fields in get expenses by card: %v", err)
+	}
+
+	return expenses, nil
 }
 
 /* DELETE */
