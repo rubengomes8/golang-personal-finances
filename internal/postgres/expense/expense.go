@@ -106,25 +106,43 @@ func (e *ExpenseRepo) UpdateExpense(ctx context.Context, exp models.Expense) (in
 }
 
 /* GET EXPENSE */
-func (e *ExpenseRepo) GetExpenseByID(ctx context.Context, id int64) (models.Expense, error) {
-	return models.Expense{}, nil
+func (e *ExpenseRepo) GetExpenseByID(ctx context.Context, id int64) (models.ExpenseWithIDs, error) {
+
+	selectStmt := fmt.Sprintf(`SELECT 
+	(value, date, description, category_id, subcategory_id, card_id)
+	FROM %s WHERE id = $1`, tableName)
+
+	row := e.database.QueryRowContext(ctx, selectStmt, id)
+	if row.Err() != nil {
+		return models.ExpenseWithIDs{}, fmt.Errorf("could not query select by id expense statement: %v", row.Err())
+	}
+
+	var date time.Time
+	exp := models.ExpenseWithIDs{Id: id}
+	err := row.Scan(&exp.Value, &date, &exp.Description, &exp.CategoryId, &exp.SubCategoryId, &exp.CardId)
+	if err != nil {
+		return models.ExpenseWithIDs{}, fmt.Errorf("could not scan expense fields in get expense by id: %v", row.Err())
+	}
+
+	exp.Date = ToUnix(date)
+	return exp, nil
 }
 
 /* GET EXPENSES */
-func (e *ExpenseRepo) GetExpensesByDates(ctx context.Context, minDate time.Time, maxDate time.Time) ([]models.Expense, error) {
-	return []models.Expense{}, nil
+func (e *ExpenseRepo) GetExpensesByDates(ctx context.Context, minDate time.Time, maxDate time.Time) ([]models.ExpenseWithIDs, error) {
+	return []models.ExpenseWithIDs{}, nil
 }
 
-func (e *ExpenseRepo) GetExpensesByCategory(ctx context.Context, category string) ([]models.Expense, error) {
-	return []models.Expense{}, nil
+func (e *ExpenseRepo) GetExpensesByCategory(ctx context.Context, category string) ([]models.ExpenseWithIDs, error) {
+	return []models.ExpenseWithIDs{}, nil
 }
 
-func (e *ExpenseRepo) GetExpensesBySubCategory(ctx context.Context, subCategory string) ([]models.Expense, error) {
-	return []models.Expense{}, nil
+func (e *ExpenseRepo) GetExpensesBySubCategory(ctx context.Context, subCategory string) ([]models.ExpenseWithIDs, error) {
+	return []models.ExpenseWithIDs{}, nil
 }
 
-func (e *ExpenseRepo) GetExpensesByCard(ctx context.Context, card string) ([]models.Expense, error) {
-	return []models.Expense{}, nil
+func (e *ExpenseRepo) GetExpensesByCard(ctx context.Context, card string) ([]models.ExpenseWithIDs, error) {
+	return []models.ExpenseWithIDs{}, nil
 }
 
 /* DELETE */
@@ -134,4 +152,8 @@ func (e *ExpenseRepo) DeleteExpense(ctx context.Context, id int64) error {
 
 func ToTime(unixTime int64) time.Time {
 	return time.Unix(unixTime, 0)
+}
+
+func ToUnix(time time.Time) int64 {
+	return time.Unix()
 }
