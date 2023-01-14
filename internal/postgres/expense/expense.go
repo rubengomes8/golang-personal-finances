@@ -35,6 +35,7 @@ func NewExpenseRepo(
 	}
 }
 
+/* INSERT EXPENSE */
 func (e *ExpenseRepo) InsertExpense(ctx context.Context, exp models.Expense) (int64, error) {
 
 	card, err := e.cardRepo.GetCardByName(ctx, exp.Card)
@@ -67,14 +68,34 @@ func (e *ExpenseRepo) InsertExpense(ctx context.Context, exp models.Expense) (in
 	return id, nil
 }
 
+/* UPDATE EXPENSE */
 func (e *ExpenseRepo) UpdateExpense(ctx context.Context, expense models.Expense) (int64, error) {
-	return 2, nil
+	return 0, nil
 }
 
+/* GET EXPENSE */
 func (e *ExpenseRepo) GetExpenseByID(ctx context.Context, id int64) (models.Expense, error) {
 	return models.Expense{}, nil
 }
 
+/* GET EXPENSES */
+func (e *ExpenseRepo) GetExpensesByDates(ctx context.Context, minDate time.Time, maxDate time.Time) ([]models.Expense, error) {
+	return []models.Expense{}, nil
+}
+
+func (e *ExpenseRepo) GetExpensesByCategory(ctx context.Context, category string) ([]models.Expense, error) {
+	return []models.Expense{}, nil
+}
+
+func (e *ExpenseRepo) GetExpensesBySubCategory(ctx context.Context, subCategory string) ([]models.Expense, error) {
+	return []models.Expense{}, nil
+}
+
+func (e *ExpenseRepo) GetExpensesByCard(ctx context.Context, card string) ([]models.Expense, error) {
+	return []models.Expense{}, nil
+}
+
+/* DELETE */
 func (e *ExpenseRepo) DeleteExpense(ctx context.Context, id int64) error {
 	return nil
 }
