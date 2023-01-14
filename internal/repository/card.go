@@ -7,9 +7,9 @@ import (
 )
 
 type CardRepo interface {
-	InsertCard(context.Context, models.Card) (int64, error)
-	UpdateCard(context.Context, models.Card) (int64, error)
-	GetCardByID(context.Context, int64) (models.Card, error)
-	GetCardByName(context.Context, string) (models.Card, error)
+	InsertCard(context.Context, models.CardTable) (int64, error)
+	UpdateCard(context.Context, models.CardTable) (int64, error)
+	GetCardByID(context.Context, int64) (models.CardTable, error)
+	GetCardByName(context.Context, string) (models.CardTable, error)
 	DeleteCard(context.Context, int64) error
 }

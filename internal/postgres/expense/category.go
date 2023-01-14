@@ -22,7 +22,7 @@ func NewExpenseCategoryRepo(database *sql.DB) ExpenseCategoryRepo {
 	}
 }
 
-func (ec *ExpenseCategoryRepo) InsertExpenseCategory(ctx context.Context, expenseCategory models.ExpenseCategory) (int64, error) {
+func (ec *ExpenseCategoryRepo) InsertExpenseCategory(ctx context.Context, expenseCategory models.ExpenseCategoryTable) (int64, error) {
 
 	insertStmt := fmt.Sprintf("INSERT INTO %s (name) VALUES ($1) RETURNING id", tableNameCategories)
 
@@ -35,40 +35,42 @@ func (ec *ExpenseCategoryRepo) InsertExpenseCategory(ctx context.Context, expens
 	return id, nil
 }
 
-func (ec *ExpenseCategoryRepo) UpdateExpenseCategory(ctx context.Context, expenseCategory models.ExpenseCategory) (int64, error) {
+func (ec *ExpenseCategoryRepo) UpdateExpenseCategory(ctx context.Context, expenseCategory models.ExpenseCategoryTable) (int64, error) {
+	// TODO
 	return 2, nil
 }
 
-func (ec *ExpenseCategoryRepo) GetExpenseCategoryByID(ctx context.Context, id int64) (models.ExpenseCategory, error) {
+func (ec *ExpenseCategoryRepo) GetExpenseCategoryByID(ctx context.Context, id int64) (models.ExpenseCategoryTable, error) {
 
 	selectStmt := fmt.Sprintf("SELECT * FROM %s WHERE id = $1", tableNameCategories)
 
 	row := ec.database.QueryRowContext(ctx, selectStmt, id)
 
-	var expenseCategory models.ExpenseCategory
+	var expenseCategory models.ExpenseCategoryTable
 	err := row.Scan(&expenseCategory.Id, &expenseCategory.Name)
 	if err != nil {
-		return models.ExpenseCategory{}, err
+		return models.ExpenseCategoryTable{}, err
 	}
 
 	return expenseCategory, nil
 }
 
-func (ec *ExpenseCategoryRepo) GetExpenseCategoryByName(ctx context.Context, name string) (models.ExpenseCategory, error) {
+func (ec *ExpenseCategoryRepo) GetExpenseCategoryByName(ctx context.Context, name string) (models.ExpenseCategoryTable, error) {
 
 	selectStmt := fmt.Sprintf("SELECT * FROM %s WHERE name = $1", tableNameCategories)
 
 	row := ec.database.QueryRowContext(ctx, selectStmt, name)
 
-	var expenseCategory models.ExpenseCategory
+	var expenseCategory models.ExpenseCategoryTable
 	err := row.Scan(&expenseCategory.Id, &expenseCategory.Name)
 	if err != nil {
-		return models.ExpenseCategory{}, err
+		return models.ExpenseCategoryTable{}, err
 	}
 
 	return expenseCategory, nil
 }
 
 func (ec *ExpenseCategoryRepo) DeleteExpenseCategory(ctx context.Context, id int64) error {
+	// TODO
 	return nil
 }

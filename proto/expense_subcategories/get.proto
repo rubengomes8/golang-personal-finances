@@ -4,12 +4,10 @@ package expense_subcategories;
 
 option go_package = "github.com/rubengomes8/golang-personal-finances/proto/expense_subcategories";
 
-// GET Requests
 message ExpenseSubCategoryGetRequestByName {
     string name = 1;
 }
 
-// GET Responses
 message ExpenseSubCategoryGetResponse {
     int64 id = 1;
     string name = 2;

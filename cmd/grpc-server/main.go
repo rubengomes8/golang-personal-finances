@@ -4,7 +4,7 @@ import (
 	"log"
 	"net"
 
-	"github.com/rubengomes8/golang-personal-finances/internal/grpc/server"
+	server "github.com/rubengomes8/golang-personal-finances/internal/grpc/server/expenses"
 	"github.com/rubengomes8/golang-personal-finances/internal/postgres"
 	"github.com/rubengomes8/golang-personal-finances/internal/postgres/card"
 	"github.com/rubengomes8/golang-personal-finances/internal/postgres/expense"
@@ -40,15 +40,15 @@ func main() {
 	grpcServer := grpc.NewServer()
 
 	cardRepo := card.NewCardRepo(database)
-	categoryRepo := expense.NewExpenseCategoryRepo(database)
-	subCategoryRepo := expense.NewExpenseSubCategoryRepo(database)
+	expCategoryRepo := expense.NewExpenseCategoryRepo(database)
+	expSubCategoryRepo := expense.NewExpenseSubCategoryRepo(database)
 
-	expensesRepository := expenseRepo.NewExpenseRepo(database, cardRepo, categoryRepo, subCategoryRepo)
-	financesServer, err := server.New(&expensesRepository, database)
+	expensesRepository := expenseRepo.NewExpenseRepo(database, cardRepo, expCategoryRepo, expSubCategoryRepo)
+	expensesService, err := server.NewExpensesService(&expensesRepository, &expSubCategoryRepo, &cardRepo, database)
 	if err != nil {
 		log.Fatalf("Failed to create the finances server: %v\n", err)
 	}
-	expenses.RegisterExpensesServiceServer(grpcServer, &financesServer)
+	expenses.RegisterExpensesServiceServer(grpcServer, &expensesService)
 
 	if err = grpcServer.Serve(listener); err != nil {
 		log.Fatalf("Failed to serve: %v\n", err)
