@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package cards;
+
+import "proto/cards/create.proto";
+import "proto/cards/get.proto";
+
+option go_package = "github.com/rubengomes8/golang-personal-finances/proto/cards";
+
+service CardService {
+    rpc CreateCard(CardCreateRequest) returns(CardCreateResponse);
+    rpc GetCardByName(CardGetRequestByName) returns(CardGetResponse);
+}

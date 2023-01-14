@@ -3,6 +3,7 @@ module github.com/rubengomes8/golang-personal-finances
 go 1.17
 
 require (
+	github.com/lib/pq v1.10.7
 	google.golang.org/grpc v1.52.0
 	google.golang.org/protobuf v1.28.1
 )

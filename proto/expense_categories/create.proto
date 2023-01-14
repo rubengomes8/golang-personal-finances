@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package expense_categories;
+
+option go_package = "github.com/rubengomes8/golang-personal-finances/proto/expense_categories";
+
+message ExpenseCategoryCreateRequest {
+    string name = 1;
+}
+
+message ExpenseCategoryCreateResponse {
+    int64 id = 1;
+}

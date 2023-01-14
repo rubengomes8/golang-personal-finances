@@ -2,15 +2,31 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"log"
 
-	expenses "github.com/rubengomes8/golang-personal-finances/proto/expenses"
+	"github.com/rubengomes8/golang-personal-finances/internal/models"
+	"github.com/rubengomes8/golang-personal-finances/proto/expenses"
 )
 
 func (s *FinancesServer) CreateExpense(ctx context.Context, req *expenses.ExpenseCreateRequest) (*expenses.ExpenseCreateResponse, error) {
-	log.Printf("CreateExpense was invoked with %v\n", req)
+
+	expense := models.Expense{
+		Value:       req.Value,
+		Date:        req.Date,
+		Category:    req.Category,
+		SubCategory: req.SubCategory,
+		Card:        req.Card,
+		Description: req.Description,
+	}
+
+	id, err := s.ExpensesRepository.InsertExpense(ctx, expense)
+	if err != nil {
+		return &expenses.ExpenseCreateResponse{}, fmt.Errorf("could not insert expense: %v", err)
+	}
+
 	return &expenses.ExpenseCreateResponse{
-		Id: 1,
+		Id: id,
 	}, nil
 }
 

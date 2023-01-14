@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package cards;
+
+option go_package = "github.com/rubengomes8/golang-personal-finances/proto/cards";
+
+// GET Requests
+message CardGetRequestByName {
+    string name = 1;
+}
+
+// GET Responses
+message CardGetResponse {
+    int64 id = 1;
+    string name = 2;
+}

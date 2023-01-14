@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package expense_subcategories;
+
+import "proto/expense_subcategories/create.proto";
+import "proto/expense_subcategories/get.proto";
+
+option go_package = "github.com/rubengomes8/golang-personal-finances/proto/expense_subcategories";
+
+service ExpenseSubCategoryService {
+    rpc CreateExpenseCategory(ExpenseSubCategoryCreateRequest) returns(ExpenseSubCategoryCreateResponse);
+    rpc GetExpenseCategoryByName(ExpenseSubCategoryGetRequestByName) returns(ExpenseSubCategoryGetResponse);
+}
