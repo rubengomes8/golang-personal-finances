@@ -57,10 +57,8 @@ func (e *ExpenseRepo) InsertExpense(ctx context.Context, exp models.Expense) (in
 	(value, date, description, category_id, subcategory_id, card_id) 
 	VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`, tableName)
 
-	date := time.Unix(exp.Date, 0)
-
 	var id int64
-	err = e.database.QueryRowContext(ctx, insertStmt, exp.Value, date, exp.Description, category.Id, subCategory.Id, card.Id).Scan(&id)
+	err = e.database.QueryRowContext(ctx, insertStmt, exp.Value, ToTime(exp.Date), exp.Description, category.Id, subCategory.Id, card.Id).Scan(&id)
 	if err != nil {
 		return 0, fmt.Errorf("could not exec insert expense statement: %v", err)
 	}
@@ -69,8 +67,42 @@ func (e *ExpenseRepo) InsertExpense(ctx context.Context, exp models.Expense) (in
 }
 
 /* UPDATE EXPENSE */
-func (e *ExpenseRepo) UpdateExpense(ctx context.Context, expense models.Expense) (int64, error) {
-	return 0, nil
+func (e *ExpenseRepo) UpdateExpense(ctx context.Context, exp models.Expense) (int64, error) {
+
+	card, err := e.cardRepo.GetCardByName(ctx, exp.Card)
+	if err != nil {
+		return 0, fmt.Errorf("could not get card by name: %v", err)
+	}
+
+	category, err := e.categoryRepo.GetExpenseCategoryByName(ctx, exp.Category)
+	if err != nil {
+		return 0, fmt.Errorf("could not get expense category by name: %v", err)
+	}
+
+	subCategory, err := e.subCategoryRepo.GetExpenseSubCategoryByName(ctx, exp.SubCategory)
+	if err != nil {
+		return 0, fmt.Errorf("could not get expense subcategory by name: %v", err)
+	}
+
+	updateStmt := fmt.Sprintf(`UPDATE %s SET 
+	(value, date, description, category_id, subcategory_id, card_id) =
+	($1, $2, $3, $4, $5, $6) WHERE id = $7`, tableName)
+
+	result, err := e.database.ExecContext(ctx, updateStmt, exp.Value, ToTime(exp.Date), exp.Description, category.Id, subCategory.Id, card.Id, exp.Id)
+	if err != nil {
+		return 0, fmt.Errorf("could not exec update expense statement: %v", err)
+	}
+
+	numRowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return 0, fmt.Errorf("could not get number of rows affected in exec update statement: %v", err)
+	}
+
+	if numRowsAffected == 0 {
+		return 0, fmt.Errorf("there were no rows affected in exec update statement")
+	}
+
+	return exp.Id, nil
 }
 
 /* GET EXPENSE */
@@ -98,4 +130,8 @@ func (e *ExpenseRepo) GetExpensesByCard(ctx context.Context, card string) ([]mod
 /* DELETE */
 func (e *ExpenseRepo) DeleteExpense(ctx context.Context, id int64) error {
 	return nil
+}
+
+func ToTime(unixTime int64) time.Time {
+	return time.Unix(unixTime, 0)
 }
