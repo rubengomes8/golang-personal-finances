@@ -11,7 +11,7 @@ option go_package = "github.com/rubengomes8/golang-personal-finances/proto/expen
 
 service ExpensesService {
     rpc CreateExpense(ExpenseCreateRequest) returns(ExpenseCreateResponse);
-    rpc CreateExpenses(ExpensesCreateRequest) returns(ExpensesCreateResponse);
+    rpc CreateExpenses(ExpensesCreateRequest) returns(ExpensesCreateResponse); // TO IMPLEMENT
     rpc UpdateExpense(ExpenseUpdateRequest) returns(ExpenseUpdateResponse);
     rpc GetExpensesByDate(ExpensesGetRequestByDate) returns(ExpensesGetResponse);
     rpc GetExpensesByCategory(ExpensesGetRequestByCategory) returns(ExpensesGetResponse);

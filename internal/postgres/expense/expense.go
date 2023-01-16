@@ -40,8 +40,8 @@ func NewExpenseRepo(
 func (e *ExpenseRepo) InsertExpense(ctx context.Context, exp models.ExpenseTable) (int64, error) {
 
 	insertStmt := fmt.Sprintf(`INSERT INTO %s 
-	(value, date, description, subcategory_id, card_id) 
-	VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`, expensesTable)
+	(value, date, description, subcategory_id, card_id)
+	VALUES ($1, $2, $3, $4, $5) RETURNING id`, expensesTable)
 
 	var id int64
 	err := e.database.QueryRowContext(ctx, insertStmt, exp.Value, exp.Date, exp.Description, exp.SubCategoryId, exp.CardId).Scan(&id)
@@ -57,7 +57,7 @@ func (e *ExpenseRepo) UpdateExpense(ctx context.Context, exp models.ExpenseTable
 
 	updateStmt := fmt.Sprintf(`UPDATE %s SET 
 	(value, date, description, subcategory_id, card_id) =
-	($1, $2, $3, $4, $5, $6) WHERE id = $7`, expensesTable)
+	($1, $2, $3, $4, $5) WHERE id = $6`, expensesTable)
 
 	result, err := e.database.ExecContext(ctx, updateStmt, exp.Value, exp.Date, exp.Description, exp.SubCategoryId, exp.CardId, exp.Id)
 	if err != nil {
@@ -80,8 +80,8 @@ func (e *ExpenseRepo) UpdateExpense(ctx context.Context, exp models.ExpenseTable
 func (e *ExpenseRepo) GetExpenseByID(ctx context.Context, id int64) (models.ExpenseView, error) {
 
 	selectStmt := fmt.Sprintf(`SELECT 
-	(value, date, description, category_id, category_name, 
-	subcategory_id, subcategory_name, card_id, card_name)
+	value, date, description, category_id, category_name, 
+	subcategory_id, subcategory_name, card_id, card_name
 	FROM %s WHERE id = $1`, expensesView)
 
 	row := e.database.QueryRowContext(ctx, selectStmt, id)
@@ -114,8 +114,8 @@ func (e *ExpenseRepo) GetExpenseByID(ctx context.Context, id int64) (models.Expe
 func (e *ExpenseRepo) GetExpensesByDates(ctx context.Context, minDate time.Time, maxDate time.Time) ([]models.ExpenseView, error) {
 
 	selectStmt := fmt.Sprintf(`SELECT 
-	(value, date, description, category_id, category_name, 
-	subcategory_id, subcategory_name, card_id, card_name)
+	value, date, description, category_id, category_name, 
+	subcategory_id, subcategory_name, card_id, card_name
 	FROM %s WHERE date BETWEEN $1 AND $2`, expensesView)
 
 	rows, err := e.database.QueryContext(ctx, selectStmt, minDate, maxDate)
@@ -157,8 +157,8 @@ func (e *ExpenseRepo) GetExpensesByDates(ctx context.Context, minDate time.Time,
 func (e *ExpenseRepo) GetExpensesByCategory(ctx context.Context, category string) ([]models.ExpenseView, error) {
 
 	selectStmt := fmt.Sprintf(`SELECT 
-	(value, date, description, category_id, category_name, 
-	subcategory_id, subcategory_name, card_id, card_name)
+	value, date, description, category_id, category_name, 
+	subcategory_id, subcategory_name, card_id, card_name
 	FROM %s WHERE category_name = $1`, expensesView)
 
 	rows, err := e.database.QueryContext(ctx, selectStmt, category)
@@ -200,8 +200,8 @@ func (e *ExpenseRepo) GetExpensesByCategory(ctx context.Context, category string
 func (e *ExpenseRepo) GetExpensesBySubCategory(ctx context.Context, subCategory string) ([]models.ExpenseView, error) {
 
 	selectStmt := fmt.Sprintf(`SELECT 
-	(value, date, description, category_id, category_name, 
-	subcategory_id, subcategory_name, card_id, card_name)
+	value, date, description, category_id, category_name, 
+	subcategory_id, subcategory_name, card_id, card_name
 	FROM %s WHERE subcategory_name = $1`, expensesView)
 
 	rows, err := e.database.QueryContext(ctx, selectStmt, subCategory)
@@ -243,8 +243,8 @@ func (e *ExpenseRepo) GetExpensesBySubCategory(ctx context.Context, subCategory 
 func (e *ExpenseRepo) GetExpensesByCard(ctx context.Context, card string) ([]models.ExpenseView, error) {
 
 	selectStmt := fmt.Sprintf(`SELECT 
-	(value, date, description, category_id, category_name, 
-	subcategory_id, subcategory_name, card_id, card_name)
+	value, date, description, category_id, category_name, 
+	subcategory_id, subcategory_name, card_id, card_name
 	FROM %s WHERE card_name = $1`, expensesView)
 
 	rows, err := e.database.QueryContext(ctx, selectStmt, card)
