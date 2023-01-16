@@ -24,6 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 type ExpensesServiceClient interface {
 	CreateExpense(ctx context.Context, in *ExpenseCreateRequest, opts ...grpc.CallOption) (*ExpenseCreateResponse, error)
 	CreateExpenses(ctx context.Context, in *ExpensesCreateRequest, opts ...grpc.CallOption) (*ExpensesCreateResponse, error)
+	UpdateExpense(ctx context.Context, in *ExpenseUpdateRequest, opts ...grpc.CallOption) (*ExpenseUpdateResponse, error)
 	GetExpensesByDate(ctx context.Context, in *ExpensesGetRequestByDate, opts ...grpc.CallOption) (*ExpensesGetResponse, error)
 	GetExpensesByCategory(ctx context.Context, in *ExpensesGetRequestByCategory, opts ...grpc.CallOption) (*ExpensesGetResponse, error)
 	GetExpensesBySubCategory(ctx context.Context, in *ExpensesGetRequestBySubCategory, opts ...grpc.CallOption) (*ExpensesGetResponse, error)
@@ -50,6 +51,15 @@ func (c *expensesServiceClient) CreateExpense(ctx context.Context, in *ExpenseCr
 func (c *expensesServiceClient) CreateExpenses(ctx context.Context, in *ExpensesCreateRequest, opts ...grpc.CallOption) (*ExpensesCreateResponse, error) {
 	out := new(ExpensesCreateResponse)
 	err := c.cc.Invoke(ctx, "/expenses.ExpensesService/CreateExpenses", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *expensesServiceClient) UpdateExpense(ctx context.Context, in *ExpenseUpdateRequest, opts ...grpc.CallOption) (*ExpenseUpdateResponse, error) {
+	out := new(ExpenseUpdateResponse)
+	err := c.cc.Invoke(ctx, "/expenses.ExpensesService/UpdateExpense", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -98,6 +108,7 @@ func (c *expensesServiceClient) GetExpensesByCard(ctx context.Context, in *Expen
 type ExpensesServiceServer interface {
 	CreateExpense(context.Context, *ExpenseCreateRequest) (*ExpenseCreateResponse, error)
 	CreateExpenses(context.Context, *ExpensesCreateRequest) (*ExpensesCreateResponse, error)
+	UpdateExpense(context.Context, *ExpenseUpdateRequest) (*ExpenseUpdateResponse, error)
 	GetExpensesByDate(context.Context, *ExpensesGetRequestByDate) (*ExpensesGetResponse, error)
 	GetExpensesByCategory(context.Context, *ExpensesGetRequestByCategory) (*ExpensesGetResponse, error)
 	GetExpensesBySubCategory(context.Context, *ExpensesGetRequestBySubCategory) (*ExpensesGetResponse, error)
@@ -114,6 +125,9 @@ func (UnimplementedExpensesServiceServer) CreateExpense(context.Context, *Expens
 }
 func (UnimplementedExpensesServiceServer) CreateExpenses(context.Context, *ExpensesCreateRequest) (*ExpensesCreateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateExpenses not implemented")
+}
+func (UnimplementedExpensesServiceServer) UpdateExpense(context.Context, *ExpenseUpdateRequest) (*ExpenseUpdateResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateExpense not implemented")
 }
 func (UnimplementedExpensesServiceServer) GetExpensesByDate(context.Context, *ExpensesGetRequestByDate) (*ExpensesGetResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetExpensesByDate not implemented")
@@ -172,6 +186,24 @@ func _ExpensesService_CreateExpenses_Handler(srv interface{}, ctx context.Contex
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ExpensesServiceServer).CreateExpenses(ctx, req.(*ExpensesCreateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ExpensesService_UpdateExpense_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ExpenseUpdateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ExpensesServiceServer).UpdateExpense(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/expenses.ExpensesService/UpdateExpense",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ExpensesServiceServer).UpdateExpense(ctx, req.(*ExpenseUpdateRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -262,6 +294,10 @@ var ExpensesService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateExpenses",
 			Handler:    _ExpensesService_CreateExpenses_Handler,
+		},
+		{
+			MethodName: "UpdateExpense",
+			Handler:    _ExpensesService_UpdateExpense_Handler,
 		},
 		{
 			MethodName: "GetExpensesByDate",

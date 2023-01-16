@@ -20,7 +20,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// GET Requests
 type ExpenseSubCategoryGetRequestByName struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -68,7 +67,6 @@ func (x *ExpenseSubCategoryGetRequestByName) GetName() string {
 	return ""
 }
 
-// GET Responses
 type ExpenseSubCategoryGetResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

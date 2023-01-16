@@ -36,8 +36,14 @@ func (ec *ExpenseCategoryRepo) InsertExpenseCategory(ctx context.Context, expens
 }
 
 func (ec *ExpenseCategoryRepo) UpdateExpenseCategory(ctx context.Context, expenseCategory models.ExpenseCategoryTable) (int64, error) {
-	// TODO
-	return 2, nil
+	updateStmt := fmt.Sprintf("UPDATE %s SET name = $1 WHERE id = $2", tableNameCategories)
+
+	_, err := ec.database.ExecContext(ctx, updateStmt, expenseCategory.Name, expenseCategory.Id)
+	if err != nil {
+		return 0, fmt.Errorf("error updating expense category: %v", err)
+	}
+
+	return expenseCategory.Id, nil
 }
 
 func (ec *ExpenseCategoryRepo) GetExpenseCategoryByID(ctx context.Context, id int64) (models.ExpenseCategoryTable, error) {

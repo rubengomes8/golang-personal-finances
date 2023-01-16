@@ -20,7 +20,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// GET Responses
 type ExpenseGetResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -163,7 +162,6 @@ func (x *ExpensesGetResponse) GetExpenses() []*ExpenseGetResponse {
 	return nil
 }
 
-// GET Requests
 type ExpensesGetRequestByDate struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
