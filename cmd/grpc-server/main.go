@@ -4,7 +4,7 @@ import (
 	"log"
 	"net"
 
-	server "github.com/rubengomes8/golang-personal-finances/internal/grpc/server/expenses"
+	server "github.com/rubengomes8/golang-personal-finances/internal/grpc/expenses"
 	"github.com/rubengomes8/golang-personal-finances/internal/pb/expenses"
 	"github.com/rubengomes8/golang-personal-finances/internal/postgres"
 	"github.com/rubengomes8/golang-personal-finances/internal/postgres/card"
