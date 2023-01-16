@@ -1,0 +1,93 @@
+syntax = "proto3";
+
+package expenses;
+
+option go_package = "github.com/rubengomes8/golang-personal-finances/internal/pb/expenses";
+
+/* CREATE EXPENSES */
+message ExpenseCreateRequest {
+    double value = 1;
+    int64 date = 2;
+    string category = 3;
+    string sub_category = 4;
+    string card = 5;
+    string description = 6;
+}
+
+message ExpenseCreateResponse {
+    int64 id = 1;
+}
+
+message ExpensesCreateRequest {
+    repeated ExpenseCreateRequest expenses = 1;
+}
+
+message ExpensesCreateResponse {
+    repeated ExpenseCreateResponse ids = 1;
+}
+
+/* GET EXPENSES */
+message ExpenseGetResponse {
+    int64 id = 1;
+    double value = 2;
+    int64 date = 3;
+    string category = 4;
+    string sub_category = 5;
+    string card = 6;
+    string description = 7;
+}
+
+message ExpensesGetResponse {
+    repeated ExpenseGetResponse expenses = 1;
+}
+
+message ExpensesGetRequestByDate {
+    int64 min_date = 1;
+    int64 max_date = 2;
+}
+
+message ExpensesGetRequestByCategory {
+    string category = 1;
+}
+
+message ExpensesGetRequestBySubCategory {
+    string sub_category = 1;
+}
+
+message ExpensesGetRequestByCard {
+    string card = 1;
+}
+
+/* UPDATE EXPENSES */
+message ExpenseUpdateRequest {
+    int64 id = 1;
+    double value = 2;
+    int64 date = 3;
+    string category = 4;
+    string sub_category = 5;
+    string card = 6;
+    string description = 7;
+}
+
+message ExpenseUpdateResponse {
+    int64 id = 1;
+}
+
+message ExpensesUpdateRequest {
+    repeated ExpenseUpdateRequest expenses = 1;
+}
+
+message ExpensesUpdateResponse {
+    repeated ExpenseUpdateResponse ids = 1;
+}
+
+/* EXPENSES SERVICE */
+service ExpensesService {
+    rpc CreateExpense(ExpenseCreateRequest) returns(ExpenseCreateResponse);
+    rpc CreateExpenses(ExpensesCreateRequest) returns(ExpensesCreateResponse); // TO IMPLEMENT
+    rpc UpdateExpense(ExpenseUpdateRequest) returns(ExpenseUpdateResponse);
+    rpc GetExpensesByDate(ExpensesGetRequestByDate) returns(ExpensesGetResponse);
+    rpc GetExpensesByCategory(ExpensesGetRequestByCategory) returns(ExpensesGetResponse);
+    rpc GetExpensesBySubCategory(ExpensesGetRequestBySubCategory) returns(ExpensesGetResponse);
+    rpc GetExpensesByCard(ExpensesGetRequestByCard) returns(ExpensesGetResponse);
+}

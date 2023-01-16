@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package expense_categories;
+
+option go_package = "github.com/rubengomes8/golang-personal-finances/internal/pb/expenses/categories";
+
+/* CREATE EXPENSE CATEGORY */
+message ExpenseCategoryCreateRequest {
+    string name = 1;
+}
+
+message ExpenseCategoryCreateResponse {
+    int64 id = 1;
+}
+
+/* GET EXPENSE CATEGORY */
+message ExpenseCategoryGetRequestByName {
+    string name = 1;
+}
+
+message ExpenseCategoryGetResponse {
+    int64 id = 1;
+    string name = 2;
+}
+
+/* EXPENSE CATEGORY SERVICE */
+service ExpenseCategoryService {
+    rpc CreateExpenseCategory(ExpenseCategoryCreateRequest) returns(ExpenseCategoryCreateResponse);
+    rpc GetExpenseCategoryByName(ExpenseCategoryGetRequestByName) returns(ExpenseCategoryGetResponse);
+}

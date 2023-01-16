@@ -8,60 +8,23 @@ up:
 down:
 	docker-compose down
 
-
 # CARDS #
-cards-create:
-	protoc --proto_path=. --go_out=. --go_opt=module=${GO_MODULE} --go-grpc_out=. --go-grpc_opt=module=${GO_MODULE} proto/cards/create.proto
-
-cards-get:
-	protoc --proto_path=. --go_out=. --go_opt=module=${GO_MODULE} --go-grpc_out=. --go-grpc_opt=module=${GO_MODULE} proto/cards/get.proto
-
-cards-service:
-	protoc --proto_path=. --go_out=. --go_opt=module=${GO_MODULE} --go-grpc_out=. --go-grpc_opt=module=${GO_MODULE} proto/cards/service.proto
-
-cards: cards-create cards-get cards-service
+cards:
+	protoc --proto_path=./proto --go_out=. --go_opt=module=${GO_MODULE} --go-grpc_out=. --go-grpc_opt=module=${GO_MODULE} cards.proto
 
 # EXPENSES CATEGORIES #
-expense_categories-create:
-	protoc --proto_path=. --go_out=. --go_opt=module=${GO_MODULE} --go-grpc_out=. --go-grpc_opt=module=${GO_MODULE} proto/expense_categories/create.proto
-
-expense_categories-get:
-	protoc --proto_path=. --go_out=. --go_opt=module=${GO_MODULE} --go-grpc_out=. --go-grpc_opt=module=${GO_MODULE} proto/expense_categories/get.proto
-
-expense_categories-service:
-	protoc --proto_path=. --go_out=. --go_opt=module=${GO_MODULE} --go-grpc_out=. --go-grpc_opt=module=${GO_MODULE} proto/expense_categories/service.proto
-
-expense_categories: expense_categories-create expense_categories-get expense_categories-service
+expense_categories:
+	protoc --proto_path=./proto --go_out=. --go_opt=module=${GO_MODULE} --go-grpc_out=. --go-grpc_opt=module=${GO_MODULE} expense_categories.proto
 
 # EXPENSES SUB CATEGORIES #
-expense_subcategories-create:
-	protoc --proto_path=. --go_out=. --go_opt=module=${GO_MODULE} --go-grpc_out=. --go-grpc_opt=module=${GO_MODULE} proto/expense_subcategories/create.proto
-
-expense_subcategories-get:
-	protoc --proto_path=. --go_out=. --go_opt=module=${GO_MODULE} --go-grpc_out=. --go-grpc_opt=module=${GO_MODULE} proto/expense_subcategories/get.proto
-
-expense_subcategories-service:
-	protoc --proto_path=. --go_out=. --go_opt=module=${GO_MODULE} --go-grpc_out=. --go-grpc_opt=module=${GO_MODULE} proto/expense_subcategories/service.proto
-
-expense_subcategories: expense_subcategories-create expense_subcategories-get expense_subcategories-service
+expense_subcategories:
+	protoc --proto_path=./proto --go_out=. --go_opt=module=${GO_MODULE} --go-grpc_out=. --go-grpc_opt=module=${GO_MODULE} expense_subcategories.proto
 
 # EXPENSES #
-expenses-create:
-	protoc --proto_path=. --go_out=. --go_opt=module=${GO_MODULE} --go-grpc_out=. --go-grpc_opt=module=${GO_MODULE} proto/expenses/create.proto
+expenses:
+	protoc --proto_path=./proto --go_out=. --go_opt=module=${GO_MODULE} --go-grpc_out=. --go-grpc_opt=module=${GO_MODULE} expenses.proto
 
-expenses-update:
-	protoc --proto_path=. --go_out=. --go_opt=module=${GO_MODULE} --go-grpc_out=. --go-grpc_opt=module=${GO_MODULE} proto/expenses/update.proto
-
-expenses-get:
-	protoc --proto_path=. --go_out=. --go_opt=module=${GO_MODULE} --go-grpc_out=. --go-grpc_opt=module=${GO_MODULE} proto/expenses/get.proto
-
-expenses-service:
-	protoc --proto_path=. --go_out=. --go_opt=module=${GO_MODULE} --go-grpc_out=. --go-grpc_opt=module=${GO_MODULE} proto/expenses/service.proto
-
-expenses: expenses-create expenses-update expenses-get expenses-service
-
-# ALL
-all: cards expense_categories expense_subcategories expenses 
+all: cards expense_categories expense_subcategories expenses
 
 # BUILD GO #
 build-expenses:

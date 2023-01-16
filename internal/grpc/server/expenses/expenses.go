@@ -3,8 +3,8 @@ package server
 import (
 	"database/sql"
 
+	"github.com/rubengomes8/golang-personal-finances/internal/pb/expenses"
 	"github.com/rubengomes8/golang-personal-finances/internal/repository"
-	"github.com/rubengomes8/golang-personal-finances/proto/expenses"
 )
 
 type ExpensesService struct {

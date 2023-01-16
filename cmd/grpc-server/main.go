@@ -5,11 +5,11 @@ import (
 	"net"
 
 	server "github.com/rubengomes8/golang-personal-finances/internal/grpc/server/expenses"
+	"github.com/rubengomes8/golang-personal-finances/internal/pb/expenses"
 	"github.com/rubengomes8/golang-personal-finances/internal/postgres"
 	"github.com/rubengomes8/golang-personal-finances/internal/postgres/card"
 	"github.com/rubengomes8/golang-personal-finances/internal/postgres/expense"
 	expenseRepo "github.com/rubengomes8/golang-personal-finances/internal/postgres/expense"
-	"github.com/rubengomes8/golang-personal-finances/proto/expenses"
 
 	"google.golang.org/grpc"
 )

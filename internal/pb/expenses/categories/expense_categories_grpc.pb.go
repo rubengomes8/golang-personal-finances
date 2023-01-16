@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v3.21.12
-// source: proto/expense_categories/service.proto
+// source: expense_categories.proto
 
-package expense_categories
+package categories
 
 import (
 	context "context"
@@ -138,5 +138,5 @@ var ExpenseCategoryService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto/expense_categories/service.proto",
+	Metadata: "expense_categories.proto",
 }
