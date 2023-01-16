@@ -36,6 +36,7 @@ func (ec *ExpenseCategoryRepo) InsertExpenseCategory(ctx context.Context, expens
 }
 
 func (ec *ExpenseCategoryRepo) UpdateExpenseCategory(ctx context.Context, expenseCategory models.ExpenseCategoryTable) (int64, error) {
+
 	updateStmt := fmt.Sprintf("UPDATE %s SET name = $1 WHERE id = $2", tableNameCategories)
 
 	_, err := ec.database.ExecContext(ctx, updateStmt, expenseCategory.Name, expenseCategory.Id)
@@ -77,6 +78,22 @@ func (ec *ExpenseCategoryRepo) GetExpenseCategoryByName(ctx context.Context, nam
 }
 
 func (ec *ExpenseCategoryRepo) DeleteExpenseCategory(ctx context.Context, id int64) error {
-	// TODO
+
+	deleteStmt := fmt.Sprintf("DELETE FROM %s WHERE id = $1", tableNameCategories)
+
+	result, err := ec.database.ExecContext(ctx, deleteStmt, id)
+	if err != nil {
+		return fmt.Errorf("error deleting expense category by id: %v", err)
+	}
+
+	numRowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("could not get number of rows affected in exec expense category delete statement: %v", err)
+	}
+
+	if numRowsAffected == 0 {
+		return fmt.Errorf("there were no rows affected in exec expense category delete statement")
+	}
+
 	return nil
 }
