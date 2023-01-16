@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v3.21.12
-// source: proto/expenses/service.proto
+// source: expenses.proto
 
 package expenses
 
@@ -317,5 +317,5 @@ var ExpensesService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto/expenses/service.proto",
+	Metadata: "expenses.proto",
 }

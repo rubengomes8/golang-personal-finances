@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package cards;
+
+option go_package = "github.com/rubengomes8/golang-personal-finances/internal/pb/cards";
+
+
+/* CREATE CARD */
+message CardCreateRequest {
+    string name = 1;
+}
+
+message CardCreateResponse {
+    int64 id = 1;
+}
+
+/* GET CARD */
+message CardGetRequestByName {
+    string name = 1;
+}
+
+message CardGetResponse {
+    int64 id = 1;
+    string name = 2;
+}
+
+/* CARDS SERVICE */
+service CardService {
+    rpc CreateCard(CardCreateRequest) returns(CardCreateResponse);
+    rpc GetCardByName(CardGetRequestByName) returns(CardGetResponse);
+}

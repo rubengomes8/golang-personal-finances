@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/rubengomes8/golang-personal-finances/internal/models"
-	"github.com/rubengomes8/golang-personal-finances/proto/expenses"
+	"github.com/rubengomes8/golang-personal-finances/internal/pb/expenses"
 )
 
 func (s *ExpensesService) CreateExpense(ctx context.Context, req *expenses.ExpenseCreateRequest) (*expenses.ExpenseCreateResponse, error) {
