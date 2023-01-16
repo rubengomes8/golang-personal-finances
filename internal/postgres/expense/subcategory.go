@@ -36,8 +36,15 @@ func (es *ExpenseSubCategoryRepo) InsertExpenseSubCategory(ctx context.Context, 
 }
 
 func (es *ExpenseSubCategoryRepo) UpdateExpenseSubCategory(ctx context.Context, expenseSubCategory models.ExpenseSubCategoryTable) (int64, error) {
-	// TODO
-	return 2, nil
+
+	updateStmt := fmt.Sprintf("UPDATE %s SET name = $1, category_id = $2 WHERE id = $3", tableNameSubCategories)
+
+	_, err := es.database.ExecContext(ctx, updateStmt, expenseSubCategory.Name, expenseSubCategory.CategoryId, expenseSubCategory.Id)
+	if err != nil {
+		return 0, fmt.Errorf("error updating expense subcategory: %v", err)
+	}
+
+	return expenseSubCategory.Id, nil
 }
 
 func (es *ExpenseSubCategoryRepo) GetExpenseSubCategoryByID(ctx context.Context, id int64) (models.ExpenseSubCategoryTable, error) {
@@ -71,6 +78,22 @@ func (es *ExpenseSubCategoryRepo) GetExpenseSubCategoryByName(ctx context.Contex
 }
 
 func (es *ExpenseSubCategoryRepo) DeleteExpenseSubCategory(ctx context.Context, id int64) error {
-	// TODO
+
+	deleteStmt := fmt.Sprintf("DELETE FROM %s WHERE id = $1", tableNameSubCategories)
+
+	result, err := es.database.ExecContext(ctx, deleteStmt, id)
+	if err != nil {
+		return fmt.Errorf("error deleting expense subcategory by id: %v", err)
+	}
+
+	numRowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("could not get number of rows affected in exec expense subcategory delete statement: %v", err)
+	}
+
+	if numRowsAffected == 0 {
+		return fmt.Errorf("there were no rows affected in exec expense subcategory delete statement")
+	}
+
 	return nil
 }

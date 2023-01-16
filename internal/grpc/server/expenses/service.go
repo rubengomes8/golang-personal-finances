@@ -64,10 +64,7 @@ func (s *ExpensesService) UpdateExpense(ctx context.Context, req *expenses.Expen
 func (s *ExpensesService) CreateExpenses(ctx context.Context, req *expenses.ExpensesCreateRequest) (*expenses.ExpensesCreateResponse, error) {
 	log.Printf("TODO - CreateExpenses was invoked with %v\n", req)
 	return &expenses.ExpensesCreateResponse{
-		Ids: []*expenses.ExpenseCreateResponse{
-			{Id: 1},
-			{Id: 2},
-		},
+		Ids: []*expenses.ExpenseCreateResponse{},
 	}, nil
 }
 
