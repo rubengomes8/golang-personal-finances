@@ -42,9 +42,9 @@ func main() {
 	cardRepo := card.NewCardRepo(database)
 	expCategoryRepo := expense.NewExpenseCategoryRepo(database)
 	expSubCategoryRepo := expense.NewExpenseSubCategoryRepo(database)
-
 	expensesRepository := expenseRepo.NewExpenseRepo(database, cardRepo, expCategoryRepo, expSubCategoryRepo)
-	expensesService, err := server.NewExpensesService(&expensesRepository, &expSubCategoryRepo, &cardRepo, database)
+
+	expensesService, err := server.NewExpensesService(&expensesRepository, &expSubCategoryRepo, &cardRepo)
 	if err != nil {
 		log.Fatalf("Failed to create the finances server: %v\n", err)
 	}

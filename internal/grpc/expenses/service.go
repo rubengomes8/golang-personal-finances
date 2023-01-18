@@ -2,7 +2,6 @@ package grpc
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"log"
 	"time"
@@ -17,20 +16,17 @@ type ExpensesService struct {
 	ExpensesRepository            repository.ExpenseRepo
 	ExpensesSubCategoryRepository repository.ExpenseSubCategoryRepo
 	CardRepository                repository.CardRepo
-	Database                      *sql.DB
 }
 
 func NewExpensesService(
 	expRepo repository.ExpenseRepo,
 	expSubCatRepo repository.ExpenseSubCategoryRepo,
 	cardRepo repository.CardRepo,
-	database *sql.DB,
 ) (ExpensesService, error) {
 	return ExpensesService{
 		ExpensesRepository:            expRepo,
 		ExpensesSubCategoryRepository: expSubCatRepo,
 		CardRepository:                cardRepo,
-		Database:                      database,
 	}, nil
 }
 

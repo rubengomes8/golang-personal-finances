@@ -1,4 +1,4 @@
-package models
+package grpc
 
 type Expense struct {
 	Value       float64 `json:"value,omitempty"`

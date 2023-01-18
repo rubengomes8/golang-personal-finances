@@ -1,18 +1,18 @@
-package v1
+package routes
 
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/rubengomes8/golang-personal-finances/internal/http/controllers"
 )
 
-func SetupRouter() *gin.Engine {
+func SetupRouter(expensesController controllers.ExpensesController) *gin.Engine {
 	r := gin.Default()
 	v1 := r.Group("/v1")
 	{
-		v1.GET("expense/:id", controllers.GetExpense)
-		v1.POST("expense", controllers.CreateExpense)
-		v1.PUT("expense/:id", controllers.UpdateExpense)
-		v1.DELETE("expense/:id", controllers.DeleteExpense)
+		v1.GET("expense/:id", expensesController.CreateExpense) // TODO
+		v1.POST("expense", expensesController.CreateExpense)
+		v1.PUT("expense/:id", expensesController.CreateExpense)    // TODO
+		v1.DELETE("expense/:id", expensesController.CreateExpense) // TODO
 	}
 	return r
 }
