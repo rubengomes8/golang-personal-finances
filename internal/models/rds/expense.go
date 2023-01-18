@@ -2,7 +2,6 @@ package models
 
 import "time"
 
-/* Views RDS */
 type ExpenseView struct {
 	Id            int64   `json:"id,omitempty"`
 	Value         float64 `json:"value,omitempty"`
@@ -16,7 +15,6 @@ type ExpenseView struct {
 	Description   string  `json:"description,omitempty"`
 }
 
-/* Tables RDS */
 type ExpenseTable struct {
 	Id            int64     `json:"id,omitempty"`
 	Value         float64   `json:"value,omitempty"`
@@ -35,13 +33,4 @@ type ExpenseSubCategoryTable struct {
 	Id         int64  `json:"id,omitempty"`
 	Name       string `json:"name,omitempty"`
 	CategoryId int64  `json:"category_id,omitempty"`
-}
-
-/* Client Expense */
-type ClientExpense struct {
-	Value       float64 `json:"value,omitempty"`
-	Date        int64   `json:"date,omitempty"`
-	SubCategory string  `json:"sub_category,omitempty"`
-	Card        string  `json:"card,omitempty"`
-	Description string  `json:"description,omitempty"`
 }

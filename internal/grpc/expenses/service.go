@@ -7,7 +7,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/rubengomes8/golang-personal-finances/internal/models"
+	models "github.com/rubengomes8/golang-personal-finances/internal/models/rds"
 	"github.com/rubengomes8/golang-personal-finances/internal/pb/expenses"
 	"github.com/rubengomes8/golang-personal-finances/internal/repository"
 )
