@@ -129,13 +129,89 @@ func (e *ExpensesController) GetExpenseById(ctx *gin.Context) {
 
 	expenseViewRecord, err := e.ExpensesRepository.GetExpenseByID(ctx, int64(expenseId))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("could not get expense: %v", err)})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("could not get expense by id: %v", err)})
 		return
 	}
 
 	responseExpense := expenseViewToExpenseGetResponse(expenseViewRecord)
 
 	ctx.JSON(http.StatusOK, responseExpense)
+}
+
+func (e *ExpensesController) GetExpensesByCategory(ctx *gin.Context) {
+
+	paramCategory := ctx.Param("category")
+
+	expenseViewRecords, err := e.ExpensesRepository.GetExpensesByCategory(ctx, paramCategory)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("could not get expenses by category: %v", err)})
+		return
+	}
+
+	responseExpenses := expensesViewToExpensesGetResponse(expenseViewRecords)
+
+	ctx.JSON(http.StatusOK, responseExpenses)
+
+}
+
+func (e *ExpensesController) GetExpensesBySubCategory(ctx *gin.Context) {
+
+	paramSubCategory := ctx.Param("sub_category")
+
+	expenseViewRecords, err := e.ExpensesRepository.GetExpensesBySubCategory(ctx, paramSubCategory)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("could not get expenses by subcategory: %v", err)})
+		return
+	}
+
+	responseExpenses := expensesViewToExpensesGetResponse(expenseViewRecords)
+
+	ctx.JSON(http.StatusOK, responseExpenses)
+
+}
+
+func (e *ExpensesController) GetExpensesByCard(ctx *gin.Context) {
+
+	paramCard := ctx.Param("card")
+
+	expenseViewRecords, err := e.ExpensesRepository.GetExpensesByCard(ctx, paramCard)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("could not get expenses by card: %v", err)})
+		return
+	}
+
+	responseExpenses := expensesViewToExpensesGetResponse(expenseViewRecords)
+
+	ctx.JSON(http.StatusOK, responseExpenses)
+
+}
+
+func (e *ExpensesController) GetExpensesByDates(ctx *gin.Context) {
+
+	paramMinDate := ctx.Param("min_date")
+	paramMaxDate := ctx.Param("max_date")
+
+	minDate, err := dateStringToTime(paramMinDate)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("could not parse min_date (should use YYYY-MM-DD format): %v", err)})
+		return
+	}
+
+	maxDate, err := dateStringToTime(paramMaxDate)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("could not parse max_date (should use YYYY-MM-DD format): %v", err)})
+		return
+	}
+
+	expenseViewRecords, err := e.ExpensesRepository.GetExpensesByDates(ctx, minDate, maxDate)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("could not get expenses by dates: %v", err)})
+		return
+	}
+
+	responseExpenses := expensesViewToExpensesGetResponse(expenseViewRecords)
+
+	ctx.JSON(http.StatusOK, responseExpenses)
 
 }
 
@@ -192,4 +268,12 @@ func expenseViewToExpenseGetResponse(expenseView rdsModels.ExpenseView) httpMode
 		Card:        expenseView.Card,
 		Description: expenseView.Description,
 	}
+}
+
+func expensesViewToExpensesGetResponse(expenseViewRecords []rdsModels.ExpenseView) []httpModels.Expense {
+	var responseExpenses []httpModels.Expense
+	for _, exp := range expenseViewRecords {
+		responseExpenses = append(responseExpenses, expenseViewToExpenseGetResponse(exp))
+	}
+	return responseExpenses
 }
