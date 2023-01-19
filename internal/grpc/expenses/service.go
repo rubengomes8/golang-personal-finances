@@ -179,10 +179,12 @@ func expensesViewToExpensesGetResponse(expenseViewRecords []models.ExpenseView) 
 	var responseExpense expenses.ExpenseGetResponse
 	for _, exp := range expenseViewRecords {
 
+		unixDate := timeToUnix(exp.Date)
+
 		responseExpense = expenses.ExpenseGetResponse{
 			Id:          exp.Id,
 			Value:       exp.Value,
-			Date:        exp.Date,
+			Date:        unixDate,
 			Category:    exp.Category,
 			SubCategory: exp.SubCategory,
 			Card:        exp.Card,
