@@ -12,16 +12,19 @@ const (
 	tableNameSubCategories = "expense_subcategories"
 )
 
+// ExpenseSubCategoryRepo implements the expense subcategory repository methods
 type ExpenseSubCategoryRepo struct {
 	database *sql.DB
 }
 
+// NewExpenseSubCategoryRepo creates a new ExpenseSubCategoryRepo
 func NewExpenseSubCategoryRepo(database *sql.DB) ExpenseSubCategoryRepo {
 	return ExpenseSubCategoryRepo{
 		database: database,
 	}
 }
 
+// InsertExpenseSubCategory inserts an expense subcategory on the expense subcategories rds table
 func (es *ExpenseSubCategoryRepo) InsertExpenseSubCategory(ctx context.Context, expenseSubCategory models.ExpenseSubCategoryTable) (int64, error) {
 
 	insertStmt := fmt.Sprintf("INSERT INTO %s (name) VALUES ($1) RETURNING id", tableNameSubCategories)
@@ -35,6 +38,7 @@ func (es *ExpenseSubCategoryRepo) InsertExpenseSubCategory(ctx context.Context, 
 	return id, nil
 }
 
+// UpdateExpenseSubCategory updates an expense subcategory on the expense subcategories rds table
 func (es *ExpenseSubCategoryRepo) UpdateExpenseSubCategory(ctx context.Context, expenseSubCategory models.ExpenseSubCategoryTable) (int64, error) {
 
 	updateStmt := fmt.Sprintf("UPDATE %s SET name = $1, category_id = $2 WHERE id = $3", tableNameSubCategories)
@@ -47,6 +51,7 @@ func (es *ExpenseSubCategoryRepo) UpdateExpenseSubCategory(ctx context.Context, 
 	return expenseSubCategory.Id, nil
 }
 
+// GetExpenseSubCategoryByID gets an expense subcategory from the expense categories rds table by id
 func (es *ExpenseSubCategoryRepo) GetExpenseSubCategoryByID(ctx context.Context, id int64) (models.ExpenseSubCategoryTable, error) {
 
 	selectStmt := fmt.Sprintf("SELECT * FROM %s WHERE id = $1", tableNameSubCategories)
@@ -62,6 +67,7 @@ func (es *ExpenseSubCategoryRepo) GetExpenseSubCategoryByID(ctx context.Context,
 	return expenseSubCategory, nil
 }
 
+// GetExpenseSubCategoryByName gets an expense subcategory from the expense categories rds table by name
 func (es *ExpenseSubCategoryRepo) GetExpenseSubCategoryByName(ctx context.Context, name string) (models.ExpenseSubCategoryTable, error) {
 
 	selectStmt := fmt.Sprintf("SELECT * FROM %s WHERE name = $1", tableNameSubCategories)
@@ -77,6 +83,7 @@ func (es *ExpenseSubCategoryRepo) GetExpenseSubCategoryByName(ctx context.Contex
 	return expenseSubCategory, nil
 }
 
+// DeleteExpenseSubCategory deletes an expense category from the expense subcategories rds table
 func (es *ExpenseSubCategoryRepo) DeleteExpenseSubCategory(ctx context.Context, id int64) error {
 
 	deleteStmt := fmt.Sprintf("DELETE FROM %s WHERE id = $1", tableNameSubCategories)

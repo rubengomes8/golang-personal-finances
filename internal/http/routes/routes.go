@@ -5,6 +5,7 @@ import (
 	"github.com/rubengomes8/golang-personal-finances/internal/http/controllers"
 )
 
+// SetupRouter sets up the http routes
 func SetupRouter(expensesController controllers.ExpensesController) *gin.Engine {
 	r := gin.Default()
 	v1 := r.Group("/v1")

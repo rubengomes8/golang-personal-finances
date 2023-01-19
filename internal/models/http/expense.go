@@ -1,5 +1,6 @@
 package http
 
+// Expense is the http expense model
 type Expense struct {
 	Id          int     `json:"id,omitempty"`
 	Value       float64 `json:"value,omitempty"`

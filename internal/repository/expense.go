@@ -7,6 +7,7 @@ import (
 	models "github.com/rubengomes8/golang-personal-finances/internal/models/rds"
 )
 
+// ExpenseRepo defines the expense repository interface
 type ExpenseRepo interface {
 	InsertExpense(context.Context, models.ExpenseTable) (int64, error)
 	UpdateExpense(context.Context, models.ExpenseTable) (int64, error)

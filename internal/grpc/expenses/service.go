@@ -11,6 +11,7 @@ import (
 	"github.com/rubengomes8/golang-personal-finances/internal/repository"
 )
 
+// ExpensesService implements ExpensesServiceServer methods
 type ExpensesService struct {
 	expenses.ExpensesServiceServer
 	ExpensesRepository            repository.ExpenseRepo
@@ -18,6 +19,7 @@ type ExpensesService struct {
 	CardRepository                repository.CardRepo
 }
 
+// NewExpensesService creates a new ExpensesService
 func NewExpensesService(
 	expRepo repository.ExpenseRepo,
 	expSubCatRepo repository.ExpenseSubCategoryRepo,
@@ -30,6 +32,7 @@ func NewExpensesService(
 	}, nil
 }
 
+// CreateExpense creates an expense on the database
 func (s *ExpensesService) CreateExpense(ctx context.Context, req *expenses.ExpenseCreateRequest) (*expenses.ExpenseCreateResponse, error) {
 
 	expSubCategory, card, err := s.getExpenseSubcategoryAndCardIdByNames(ctx, req.SubCategory, req.Card)
@@ -55,6 +58,7 @@ func (s *ExpensesService) CreateExpense(ctx context.Context, req *expenses.Expen
 	}, nil
 }
 
+// UpdateExpense updates an expense on the database
 func (s *ExpensesService) UpdateExpense(ctx context.Context, req *expenses.ExpenseUpdateRequest) (*expenses.ExpenseUpdateResponse, error) {
 
 	expSubCategory, card, err := s.getExpenseSubcategoryAndCardIdByNames(ctx, req.SubCategory, req.Card)
@@ -81,6 +85,7 @@ func (s *ExpensesService) UpdateExpense(ctx context.Context, req *expenses.Expen
 	}, nil
 }
 
+// CreateExpenses creates a bulk of expenses on the database
 func (s *ExpensesService) CreateExpenses(ctx context.Context, req *expenses.ExpensesCreateRequest) (*expenses.ExpensesCreateResponse, error) {
 	log.Printf("TODO - CreateExpenses was invoked with %v\n", req)
 	return &expenses.ExpensesCreateResponse{
@@ -88,6 +93,7 @@ func (s *ExpensesService) CreateExpenses(ctx context.Context, req *expenses.Expe
 	}, nil
 }
 
+// GetExpensesByDate gets the expenses from the database that are in the provided dates interval
 func (s *ExpensesService) GetExpensesByDate(ctx context.Context, req *expenses.ExpensesGetRequestByDate) (*expenses.ExpensesGetResponse, error) {
 	log.Printf("GetExpenseByDate was invoked with %v\n", req)
 
@@ -103,6 +109,7 @@ func (s *ExpensesService) GetExpensesByDate(ctx context.Context, req *expenses.E
 	}, nil
 }
 
+// GetExpensesByCategory gets the expenses from the database that match the category provided
 func (s *ExpensesService) GetExpensesByCategory(ctx context.Context, req *expenses.ExpensesGetRequestByCategory) (*expenses.ExpensesGetResponse, error) {
 	log.Printf("GetExpenseByCategory was invoked with %v\n", req)
 
@@ -118,6 +125,7 @@ func (s *ExpensesService) GetExpensesByCategory(ctx context.Context, req *expens
 	}, nil
 }
 
+// GetExpensesBySubCategory gets the expenses from the database that match the subcategory provided
 func (s *ExpensesService) GetExpensesBySubCategory(ctx context.Context, req *expenses.ExpensesGetRequestBySubCategory) (*expenses.ExpensesGetResponse, error) {
 	log.Printf("GetExpensesBySubCategory was invoked with %v\n", req)
 
@@ -133,6 +141,7 @@ func (s *ExpensesService) GetExpensesBySubCategory(ctx context.Context, req *exp
 	}, nil
 }
 
+// GetExpensesByCard gets the expenses from the database that match the card provided
 func (s *ExpensesService) GetExpensesByCard(ctx context.Context, req *expenses.ExpensesGetRequestByCard) (*expenses.ExpensesGetResponse, error) {
 	log.Printf("GetExpensesByCard was invoked with %v\n", req)
 

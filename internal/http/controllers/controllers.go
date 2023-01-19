@@ -15,6 +15,7 @@ import (
 	"github.com/rubengomes8/golang-personal-finances/internal/repository"
 )
 
+// ExpensesService implements handles the http requests
 type ExpensesController struct {
 	ExpensesRepository            repository.ExpenseRepo
 	ExpensesSubCategoryRepository repository.ExpenseSubCategoryRepo
@@ -22,6 +23,7 @@ type ExpensesController struct {
 	Database                      *sql.DB
 }
 
+// NewExpensesController creates a new ExpensesController
 func NewExpensesController(
 	expRepo repository.ExpenseRepo,
 	expSubCatRepo repository.ExpenseSubCategoryRepo,
@@ -34,6 +36,7 @@ func NewExpensesController(
 	}, nil
 }
 
+// CreateExpense creates an expense on the database
 func (e *ExpensesController) CreateExpense(ctx *gin.Context) {
 
 	var expense httpModels.Expense
@@ -71,6 +74,7 @@ func (e *ExpensesController) CreateExpense(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, gin.H{"id": id})
 }
 
+// UpdateExpense updates an expense on the database
 func (e *ExpensesController) UpdateExpense(ctx *gin.Context) {
 
 	var expense httpModels.Expense
@@ -117,6 +121,7 @@ func (e *ExpensesController) UpdateExpense(ctx *gin.Context) {
 	ctx.Writer.WriteHeader(http.StatusNoContent)
 }
 
+// GetExpenseById gets an expense from the database that match the id provided
 func (e *ExpensesController) GetExpenseById(ctx *gin.Context) {
 
 	paramId := ctx.Param("id")
@@ -138,6 +143,7 @@ func (e *ExpensesController) GetExpenseById(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, responseExpense)
 }
 
+// GetExpensesByCategory gets a list of expenses from the database that match the category provided
 func (e *ExpensesController) GetExpensesByCategory(ctx *gin.Context) {
 
 	paramCategory := ctx.Param("category")
@@ -154,6 +160,7 @@ func (e *ExpensesController) GetExpensesByCategory(ctx *gin.Context) {
 
 }
 
+// GetExpensesBySubCategory gets a list of expenses from the database that match the subcategory provided
 func (e *ExpensesController) GetExpensesBySubCategory(ctx *gin.Context) {
 
 	paramSubCategory := ctx.Param("sub_category")
@@ -170,6 +177,7 @@ func (e *ExpensesController) GetExpensesBySubCategory(ctx *gin.Context) {
 
 }
 
+// GetExpensesByCard gets a list of expenses from the database that match the card provided
 func (e *ExpensesController) GetExpensesByCard(ctx *gin.Context) {
 
 	paramCard := ctx.Param("card")
@@ -186,6 +194,7 @@ func (e *ExpensesController) GetExpensesByCard(ctx *gin.Context) {
 
 }
 
+// GetExpensesByDates gets a list of expenses from the database that match the dates' range provided
 func (e *ExpensesController) GetExpensesByDates(ctx *gin.Context) {
 
 	paramMinDate := ctx.Param("min_date")
@@ -215,6 +224,7 @@ func (e *ExpensesController) GetExpensesByDates(ctx *gin.Context) {
 
 }
 
+// DeleteExpense deletes an expense from the database that match the id provided
 func (e *ExpensesController) DeleteExpense(ctx *gin.Context) {
 
 	paramId := ctx.Param("id")
