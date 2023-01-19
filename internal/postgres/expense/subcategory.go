@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 
+	"github.com/rubengomes8/golang-personal-finances/internal/enums"
 	models "github.com/rubengomes8/golang-personal-finances/internal/models/rds"
 )
 
@@ -12,79 +13,91 @@ const (
 	tableNameSubCategories = "expense_subcategories"
 )
 
-// ExpenseSubCategoryRepo implements the expense subcategory repository methods
-type ExpenseSubCategoryRepo struct {
+// SubCategoryRepo implements the expense subcategory repository methods
+type SubCategoryRepo struct {
 	database *sql.DB
 }
 
-// NewExpenseSubCategoryRepo creates a new ExpenseSubCategoryRepo
-func NewExpenseSubCategoryRepo(database *sql.DB) ExpenseSubCategoryRepo {
-	return ExpenseSubCategoryRepo{
+// NewSubCategoryRepo creates a new SubCategoryRepo
+func NewSubCategoryRepo(database *sql.DB) SubCategoryRepo {
+	return SubCategoryRepo{
 		database: database,
 	}
 }
 
 // InsertExpenseSubCategory inserts an expense subcategory on the expense subcategories rds table
-func (es *ExpenseSubCategoryRepo) InsertExpenseSubCategory(ctx context.Context, expenseSubCategory models.ExpenseSubCategoryTable) (int64, error) {
+func (es *SubCategoryRepo) InsertExpenseSubCategory(
+	ctx context.Context,
+	expenseSubCategory models.ExpenseSubCategoryTable,
+) (int64, error) {
 
 	insertStmt := fmt.Sprintf("INSERT INTO %s (name) VALUES ($1) RETURNING id", tableNameSubCategories)
 
 	var id int64
 	err := es.database.QueryRowContext(ctx, insertStmt, expenseSubCategory.Name).Scan(&id)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("could not scan expense subcategory id :%v", err)
 	}
 
 	return id, nil
 }
 
 // UpdateExpenseSubCategory updates an expense subcategory on the expense subcategories rds table
-func (es *ExpenseSubCategoryRepo) UpdateExpenseSubCategory(ctx context.Context, expenseSubCategory models.ExpenseSubCategoryTable) (int64, error) {
+func (es *SubCategoryRepo) UpdateExpenseSubCategory(
+	ctx context.Context,
+	expenseSubCategory models.ExpenseSubCategoryTable,
+) (int64, error) {
 
 	updateStmt := fmt.Sprintf("UPDATE %s SET name = $1, category_id = $2 WHERE id = $3", tableNameSubCategories)
 
-	_, err := es.database.ExecContext(ctx, updateStmt, expenseSubCategory.Name, expenseSubCategory.CategoryId, expenseSubCategory.Id)
+	_, err := es.database.ExecContext(ctx, updateStmt, expenseSubCategory.Name, expenseSubCategory.CategoryID, expenseSubCategory.ID)
 	if err != nil {
 		return 0, fmt.Errorf("error updating expense subcategory: %v", err)
 	}
 
-	return expenseSubCategory.Id, nil
+	return expenseSubCategory.ID, nil
 }
 
 // GetExpenseSubCategoryByID gets an expense subcategory from the expense categories rds table by id
-func (es *ExpenseSubCategoryRepo) GetExpenseSubCategoryByID(ctx context.Context, id int64) (models.ExpenseSubCategoryTable, error) {
+func (es *SubCategoryRepo) GetExpenseSubCategoryByID(
+	ctx context.Context,
+	id int64,
+) (models.ExpenseSubCategoryTable, error) {
 
 	selectStmt := fmt.Sprintf("SELECT * FROM %s WHERE id = $1", tableNameSubCategories)
 
 	row := es.database.QueryRowContext(ctx, selectStmt, id)
 
 	var expenseSubCategory models.ExpenseSubCategoryTable
-	err := row.Scan(&expenseSubCategory.Id, &expenseSubCategory.Name, &expenseSubCategory.CategoryId)
+	err := row.Scan(&expenseSubCategory.ID, &expenseSubCategory.Name, &expenseSubCategory.CategoryID)
 	if err != nil {
-		return models.ExpenseSubCategoryTable{}, err
+		return models.ExpenseSubCategoryTable{}, fmt.Errorf("could not scan expense subcategory fields :%v", err)
 	}
 
 	return expenseSubCategory, nil
 }
 
 // GetExpenseSubCategoryByName gets an expense subcategory from the expense categories rds table by name
-func (es *ExpenseSubCategoryRepo) GetExpenseSubCategoryByName(ctx context.Context, name string) (models.ExpenseSubCategoryTable, error) {
+func (es *SubCategoryRepo) GetExpenseSubCategoryByName(
+	ctx context.Context,
+	name string,
+) (models.ExpenseSubCategoryTable, error) {
 
 	selectStmt := fmt.Sprintf("SELECT * FROM %s WHERE name = $1", tableNameSubCategories)
 
 	row := es.database.QueryRowContext(ctx, selectStmt, name)
 
 	var expenseSubCategory models.ExpenseSubCategoryTable
-	err := row.Scan(&expenseSubCategory.Id, &expenseSubCategory.Name, &expenseSubCategory.CategoryId)
+	err := row.Scan(&expenseSubCategory.ID, &expenseSubCategory.Name, &expenseSubCategory.CategoryID)
 	if err != nil {
-		return models.ExpenseSubCategoryTable{}, err
+		return models.ExpenseSubCategoryTable{}, fmt.Errorf("could not scan expense subcategory fields :%v", err)
 	}
 
 	return expenseSubCategory, nil
 }
 
 // DeleteExpenseSubCategory deletes an expense category from the expense subcategories rds table
-func (es *ExpenseSubCategoryRepo) DeleteExpenseSubCategory(ctx context.Context, id int64) error {
+func (es *SubCategoryRepo) DeleteExpenseSubCategory(ctx context.Context, id int64) error {
 
 	deleteStmt := fmt.Sprintf("DELETE FROM %s WHERE id = $1", tableNameSubCategories)
 
@@ -99,7 +112,7 @@ func (es *ExpenseSubCategoryRepo) DeleteExpenseSubCategory(ctx context.Context, 
 	}
 
 	if numRowsAffected == 0 {
-		return fmt.Errorf("there were no rows affected in exec expense subcategory delete statement")
+		return enums.NoRowsAffectedExpSubcategoryDeleteErr
 	}
 
 	return nil
