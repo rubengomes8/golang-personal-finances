@@ -140,7 +140,22 @@ func (e *ExpensesController) GetExpenseById(ctx *gin.Context) {
 }
 
 func (e *ExpensesController) DeleteExpense(ctx *gin.Context) {
-	// TODO
+
+	paramId := ctx.Param("id")
+
+	expenseId, err := strconv.Atoi(paramId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("id parameter must be an integer: %v", err)})
+		return
+	}
+
+	err = e.ExpensesRepository.DeleteExpense(ctx, int64(expenseId))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("could not delete expense: %v", err)})
+		return
+	}
+
+	ctx.Writer.WriteHeader(http.StatusNoContent)
 }
 
 func (e *ExpensesController) getExpenseSubcategoryAndCardIdByNames(

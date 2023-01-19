@@ -102,7 +102,7 @@ func (e *ExpenseRepo) GetExpenseByID(ctx context.Context, id int64) (models.Expe
 		&exp.Card,
 	)
 	if err != nil {
-		return models.ExpenseView{}, fmt.Errorf("could not scan expense fields in get expense by id: %v", row.Err())
+		return models.ExpenseView{}, fmt.Errorf("could not scan expense fields in get expense by id: %v", err)
 	}
 
 	return exp, nil

@@ -9,10 +9,10 @@ func SetupRouter(expensesController controllers.ExpensesController) *gin.Engine 
 	r := gin.Default()
 	v1 := r.Group("/v1")
 	{
-		v1.GET("expense/:id", expensesController.GetExpenseById) // TODO
+		v1.GET("expense/:id", expensesController.GetExpenseById)
 		v1.POST("expense", expensesController.CreateExpense)
-		v1.PUT("expense/:id", expensesController.UpdateExpense)    // TODO
-		v1.DELETE("expense/:id", expensesController.DeleteExpense) // TODO
+		v1.PUT("expense/:id", expensesController.UpdateExpense)
+		v1.DELETE("expense/:id", expensesController.DeleteExpense)
 	}
 	return r
 }
