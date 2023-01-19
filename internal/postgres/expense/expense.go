@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/rubengomes8/golang-personal-finances/internal/enums"
 	models "github.com/rubengomes8/golang-personal-finances/internal/models/rds"
 	"github.com/rubengomes8/golang-personal-finances/internal/postgres/card"
 )
@@ -15,20 +16,22 @@ const (
 	expensesView  = "expenses_view"
 )
 
-type ExpenseRepo struct {
+// Repo implements the expense repository methods
+type Repo struct {
 	database        *sql.DB
 	cardRepo        card.CardRepo
-	categoryRepo    ExpenseCategoryRepo
-	subCategoryRepo ExpenseSubCategoryRepo
+	categoryRepo    CategoryRepo
+	subCategoryRepo SubCategoryRepo
 }
 
-func NewExpenseRepo(
+// NewRepo creates a new Repo
+func NewRepo(
 	database *sql.DB,
 	cardRepo card.CardRepo,
-	categoryRepo ExpenseCategoryRepo,
-	subCategoryRepo ExpenseSubCategoryRepo,
-) ExpenseRepo {
-	return ExpenseRepo{
+	categoryRepo CategoryRepo,
+	subCategoryRepo SubCategoryRepo,
+) Repo {
+	return Repo{
 		database:        database,
 		cardRepo:        cardRepo,
 		categoryRepo:    categoryRepo,
@@ -36,15 +39,24 @@ func NewExpenseRepo(
 	}
 }
 
-/* INSERT EXPENSE */
-func (e *ExpenseRepo) InsertExpense(ctx context.Context, exp models.ExpenseTable) (int64, error) {
+// InsertExpense inserts an expense on the expenses rds table
+func (e *Repo) InsertExpense(ctx context.Context, exp models.ExpenseTable) (int64, error) {
 
 	insertStmt := fmt.Sprintf(`INSERT INTO %s 
 	(value, date, description, subcategory_id, card_id)
 	VALUES ($1, $2, $3, $4, $5) RETURNING id`, expensesTable)
 
 	var id int64
-	err := e.database.QueryRowContext(ctx, insertStmt, exp.Value, exp.Date, exp.Description, exp.SubCategoryId, exp.CardId).Scan(&id)
+
+	err := e.database.QueryRowContext(
+		ctx,
+		insertStmt,
+		exp.Value,
+		exp.Date,
+		exp.Description,
+		exp.SubCategoryID,
+		exp.CardID,
+	).Scan(&id)
 	if err != nil {
 		return 0, fmt.Errorf("could not exec expense insert statement: %v", err)
 	}
@@ -52,14 +64,22 @@ func (e *ExpenseRepo) InsertExpense(ctx context.Context, exp models.ExpenseTable
 	return id, nil
 }
 
-/* UPDATE EXPENSE */
-func (e *ExpenseRepo) UpdateExpense(ctx context.Context, exp models.ExpenseTable) (int64, error) {
+// UpdateExpense updates an expense on the expenses rds table
+func (e *Repo) UpdateExpense(ctx context.Context, exp models.ExpenseTable) (int64, error) {
 
 	updateStmt := fmt.Sprintf(`UPDATE %s SET 
 	(value, date, description, subcategory_id, card_id) =
 	($1, $2, $3, $4, $5) WHERE id = $6`, expensesTable)
 
-	result, err := e.database.ExecContext(ctx, updateStmt, exp.Value, exp.Date, exp.Description, exp.SubCategoryId, exp.CardId, exp.Id)
+	result, err := e.database.ExecContext(ctx,
+		updateStmt,
+		exp.Value,
+		exp.Date,
+		exp.Description,
+		exp.SubCategoryID,
+		exp.CardID,
+		exp.ID,
+	)
 	if err != nil {
 		return 0, fmt.Errorf("could not exec expense update statement: %v", err)
 	}
@@ -70,14 +90,14 @@ func (e *ExpenseRepo) UpdateExpense(ctx context.Context, exp models.ExpenseTable
 	}
 
 	if numRowsAffected == 0 {
-		return 0, fmt.Errorf("there were no rows affected in exec expense update statement")
+		return 0, enums.ErrNoRowsAffectedExpenseUpdate
 	}
 
-	return exp.Id, nil
+	return exp.ID, nil
 }
 
-/* GET EXPENSE */
-func (e *ExpenseRepo) GetExpenseByID(ctx context.Context, id int64) (models.ExpenseView, error) {
+// GetExpenseByID gets an expense from the expenses rds table by id
+func (e *Repo) GetExpenseByID(ctx context.Context, id int64) (models.ExpenseView, error) {
 
 	selectStmt := fmt.Sprintf(`SELECT 
 	value, date, description, category_id, category_name, 
@@ -89,27 +109,33 @@ func (e *ExpenseRepo) GetExpenseByID(ctx context.Context, id int64) (models.Expe
 		return models.ExpenseView{}, fmt.Errorf("could not query select expenses view by id statement: %v", row.Err())
 	}
 
-	exp := models.ExpenseView{Id: id}
+	var exp models.ExpenseView
 	err := row.Scan(
 		&exp.Value,
 		&exp.Date,
 		&exp.Description,
-		&exp.CategoryId,
+		&exp.CategoryID,
 		&exp.Category,
-		&exp.SubCategoryId,
+		&exp.SubCategoryID,
 		&exp.SubCategory,
-		&exp.CardId,
+		&exp.CardID,
 		&exp.Card,
 	)
 	if err != nil {
 		return models.ExpenseView{}, fmt.Errorf("could not scan expense fields in get expense by id: %v", err)
 	}
 
+	exp.ID = id
+
 	return exp, nil
 }
 
-/* GET EXPENSES */
-func (e *ExpenseRepo) GetExpensesByDates(ctx context.Context, minDate time.Time, maxDate time.Time) ([]models.ExpenseView, error) {
+// GetExpensesByDates gets expenses from the expenses rds table that matches the dates' range provided
+func (e *Repo) GetExpensesByDates(
+	ctx context.Context,
+	minDate time.Time,
+	maxDate time.Time,
+) ([]models.ExpenseView, error) {
 
 	selectStmt := fmt.Sprintf(`SELECT 
 	value, date, description, category_id, category_name, 
@@ -120,19 +146,22 @@ func (e *ExpenseRepo) GetExpensesByDates(ctx context.Context, minDate time.Time,
 	if err != nil {
 		return []models.ExpenseView{}, fmt.Errorf("could not query select expenses view by dates statement: %v", err)
 	}
+	defer rows.Close()
 
 	var expenses []models.ExpenseView
+
 	var exp models.ExpenseView
+
 	for rows.Next() {
 		err := rows.Scan(
 			&exp.Value,
 			&exp.Date,
 			&exp.Description,
-			&exp.CategoryId,
+			&exp.CategoryID,
 			&exp.Category,
-			&exp.SubCategoryId,
+			&exp.SubCategoryID,
 			&exp.SubCategory,
-			&exp.CardId,
+			&exp.CardID,
 			&exp.Card,
 		)
 		if err != nil {
@@ -144,13 +173,15 @@ func (e *ExpenseRepo) GetExpensesByDates(ctx context.Context, minDate time.Time,
 
 	err = rows.Err()
 	if err != nil {
-		return []models.ExpenseView{}, fmt.Errorf("found error after scanning all expenses fields in get expenses by dates: %v", err)
+		return []models.ExpenseView{},
+			fmt.Errorf("found error after scanning all expenses fields in get expenses by dates: %v", err)
 	}
 
 	return expenses, nil
 }
 
-func (e *ExpenseRepo) GetExpensesByCategory(ctx context.Context, category string) ([]models.ExpenseView, error) {
+// GetExpensesByCategory gets expenses from the expenses rds table that matches the category provided
+func (e *Repo) GetExpensesByCategory(ctx context.Context, category string) ([]models.ExpenseView, error) {
 
 	selectStmt := fmt.Sprintf(`SELECT 
 	value, date, description, category_id, category_name, 
@@ -161,19 +192,22 @@ func (e *ExpenseRepo) GetExpensesByCategory(ctx context.Context, category string
 	if err != nil {
 		return []models.ExpenseView{}, fmt.Errorf("could not query select expenses view by category statement: %v", err)
 	}
+	defer rows.Close()
 
 	var expenses []models.ExpenseView
+
 	var exp models.ExpenseView
+
 	for rows.Next() {
 		err := rows.Scan(
 			&exp.Value,
 			&exp.Date,
 			&exp.Description,
-			&exp.CategoryId,
+			&exp.CategoryID,
 			&exp.Category,
-			&exp.SubCategoryId,
+			&exp.SubCategoryID,
 			&exp.SubCategory,
-			&exp.CardId,
+			&exp.CardID,
 			&exp.Card,
 		)
 		if err != nil {
@@ -185,13 +219,15 @@ func (e *ExpenseRepo) GetExpensesByCategory(ctx context.Context, category string
 
 	err = rows.Err()
 	if err != nil {
-		return []models.ExpenseView{}, fmt.Errorf("found error after scanning all expenses fields in get expenses by category: %v", err)
+		return []models.ExpenseView{},
+			fmt.Errorf("found error after scanning all expenses fields in get expenses by category: %v", err)
 	}
 
 	return expenses, nil
 }
 
-func (e *ExpenseRepo) GetExpensesBySubCategory(ctx context.Context, subCategory string) ([]models.ExpenseView, error) {
+// GetExpensesBySubCategory gets expenses from the expenses rds table that matches the subcategory provided
+func (e *Repo) GetExpensesBySubCategory(ctx context.Context, subCategory string) ([]models.ExpenseView, error) {
 
 	selectStmt := fmt.Sprintf(`SELECT 
 	value, date, description, category_id, category_name, 
@@ -202,19 +238,22 @@ func (e *ExpenseRepo) GetExpensesBySubCategory(ctx context.Context, subCategory 
 	if err != nil {
 		return []models.ExpenseView{}, fmt.Errorf("could not query select expenses view by subcategory statement: %v", err)
 	}
+	defer rows.Close()
 
 	var expenses []models.ExpenseView
+
 	var exp models.ExpenseView
+
 	for rows.Next() {
 		err := rows.Scan(
 			&exp.Value,
 			&exp.Date,
 			&exp.Description,
-			&exp.CategoryId,
+			&exp.CategoryID,
 			&exp.Category,
-			&exp.SubCategoryId,
+			&exp.SubCategoryID,
 			&exp.SubCategory,
-			&exp.CardId,
+			&exp.CardID,
 			&exp.Card,
 		)
 		if err != nil {
@@ -226,13 +265,15 @@ func (e *ExpenseRepo) GetExpensesBySubCategory(ctx context.Context, subCategory 
 
 	err = rows.Err()
 	if err != nil {
-		return []models.ExpenseView{}, fmt.Errorf("found error after scanning all expenses fields in get expenses by subcategory: %v", err)
+		return []models.ExpenseView{},
+			fmt.Errorf("found error after scanning all expenses fields in get expenses by subcategory: %v", err)
 	}
 
 	return expenses, nil
 }
 
-func (e *ExpenseRepo) GetExpensesByCard(ctx context.Context, card string) ([]models.ExpenseView, error) {
+// GetExpensesByCard gets expenses from the expenses rds table that matches the card provided
+func (e *Repo) GetExpensesByCard(ctx context.Context, card string) ([]models.ExpenseView, error) {
 
 	selectStmt := fmt.Sprintf(`SELECT 
 	value, date, description, category_id, category_name, 
@@ -243,19 +284,22 @@ func (e *ExpenseRepo) GetExpensesByCard(ctx context.Context, card string) ([]mod
 	if err != nil {
 		return []models.ExpenseView{}, fmt.Errorf("could not query select expenses by card statement: %v", err)
 	}
+	defer rows.Close()
 
 	var expenses []models.ExpenseView
+
 	var exp models.ExpenseView
+
 	for rows.Next() {
 		err := rows.Scan(
 			&exp.Value,
 			&exp.Date,
 			&exp.Description,
-			&exp.CategoryId,
+			&exp.CategoryID,
 			&exp.Category,
-			&exp.SubCategoryId,
+			&exp.SubCategoryID,
 			&exp.SubCategory,
-			&exp.CardId,
+			&exp.CardID,
 			&exp.Card,
 		)
 		if err != nil {
@@ -273,8 +317,8 @@ func (e *ExpenseRepo) GetExpensesByCard(ctx context.Context, card string) ([]mod
 	return expenses, nil
 }
 
-/* DELETE */
-func (e *ExpenseRepo) DeleteExpense(ctx context.Context, id int64) error {
+// DeleteExpense deletes an expense from the expenses rds table
+func (e *Repo) DeleteExpense(ctx context.Context, id int64) error {
 
 	deleteStmt := fmt.Sprintf(`DELETE FROM %s 
 	WHERE id = $1`, expensesTable)
@@ -290,11 +334,10 @@ func (e *ExpenseRepo) DeleteExpense(ctx context.Context, id int64) error {
 	}
 
 	if numRowsAffected == 0 {
-		return fmt.Errorf("there were no rows affected in exec expense delete statement")
+		return enums.ErrNoRowsAffectedExpenseDelete
 	}
 
 	return nil
-
 }
 
 func ToTime(unixTime int64) time.Time {

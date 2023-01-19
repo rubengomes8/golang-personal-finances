@@ -31,3 +31,7 @@ build-expenses:
 	go build -o ${BIN_DIR}/expenses/server ./cmd/grpc-server/main.go
 
 build: build-expenses
+
+# LINT #
+lint:
+	golangci-lint run --enable-all

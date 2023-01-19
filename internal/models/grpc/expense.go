@@ -1,5 +1,6 @@
 package grpc
 
+// Expense is the grpc expense model
 type Expense struct {
 	Value       float64 `json:"value,omitempty"`
 	Date        int64   `json:"date,omitempty"`

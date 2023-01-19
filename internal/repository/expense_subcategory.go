@@ -6,6 +6,7 @@ import (
 	models "github.com/rubengomes8/golang-personal-finances/internal/models/rds"
 )
 
+// ExpenseSubCategoryRepo defines the expense subcategory repository interface
 type ExpenseSubCategoryRepo interface {
 	InsertExpenseSubCategory(context.Context, models.ExpenseSubCategoryTable) (int64, error)
 	UpdateExpenseSubCategory(context.Context, models.ExpenseSubCategoryTable) (int64, error)
