@@ -20,5 +20,3 @@ func SetupRouter(expensesController controllers.ExpensesController) *gin.Engine 
 	}
 	return r
 }
-
-/* CHECKING HERE -> https://medium.com/@_ektagarg/golang-a-todo-app-using-gin-980ebb7853c8*/
