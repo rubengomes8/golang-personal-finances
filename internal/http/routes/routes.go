@@ -2,11 +2,11 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/rubengomes8/golang-personal-finances/internal/http/controllers"
+	controllers "github.com/rubengomes8/golang-personal-finances/internal/http/service"
 )
 
 // SetupRouter sets up the http routes
-func SetupRouter(expensesController controllers.ExpensesController) *gin.Engine {
+func SetupRouter(expensesController controllers.ExpensesService) *gin.Engine {
 	r := gin.Default()
 	v1 := r.Group("/v1")
 	{

@@ -4,8 +4,8 @@ import (
 	"log"
 
 	"github.com/rubengomes8/golang-personal-finances/internal/enums"
-	"github.com/rubengomes8/golang-personal-finances/internal/http/controllers"
 	"github.com/rubengomes8/golang-personal-finances/internal/http/routes"
+	"github.com/rubengomes8/golang-personal-finances/internal/http/service"
 	"github.com/rubengomes8/golang-personal-finances/internal/postgres"
 	"github.com/rubengomes8/golang-personal-finances/internal/postgres/card"
 	"github.com/rubengomes8/golang-personal-finances/internal/postgres/expense"
@@ -31,7 +31,7 @@ func main() {
 	expSubCategoryRepo := expense.NewSubCategoryRepo(database)
 	expensesRepository := expense.NewRepo(database, cardRepo, expCategoryRepo, expSubCategoryRepo)
 
-	expensesControler, err := controllers.NewExpensesController(&expensesRepository, &expSubCategoryRepo, &cardRepo)
+	expensesControler, err := service.NewExpensesService(&expensesRepository, &expSubCategoryRepo, &cardRepo)
 	if err != nil {
 		log.Fatal(err)
 	}
