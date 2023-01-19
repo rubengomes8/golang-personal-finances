@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 
-	"github.com/rubengomes8/golang-personal-finances/internal/models"
+	models "github.com/rubengomes8/golang-personal-finances/internal/models/rds"
 )
 
 type ExpenseCategoryRepo interface {

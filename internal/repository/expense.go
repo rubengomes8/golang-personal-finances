@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/rubengomes8/golang-personal-finances/internal/models"
+	models "github.com/rubengomes8/golang-personal-finances/internal/models/rds"
 )
 
 type ExpenseRepo interface {

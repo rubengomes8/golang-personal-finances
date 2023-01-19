@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/rubengomes8/golang-personal-finances/internal/models"
+	models "github.com/rubengomes8/golang-personal-finances/internal/models/rds"
 	"github.com/rubengomes8/golang-personal-finances/internal/postgres/card"
 )
 
@@ -89,11 +89,10 @@ func (e *ExpenseRepo) GetExpenseByID(ctx context.Context, id int64) (models.Expe
 		return models.ExpenseView{}, fmt.Errorf("could not query select expenses view by id statement: %v", row.Err())
 	}
 
-	var date time.Time
 	exp := models.ExpenseView{Id: id}
 	err := row.Scan(
 		&exp.Value,
-		&date,
+		&exp.Date,
 		&exp.Description,
 		&exp.CategoryId,
 		&exp.Category,
@@ -103,10 +102,9 @@ func (e *ExpenseRepo) GetExpenseByID(ctx context.Context, id int64) (models.Expe
 		&exp.Card,
 	)
 	if err != nil {
-		return models.ExpenseView{}, fmt.Errorf("could not scan expense fields in get expense by id: %v", row.Err())
+		return models.ExpenseView{}, fmt.Errorf("could not scan expense fields in get expense by id: %v", err)
 	}
 
-	exp.Date = ToUnix(date)
 	return exp, nil
 }
 
@@ -123,13 +121,12 @@ func (e *ExpenseRepo) GetExpensesByDates(ctx context.Context, minDate time.Time,
 		return []models.ExpenseView{}, fmt.Errorf("could not query select expenses view by dates statement: %v", err)
 	}
 
-	var date time.Time
 	var expenses []models.ExpenseView
 	var exp models.ExpenseView
 	for rows.Next() {
 		err := rows.Scan(
 			&exp.Value,
-			&date,
+			&exp.Date,
 			&exp.Description,
 			&exp.CategoryId,
 			&exp.Category,
@@ -142,7 +139,6 @@ func (e *ExpenseRepo) GetExpensesByDates(ctx context.Context, minDate time.Time,
 			return []models.ExpenseView{}, fmt.Errorf("could not scan expense fields in get expenses by dates: %v", err)
 		}
 
-		exp.Date = ToUnix(date)
 		expenses = append(expenses, exp)
 	}
 
@@ -166,13 +162,12 @@ func (e *ExpenseRepo) GetExpensesByCategory(ctx context.Context, category string
 		return []models.ExpenseView{}, fmt.Errorf("could not query select expenses view by category statement: %v", err)
 	}
 
-	var date time.Time
 	var expenses []models.ExpenseView
 	var exp models.ExpenseView
 	for rows.Next() {
 		err := rows.Scan(
 			&exp.Value,
-			&date,
+			&exp.Date,
 			&exp.Description,
 			&exp.CategoryId,
 			&exp.Category,
@@ -185,7 +180,6 @@ func (e *ExpenseRepo) GetExpensesByCategory(ctx context.Context, category string
 			return []models.ExpenseView{}, fmt.Errorf("could not scan expense fields in get expenses by category: %v", err)
 		}
 
-		exp.Date = ToUnix(date)
 		expenses = append(expenses, exp)
 	}
 
@@ -209,13 +203,12 @@ func (e *ExpenseRepo) GetExpensesBySubCategory(ctx context.Context, subCategory 
 		return []models.ExpenseView{}, fmt.Errorf("could not query select expenses view by subcategory statement: %v", err)
 	}
 
-	var date time.Time
 	var expenses []models.ExpenseView
 	var exp models.ExpenseView
 	for rows.Next() {
 		err := rows.Scan(
 			&exp.Value,
-			&date,
+			&exp.Date,
 			&exp.Description,
 			&exp.CategoryId,
 			&exp.Category,
@@ -228,7 +221,6 @@ func (e *ExpenseRepo) GetExpensesBySubCategory(ctx context.Context, subCategory 
 			return []models.ExpenseView{}, fmt.Errorf("could not scan expense fields in get expenses by subategory: %v", err)
 		}
 
-		exp.Date = ToUnix(date)
 		expenses = append(expenses, exp)
 	}
 
@@ -252,13 +244,12 @@ func (e *ExpenseRepo) GetExpensesByCard(ctx context.Context, card string) ([]mod
 		return []models.ExpenseView{}, fmt.Errorf("could not query select expenses by card statement: %v", err)
 	}
 
-	var date time.Time
 	var expenses []models.ExpenseView
 	var exp models.ExpenseView
 	for rows.Next() {
 		err := rows.Scan(
 			&exp.Value,
-			&date,
+			&exp.Date,
 			&exp.Description,
 			&exp.CategoryId,
 			&exp.Category,
@@ -271,7 +262,6 @@ func (e *ExpenseRepo) GetExpensesByCard(ctx context.Context, card string) ([]mod
 			return []models.ExpenseView{}, fmt.Errorf("could not scan expense fields in get expenses by card: %v", err)
 		}
 
-		exp.Date = ToUnix(date)
 		expenses = append(expenses, exp)
 	}
 
