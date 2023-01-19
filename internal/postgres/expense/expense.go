@@ -90,7 +90,7 @@ func (e *Repo) UpdateExpense(ctx context.Context, exp models.ExpenseTable) (int6
 	}
 
 	if numRowsAffected == 0 {
-		return 0, enums.NoRowsAffectedExpenseUpdateErr
+		return 0, enums.ErrNoRowsAffectedExpenseUpdate
 	}
 
 	return exp.ID, nil
@@ -334,7 +334,7 @@ func (e *Repo) DeleteExpense(ctx context.Context, id int64) error {
 	}
 
 	if numRowsAffected == 0 {
-		return enums.NoRowsAffectedExpenseDeleteErr
+		return enums.ErrNoRowsAffectedExpenseDelete
 	}
 
 	return nil

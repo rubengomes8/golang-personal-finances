@@ -3,9 +3,9 @@ package enums
 import "errors"
 
 var (
-	NoRowsAffectedCardDeleteErr           = errors.New("there were no rows affected in exec expense card delete statement")
-	NoRowsAffectedExpenseDeleteErr        = errors.New("there were no rows affected in exec expense delete statement")
-	NoRowsAffectedExpenseUpdateErr        = errors.New("there were no rows affected in exec expense update statement")
-	NoRowsAffectedExpCategoryDeleteErr    = errors.New("there were no rows affected in exec expense category delete statement")
-	NoRowsAffectedExpSubcategoryDeleteErr = errors.New("there were no rows affected in exec expense subcategory delete statement")
+	ErrNoRowsAffectedCardDelete           = errors.New("there were no rows affected in exec expense card delete statement")
+	ErrNoRowsAffectedExpenseDelete        = errors.New("there were no rows affected in exec expense delete statement")
+	ErrNoRowsAffectedExpenseUpdate        = errors.New("there were no rows affected in exec expense update statement")
+	ErrNoRowsAffectedExpCategoryDelete    = errors.New("there were no rows affected in exec expense category delete statement")
+	ErrNoRowsAffectedExpSubcategoryDelete = errors.New("there were no rows affected in exec expense subcategory delete statement")
 )

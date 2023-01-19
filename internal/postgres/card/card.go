@@ -100,7 +100,7 @@ func (c *CardRepo) DeleteCard(ctx context.Context, id int64) error {
 	}
 
 	if numRowsAffected == 0 {
-		return enums.NoRowsAffectedCardDeleteErr
+		return enums.ErrNoRowsAffectedCardDelete
 	}
 
 	return nil

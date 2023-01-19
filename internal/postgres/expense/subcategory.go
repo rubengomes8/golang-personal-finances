@@ -112,7 +112,7 @@ func (es *SubCategoryRepo) DeleteExpenseSubCategory(ctx context.Context, id int6
 	}
 
 	if numRowsAffected == 0 {
-		return enums.NoRowsAffectedExpSubcategoryDeleteErr
+		return enums.ErrNoRowsAffectedExpSubcategoryDelete
 	}
 
 	return nil

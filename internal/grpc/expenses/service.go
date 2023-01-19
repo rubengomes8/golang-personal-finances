@@ -83,7 +83,7 @@ func (s *ExpensesService) UpdateExpense(
 
 	id, err := s.ExpensesRepository.UpdateExpense(ctx, expenseRecord)
 	if err != nil {
-		return &expenses.ExpenseUpdateResponse{}, fmt.Errorf("could not update expense: %v", err)
+		return &expenses.ExpenseUpdateResponse{}, fmt.Errorf("could not update expense: %w", err)
 	}
 
 	return &expenses.ExpenseUpdateResponse{
@@ -116,7 +116,7 @@ func (s *ExpensesService) GetExpensesByDate(
 		unixToTime(req.MaxDate),
 	)
 	if err != nil {
-		return &expenses.ExpensesGetResponse{}, fmt.Errorf("could not get expenses by date: %v", err)
+		return &expenses.ExpensesGetResponse{}, fmt.Errorf("could not get expenses by date: %w", err)
 	}
 
 	responseExpenses := expensesViewToExpensesGetResponse(expenseViewRecords)
@@ -135,7 +135,7 @@ func (s *ExpensesService) GetExpensesByCategory(
 
 	expenseViewRecords, err := s.ExpensesRepository.GetExpensesByCategory(ctx, req.Category)
 	if err != nil {
-		return &expenses.ExpensesGetResponse{}, fmt.Errorf("could not get expenses by category: %v", err)
+		return &expenses.ExpensesGetResponse{}, fmt.Errorf("could not get expenses by category: %w", err)
 	}
 
 	responseExpenses := expensesViewToExpensesGetResponse(expenseViewRecords)

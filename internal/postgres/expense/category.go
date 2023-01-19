@@ -117,7 +117,7 @@ func (ec *CategoryRepo) DeleteExpenseCategory(
 	}
 
 	if numRowsAffected == 0 {
-		return enums.NoRowsAffectedExpCategoryDeleteErr
+		return enums.ErrNoRowsAffectedExpCategoryDelete
 	}
 
 	return nil

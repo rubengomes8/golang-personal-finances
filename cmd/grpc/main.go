@@ -17,7 +17,6 @@ import (
 )
 
 func main() {
-
 	database, err := postgres.NewDB(
 		enums.DatabaseHost,
 		enums.DatabaseUser,

@@ -6,7 +6,7 @@ import (
 	models "github.com/rubengomes8/golang-personal-finances/internal/models/rds"
 )
 
-// CardRepo defines the card repository interface
+// CardRepo defines the card repository interface.
 type CardRepo interface {
 	InsertCard(context.Context, models.CardTable) (int64, error)
 	UpdateCard(context.Context, models.CardTable) (int64, error)
