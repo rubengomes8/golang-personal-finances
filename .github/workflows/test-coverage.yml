@@ -18,6 +18,8 @@ jobs:
     - name: Install dependencies
       run: |
         go version
+        go mod vendor
+        go mod tidy
         go get -u golang.org/x/lint/golint
     - name: Build
       run: go build .
