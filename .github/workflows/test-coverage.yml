@@ -2,7 +2,8 @@ name: test-coverage
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, feature/** ]
+
 
 jobs:
   build:
