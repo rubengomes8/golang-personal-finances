@@ -35,3 +35,7 @@ build: build-expenses
 # LINT #
 lint:
 	golangci-lint run --enable-all
+
+# TEST #
+test:
+	go test ./...
