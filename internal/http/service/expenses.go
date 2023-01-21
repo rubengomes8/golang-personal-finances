@@ -70,7 +70,10 @@ func (e *ExpensesService) CreateExpense(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, gin.H{"id": id})
+	r := httpModels.ExpenseCreateResponse{
+		ID: int(id),
+	}
+	ctx.JSON(http.StatusCreated, &r)
 }
 
 // UpdateExpense updates an expense on the database

@@ -1,4 +1,4 @@
-package expense
+package cache
 
 import "fmt"
 
@@ -68,23 +68,23 @@ func (saee SubCategoryAlreadyExistsError) Error() string {
 
 /* EXPENSE */
 
-// NotFoundByIDError error when an expense is not found by id on the cache
-type NotFoundByIDError struct {
+// ExpenseNotFoundByIDError error when an expense is not found by id on the cache
+type ExpenseNotFoundByIDError struct {
 	id int64
 }
 
-// Error is the string representation of NotFoundByIDError
-func (nfie NotFoundByIDError) Error() string {
+// Error is the string representation of ExpenseNotFoundByIDError
+func (nfie ExpenseNotFoundByIDError) Error() string {
 	return fmt.Sprintf("error: expense with id: %d was not found by id in the repository", nfie.id)
 }
 
-// NotFoundByNameError error when a expense is not found by name on the cache
-type NotFoundByNameError struct {
+// ExpenseNotFoundByNameError error when a expense is not found by name on the cache
+type ExpenseNotFoundByNameError struct {
 	name string
 }
 
-// Error is the string representation of SubCategoryAlreadyExistsError
-func (nfne NotFoundByNameError) Error() string {
+// Error is the string representation of ExpenseNotFoundByNameError
+func (nfne ExpenseNotFoundByNameError) Error() string {
 	return fmt.Sprintf("error: expense with name: %s was not found by id in the repository", nfne.name)
 }
 

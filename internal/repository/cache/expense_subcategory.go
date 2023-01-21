@@ -1,4 +1,4 @@
-package expense
+package cache
 
 import (
 	"context"
@@ -6,13 +6,20 @@ import (
 	models "github.com/rubengomes8/golang-personal-finances/internal/models/rds"
 )
 
-// ExpenseSubCategoryCache implements the expense subCategory repository methods
-type ExpenseSubCategoryCache struct {
+// ExpenseSubCategory implements the expense subCategory repository methods
+type ExpenseSubCategory struct {
 	repository []models.ExpenseSubCategoryTable
 }
 
+// NewExpenseSubCategory creates a ExpenseSubCategory cache
+func NewExpenseSubCategory(repository []models.ExpenseSubCategoryTable) ExpenseSubCategory {
+	return ExpenseSubCategory{
+		repository: repository,
+	}
+}
+
 // InsertExpenseSubCategory inserts an expense sub category on the cache if expense sub category does not exist
-func (ecc *ExpenseSubCategoryCache) InsertExpenseSubCategory(ctx context.Context, expSubCategory models.ExpenseSubCategoryTable) (int64, error) {
+func (ecc *ExpenseSubCategory) InsertExpenseSubCategory(ctx context.Context, expSubCategory models.ExpenseSubCategoryTable) (int64, error) {
 
 	existingCard, err := ecc.GetExpenseSubCategoryByID(ctx, expSubCategory.ID)
 	if err == nil {
@@ -27,7 +34,7 @@ func (ecc *ExpenseSubCategoryCache) InsertExpenseSubCategory(ctx context.Context
 }
 
 // UpdateExpenseSubCategory updates an expense sub category on the cache if it exists
-func (ecc *ExpenseSubCategoryCache) UpdateExpenseSubCategory(ctx context.Context, updatedExpSubCategory models.ExpenseSubCategoryTable) (int64, error) {
+func (ecc *ExpenseSubCategory) UpdateExpenseSubCategory(ctx context.Context, updatedExpSubCategory models.ExpenseSubCategoryTable) (int64, error) {
 
 	for idx, subCategory := range ecc.repository {
 		if subCategory.ID == updatedExpSubCategory.ID {
@@ -42,7 +49,7 @@ func (ecc *ExpenseSubCategoryCache) UpdateExpenseSubCategory(ctx context.Context
 }
 
 // GetExpenseSubCategoryByID returns the expense sub category from the cache if expense sub category with that id exists
-func (ecc *ExpenseSubCategoryCache) GetExpenseSubCategoryByID(ctx context.Context, id int64) (models.ExpenseSubCategoryTable, error) {
+func (ecc *ExpenseSubCategory) GetExpenseSubCategoryByID(ctx context.Context, id int64) (models.ExpenseSubCategoryTable, error) {
 
 	for _, subCategory := range ecc.repository {
 		if subCategory.ID == id {
@@ -56,7 +63,7 @@ func (ecc *ExpenseSubCategoryCache) GetExpenseSubCategoryByID(ctx context.Contex
 }
 
 // GetExpenseSubCategoryByName returns the expense sub category from the cache if expense sub category with that name exists
-func (ecc *ExpenseSubCategoryCache) GetExpenseSubCategoryByName(ctx context.Context, name string) (models.ExpenseSubCategoryTable, error) {
+func (ecc *ExpenseSubCategory) GetExpenseSubCategoryByName(ctx context.Context, name string) (models.ExpenseSubCategoryTable, error) {
 
 	for _, subCategory := range ecc.repository {
 		if subCategory.Name == name {
@@ -70,7 +77,7 @@ func (ecc *ExpenseSubCategoryCache) GetExpenseSubCategoryByName(ctx context.Cont
 }
 
 // DeleteExpenseSubCategory deletes the expense sub category from cache if it exists
-func (ecc *ExpenseSubCategoryCache) DeleteExpenseSubCategory(ctx context.Context, id int64) error {
+func (ecc *ExpenseSubCategory) DeleteExpenseSubCategory(ctx context.Context, id int64) error {
 
 	for idx, subCategory := range ecc.repository {
 		if subCategory.ID == id {

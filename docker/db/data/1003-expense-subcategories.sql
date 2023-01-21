@@ -15,7 +15,7 @@ INSERT INTO expense_subcategories (name, category_id) values ('Bus', 3);
 INSERT INTO expense_subcategories (name, category_id) values ('Uber', 3);
 INSERT INTO expense_subcategories (name, category_id) values ('Airplane', 3);
 
-/* LASER subcategories */
+/* LEISURE subcategories */
 INSERT INTO expense_subcategories (name, category_id) values ('Restaurants', 4);
 INSERT INTO expense_subcategories (name, category_id) values ('Uber Eats', 4);
 INSERT INTO expense_subcategories (name, category_id) values ('Books', 4);

@@ -31,12 +31,12 @@ func main() {
 	expSubCategoryRepo := expense.NewSubCategoryRDS(database)
 	expensesRepository := expense.NewRepo(database, cardRepo, expCategoryRepo, expSubCategoryRepo)
 
-	expensesControler, err := service.NewExpensesService(&expensesRepository, &expSubCategoryRepo, &cardRepo)
+	expensesController, err := service.NewExpensesService(&expensesRepository, &expSubCategoryRepo, &cardRepo)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	r := routes.SetupRouter(expensesControler)
+	r := routes.SetupRouter(expensesController)
 	err = r.Run()
 	if err != nil {
 		log.Fatal(err)

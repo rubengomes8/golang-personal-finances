@@ -1,23 +1,29 @@
-package expense
+package cache
 
 import (
 	"context"
 	"time"
 
 	models "github.com/rubengomes8/golang-personal-finances/internal/models/rds"
-	"github.com/rubengomes8/golang-personal-finances/internal/repository/cache/card"
 )
 
-// ExpenseCategoryCache implements the expense repository methods
-type ExpenseCache struct {
-	cardRepository        card.CardCache
-	categoryRepository    ExpenseCategoryCache
-	subCategoryRepository ExpenseSubCategoryCache
+// Expense implements the expense repository methods
+type Expense struct {
+	cardrepository        Card
+	categoryrepository    ExpenseCategory
+	subCategoryrepository ExpenseSubCategory
 	repository            []models.ExpenseTable
 }
 
+// NewExpense creates a Expense cache
+func NewExpense(repository []models.ExpenseTable) Expense {
+	return Expense{
+		repository: repository,
+	}
+}
+
 // InsertExpense inserts an expense on the cache if expense category does not exist
-func (ec *ExpenseCache) InsertExpense(ctx context.Context, e models.ExpenseTable) (int64, error) {
+func (ec *Expense) InsertExpense(ctx context.Context, e models.ExpenseTable) (int64, error) {
 
 	ec.repository = append(ec.repository, e)
 
@@ -25,7 +31,7 @@ func (ec *ExpenseCache) InsertExpense(ctx context.Context, e models.ExpenseTable
 }
 
 // UpdateExpense updates an expense on the cache if it exists
-func (ec *ExpenseCache) UpdateExpense(ctx context.Context, e models.ExpenseTable) (int64, error) {
+func (ec *Expense) UpdateExpense(ctx context.Context, e models.ExpenseTable) (int64, error) {
 
 	for idx, exp := range ec.repository {
 		if exp.ID == e.ID {
@@ -34,13 +40,13 @@ func (ec *ExpenseCache) UpdateExpense(ctx context.Context, e models.ExpenseTable
 		}
 	}
 
-	return 0, NotFoundByIDError{
+	return 0, ExpenseNotFoundByIDError{
 		id: e.ID,
 	}
 }
 
 // GetExpenseByID returns the expense from the cache if expense with that id exists
-func (ec *ExpenseCache) GetExpenseByID(ctx context.Context, id int64) (models.ExpenseView, error) {
+func (ec *Expense) GetExpenseByID(ctx context.Context, id int64) (models.ExpenseView, error) {
 
 	var expense models.ExpenseTable
 	for _, exp := range ec.repository {
@@ -49,21 +55,21 @@ func (ec *ExpenseCache) GetExpenseByID(ctx context.Context, id int64) (models.Ex
 		}
 	}
 
-	cardTable, err := ec.cardRepository.GetCardByID(ctx, expense.CardID)
+	cardTable, err := ec.cardrepository.GetCardByID(ctx, expense.CardID)
 	if err != nil {
 		return models.ExpenseView{}, GettingCardByIDError{
 			id: expense.CardID,
 		}
 	}
 
-	subCategoryTable, err := ec.subCategoryRepository.GetExpenseSubCategoryByID(ctx, expense.SubCategoryID)
+	subCategoryTable, err := ec.subCategoryrepository.GetExpenseSubCategoryByID(ctx, expense.SubCategoryID)
 	if err != nil {
 		return models.ExpenseView{}, GettingSubCategoryByIDError{
 			id: expense.SubCategoryID,
 		}
 	}
 
-	categoryTable, err := ec.categoryRepository.GetExpenseCategoryByID(ctx, subCategoryTable.CategoryID)
+	categoryTable, err := ec.categoryrepository.GetExpenseCategoryByID(ctx, subCategoryTable.CategoryID)
 	if err != nil {
 		return models.ExpenseView{}, GettingCategoryByIDError{
 			id: subCategoryTable.CategoryID,
@@ -85,28 +91,28 @@ func (ec *ExpenseCache) GetExpenseByID(ctx context.Context, id int64) (models.Ex
 }
 
 // GetExpensesByDates returns the expenses from the cache if expense with that dates' range exists
-func (ec *ExpenseCache) GetExpensesByDates(ctx context.Context, minDate time.Time, maxDate time.Time) ([]models.ExpenseView, error) {
+func (ec *Expense) GetExpensesByDates(ctx context.Context, minDate time.Time, maxDate time.Time) ([]models.ExpenseView, error) {
 
 	var expenseViews []models.ExpenseView
 	for _, exp := range ec.repository {
 
 		if exp.Date.After(minDate) && exp.Date.Before(maxDate) {
 
-			subCategoryTable, err := ec.subCategoryRepository.GetExpenseSubCategoryByID(ctx, exp.SubCategoryID)
+			subCategoryTable, err := ec.subCategoryrepository.GetExpenseSubCategoryByID(ctx, exp.SubCategoryID)
 			if err != nil {
 				return []models.ExpenseView{}, GettingSubCategoryByIDError{
 					id: exp.SubCategoryID,
 				}
 			}
 
-			cardTable, err := ec.cardRepository.GetCardByID(ctx, exp.CardID)
+			cardTable, err := ec.cardrepository.GetCardByID(ctx, exp.CardID)
 			if err != nil {
 				return []models.ExpenseView{}, GettingCardByIDError{
 					id: exp.CardID,
 				}
 			}
 
-			categoryTable, err := ec.categoryRepository.GetExpenseCategoryByID(ctx, subCategoryTable.CategoryID)
+			categoryTable, err := ec.categoryrepository.GetExpenseCategoryByID(ctx, subCategoryTable.CategoryID)
 			if err != nil {
 				return []models.ExpenseView{}, GettingCategoryByIDError{
 					id: subCategoryTable.CategoryID,
@@ -133,9 +139,9 @@ func (ec *ExpenseCache) GetExpensesByDates(ctx context.Context, minDate time.Tim
 }
 
 // GetExpensesByCategory returns the expenses from the cache if expense with that category exists
-func (ec *ExpenseCache) GetExpensesByCategory(ctx context.Context, cat string) ([]models.ExpenseView, error) {
+func (ec *Expense) GetExpensesByCategory(ctx context.Context, cat string) ([]models.ExpenseView, error) {
 
-	categoryTable, err := ec.categoryRepository.GetExpenseCategoryByName(ctx, cat)
+	categoryTable, err := ec.categoryrepository.GetExpenseCategoryByName(ctx, cat)
 	if err != nil {
 		return []models.ExpenseView{}, GettingCategoryByNameError{
 			name: cat,
@@ -145,7 +151,7 @@ func (ec *ExpenseCache) GetExpensesByCategory(ctx context.Context, cat string) (
 	var expenseViews []models.ExpenseView
 	for _, exp := range ec.repository {
 
-		subCategoryTable, err := ec.subCategoryRepository.GetExpenseSubCategoryByID(ctx, exp.SubCategoryID)
+		subCategoryTable, err := ec.subCategoryrepository.GetExpenseSubCategoryByID(ctx, exp.SubCategoryID)
 		if err != nil {
 			return []models.ExpenseView{}, GettingSubCategoryByIDError{
 				id: exp.SubCategoryID,
@@ -154,7 +160,7 @@ func (ec *ExpenseCache) GetExpensesByCategory(ctx context.Context, cat string) (
 
 		if categoryTable.ID == subCategoryTable.CategoryID {
 
-			cardTable, err := ec.cardRepository.GetCardByID(ctx, exp.CardID)
+			cardTable, err := ec.cardrepository.GetCardByID(ctx, exp.CardID)
 			if err != nil {
 				return []models.ExpenseView{}, GettingCardByIDError{
 					id: exp.CardID,
@@ -181,16 +187,16 @@ func (ec *ExpenseCache) GetExpensesByCategory(ctx context.Context, cat string) (
 }
 
 // GetExpensesBySubCategory returns the expenses from the cache if expense with that subcategory exists
-func (ec *ExpenseCache) GetExpensesBySubCategory(ctx context.Context, subCat string) ([]models.ExpenseView, error) {
+func (ec *Expense) GetExpensesBySubCategory(ctx context.Context, subCat string) ([]models.ExpenseView, error) {
 
-	subCategoryTable, err := ec.subCategoryRepository.GetExpenseSubCategoryByName(ctx, subCat)
+	subCategoryTable, err := ec.subCategoryrepository.GetExpenseSubCategoryByName(ctx, subCat)
 	if err != nil {
 		return []models.ExpenseView{}, GettingSubCategoryByNameError{
 			name: subCat,
 		}
 	}
 
-	categoryTable, err := ec.categoryRepository.GetExpenseCategoryByID(ctx, subCategoryTable.CategoryID)
+	categoryTable, err := ec.categoryrepository.GetExpenseCategoryByID(ctx, subCategoryTable.CategoryID)
 	if err != nil {
 		return []models.ExpenseView{}, GettingCategoryByIDError{
 			id: subCategoryTable.CategoryID,
@@ -201,7 +207,7 @@ func (ec *ExpenseCache) GetExpensesBySubCategory(ctx context.Context, subCat str
 	for _, exp := range ec.repository {
 		if exp.SubCategoryID == subCategoryTable.ID {
 
-			cardTable, err := ec.cardRepository.GetCardByID(ctx, exp.CardID)
+			cardTable, err := ec.cardrepository.GetCardByID(ctx, exp.CardID)
 			if err != nil {
 				return []models.ExpenseView{}, GettingCardByIDError{
 					id: exp.CardID,
@@ -228,9 +234,9 @@ func (ec *ExpenseCache) GetExpensesBySubCategory(ctx context.Context, subCat str
 }
 
 // GetExpensesByCard returns the expenses from the cache if expense with that card exists
-func (ec *ExpenseCache) GetExpensesByCard(ctx context.Context, card string) ([]models.ExpenseView, error) {
+func (ec *Expense) GetExpensesByCard(ctx context.Context, card string) ([]models.ExpenseView, error) {
 
-	cardTable, err := ec.cardRepository.GetCardByName(ctx, card)
+	cardTable, err := ec.cardrepository.GetCardByName(ctx, card)
 	if err != nil {
 		return []models.ExpenseView{}, GettingCardByNameError{
 			name: card,
@@ -241,14 +247,14 @@ func (ec *ExpenseCache) GetExpensesByCard(ctx context.Context, card string) ([]m
 	for _, exp := range ec.repository {
 		if cardTable.ID == exp.CardID {
 
-			subCategoryTable, err := ec.subCategoryRepository.GetExpenseSubCategoryByID(ctx, exp.SubCategoryID)
+			subCategoryTable, err := ec.subCategoryrepository.GetExpenseSubCategoryByID(ctx, exp.SubCategoryID)
 			if err != nil {
 				return []models.ExpenseView{}, GettingSubCategoryByIDError{
 					id: exp.SubCategoryID,
 				}
 			}
 
-			categoryTable, err := ec.categoryRepository.GetExpenseCategoryByID(ctx, subCategoryTable.CategoryID)
+			categoryTable, err := ec.categoryrepository.GetExpenseCategoryByID(ctx, subCategoryTable.CategoryID)
 			if err != nil {
 				return []models.ExpenseView{}, GettingCategoryByIDError{
 					id: subCategoryTable.CategoryID,
@@ -275,7 +281,7 @@ func (ec *ExpenseCache) GetExpensesByCard(ctx context.Context, card string) ([]m
 }
 
 // DeleteExpense deletes the expense from cache if it exists
-func (ec *ExpenseCache) DeleteExpense(ctx context.Context, id int64) error {
+func (ec *Expense) DeleteExpense(ctx context.Context, id int64) error {
 
 	for idx, expense := range ec.repository {
 		if expense.ID == id {
@@ -284,7 +290,7 @@ func (ec *ExpenseCache) DeleteExpense(ctx context.Context, id int64) error {
 		}
 	}
 
-	return NotFoundByIDError{
+	return ExpenseNotFoundByIDError{
 		id: id,
 	}
 }

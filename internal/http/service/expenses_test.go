@@ -1,12 +1,23 @@
 package service
 
 import (
+	"bytes"
+	"encoding/json"
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
 	"reflect"
 	"testing"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	httpModels "github.com/rubengomes8/golang-personal-finances/internal/models/http"
 	rdsModels "github.com/rubengomes8/golang-personal-finances/internal/models/rds"
+	"github.com/rubengomes8/golang-personal-finances/internal/repository"
+	"github.com/rubengomes8/golang-personal-finances/internal/repository/cache"
+
+	"github.com/stretchr/testify/assert"
 )
 
 var (
@@ -39,7 +50,7 @@ var (
 		ID:            2,
 		Value:         20.0,
 		Date:          firstFebruary2020ZeroHoursUTCTime,
-		Category:      "Laser",
+		Category:      "Leisure",
 		SubCategory:   "Restaurants",
 		Card:          "Food allowance",
 		CategoryID:    2,
@@ -177,6 +188,134 @@ func Test_expensesViewToExpensesGetResponse(t *testing.T) {
 			if got := expensesViewToExpensesGetResponse(tt.args.expenseViewRecords); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("expensesViewToExpensesGetResponse() = %v, want %v", got, tt.want)
 			}
+		})
+	}
+}
+
+var (
+	cards = []rdsModels.CardTable{
+		{ID: 1, Name: "CGD"},
+		{ID: 2, Name: "Food allowance"},
+	}
+	cardsCache = cache.NewCard(cards)
+
+	categories = []rdsModels.ExpenseCategoryTable{
+		{ID: 1, Name: "House"},
+		{ID: 2, Name: "Leisure"},
+	}
+	categoryCache = cache.NewExpenseCategory(categories)
+
+	subCategories = []rdsModels.ExpenseSubCategoryTable{
+		{ID: 1, Name: "Rent", CategoryID: 1},
+		{ID: 2, Name: "Restaurants", CategoryID: 2},
+	}
+	subCategoriesCache = cache.NewExpenseSubCategory(subCategories)
+
+	expenses = []rdsModels.ExpenseTable{
+		{
+			ID:            1,
+			Value:         200.0,
+			Date:          firstFebruary2020ZeroHoursUTCTime,
+			SubCategoryID: 1,
+			CardID:        1,
+			Description:   "House rent",
+		},
+		{
+			ID:            2,
+			Value:         50.0,
+			Date:          firstFebruary2020ZeroHoursUTCTime,
+			SubCategoryID: 2,
+			CardID:        2,
+			Description:   "Dinner on Ramiro",
+		},
+	}
+	expensesCache = cache.NewExpense(expenses)
+)
+
+func TestExpensesService_CreateExpense(t *testing.T) {
+
+	type fields struct {
+		ExpensesRepository            repository.ExpenseRepo
+		ExpensesSubCategoryRepository repository.ExpenseSubCategoryRepo
+		CardRepository                repository.CardRepo
+	}
+
+	type args struct {
+		ctx *gin.Context
+	}
+
+	tests := []struct {
+		name    string
+		expense httpModels.Expense
+		fields  fields
+		want    int
+		args    args
+	}{
+		{
+			name: "Success",
+			fields: fields{
+				ExpensesRepository:            &expensesCache,
+				CardRepository:                &cardsCache,
+				ExpensesSubCategoryRepository: &subCategoriesCache,
+			},
+			expense: httpModels.Expense{
+				ID:          1,
+				Value:       200.0,
+				Date:        "2020-02-01",
+				SubCategory: "Rent",
+				Card:        "CGD",
+				Description: "House Rent",
+			},
+			args: args{
+				ctx: &gin.Context{
+					Request: &http.Request{},
+				},
+			},
+			want: 1,
+		},
+	}
+
+	expensesController, err := NewExpensesService(&expensesCache, &subCategoriesCache, &cardsCache)
+	if err != nil {
+		t.Fatalf("error creating expenses service: %v\n", err)
+	}
+
+	gin.SetMode(gin.TestMode)
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			// GIVEN
+			data, err := json.Marshal(tt.expense)
+			if err != nil {
+				t.Fatalf("error marshaling expense: %v\n", err)
+			}
+
+			w := httptest.NewRecorder()
+			tt.args.ctx, _ = gin.CreateTestContext(w)
+			tt.args.ctx.Request = &http.Request{
+				Method: http.MethodPost,
+				Body:   io.NopCloser(bytes.NewBuffer(data)),
+				URL: &url.URL{
+					Scheme: "http",
+					Host:   "localhost:8080",
+					Path:   "/v1/expense",
+				},
+			}
+
+			// WHEN
+			gin.SetMode(gin.TestMode)
+			expensesController.CreateExpense(tt.args.ctx)
+
+			// THEN
+			assert.EqualValues(t, http.StatusCreated, w.Code)
+
+			var r httpModels.ExpenseCreateResponse
+			err = json.NewDecoder(w.Body).Decode(&r)
+			if err != nil {
+				t.Fatalf("error decoding response: %v\n", err)
+			}
+			assert.Equal(t, tt.want, r.ID)
 		})
 	}
 }

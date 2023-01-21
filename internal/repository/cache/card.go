@@ -1,4 +1,4 @@
-package card
+package cache
 
 import (
 	"context"
@@ -6,13 +6,20 @@ import (
 	models "github.com/rubengomes8/golang-personal-finances/internal/models/rds"
 )
 
-// CardCache implements the card repository methods
-type CardCache struct {
+// Card implements the card repository methods
+type Card struct {
 	repository []models.CardTable
 }
 
+// NewCard creates a Card cache
+func NewCard(repository []models.CardTable) Card {
+	return Card{
+		repository: repository,
+	}
+}
+
 // InsertCard inserts a card on the cache if card does not exist
-func (c *CardCache) InsertCard(ctx context.Context, card models.CardTable) (int64, error) {
+func (c *Card) InsertCard(ctx context.Context, card models.CardTable) (int64, error) {
 
 	existingCard, err := c.GetCardByID(ctx, card.ID)
 	if err == nil {
@@ -27,7 +34,7 @@ func (c *CardCache) InsertCard(ctx context.Context, card models.CardTable) (int6
 }
 
 // UpdateCard updates a card on the cache if card exists
-func (c *CardCache) UpdateCard(ctx context.Context, updatedCard models.CardTable) (int64, error) {
+func (c *Card) UpdateCard(ctx context.Context, updatedCard models.CardTable) (int64, error) {
 
 	for idx, card := range c.repository {
 		if card.ID == updatedCard.ID {
@@ -42,7 +49,7 @@ func (c *CardCache) UpdateCard(ctx context.Context, updatedCard models.CardTable
 }
 
 // GetCardByID returns the card from the cache if card with that id exists
-func (c *CardCache) GetCardByID(ctx context.Context, id int64) (models.CardTable, error) {
+func (c *Card) GetCardByID(ctx context.Context, id int64) (models.CardTable, error) {
 
 	for _, card := range c.repository {
 		if card.ID == id {
@@ -56,7 +63,7 @@ func (c *CardCache) GetCardByID(ctx context.Context, id int64) (models.CardTable
 }
 
 // GetCardByName returns the card from the cache if card with that name exists
-func (c *CardCache) GetCardByName(ctx context.Context, name string) (models.CardTable, error) {
+func (c *Card) GetCardByName(ctx context.Context, name string) (models.CardTable, error) {
 	for _, card := range c.repository {
 		if card.Name == name {
 			return card, nil
@@ -69,7 +76,7 @@ func (c *CardCache) GetCardByName(ctx context.Context, name string) (models.Card
 }
 
 // DeleteCard deletes the card from cache if it exists
-func (c *CardCache) DeleteCard(ctx context.Context, id int64) error {
+func (c *Card) DeleteCard(ctx context.Context, id int64) error {
 
 	for idx, card := range c.repository {
 		if card.ID == id {
