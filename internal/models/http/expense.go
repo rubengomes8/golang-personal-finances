@@ -9,3 +9,8 @@ type Expense struct {
 	Card        string  `json:"card,omitempty"`
 	Description string  `json:"description,omitempty"`
 }
+
+// ExpenseCreateResponse is the http create response model for expense
+type ExpenseCreateResponse struct {
+	ID int `json:"id,omitempty"`
+}

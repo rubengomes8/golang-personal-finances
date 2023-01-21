@@ -1,6 +1,6 @@
 CREATE TABLE expense_categories (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(20) NOT NULL
+    name VARCHAR(20) NOT NULL UNIQUE
 );
 
 CREATE TABLE expense_subcategories (
