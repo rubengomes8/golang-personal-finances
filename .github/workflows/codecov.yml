@@ -31,7 +31,7 @@ jobs:
       - name: Upload coverage report
         uses: codecov/codecov-action@v1.0.2
         with:
-          token: {{your codecov token, can be found at https://codecov.io/gh/rubengomes8/golang-personal-finances/settings/badge}}
+          token: f95c4c33-81e1-4672-be30-85201d350a2e
           file: ./coverage.txt
           flags: unittests
           name: codecov-umbrella
