@@ -13,20 +13,20 @@ const (
 	tableNameCategories = "expense_categories"
 )
 
-// CategoryRepo implements the expense category repository methods
-type CategoryRepo struct {
+// CategoryRDS implements the expense category repository methods
+type CategoryRDS struct {
 	database *sql.DB
 }
 
-// NewCategoryRepo creates a new CategoryRepo
-func NewCategoryRepo(database *sql.DB) CategoryRepo {
-	return CategoryRepo{
+// NewCategoryRDS creates a new CategoryRDS
+func NewCategoryRDS(database *sql.DB) CategoryRDS {
+	return CategoryRDS{
 		database: database,
 	}
 }
 
 // InsertExpenseCategory inserts an expense category on the expense categories rds table
-func (ec *CategoryRepo) InsertExpenseCategory(
+func (ec *CategoryRDS) InsertExpenseCategory(
 	ctx context.Context,
 	expenseCategory models.ExpenseCategoryTable,
 ) (int64, error) {
@@ -44,7 +44,7 @@ func (ec *CategoryRepo) InsertExpenseCategory(
 }
 
 // UpdateExpenseCategory updates an expense category on the expense categories rds table
-func (ec *CategoryRepo) UpdateExpenseCategory(
+func (ec *CategoryRDS) UpdateExpenseCategory(
 	ctx context.Context,
 	expenseCategory models.ExpenseCategoryTable,
 ) (int64, error) {
@@ -60,7 +60,7 @@ func (ec *CategoryRepo) UpdateExpenseCategory(
 }
 
 // GetExpenseCategoryByID gets an expense category from the expense categories rds table by id
-func (ec *CategoryRepo) GetExpenseCategoryByID(
+func (ec *CategoryRDS) GetExpenseCategoryByID(
 	ctx context.Context,
 	id int64,
 ) (models.ExpenseCategoryTable, error) {
@@ -80,7 +80,7 @@ func (ec *CategoryRepo) GetExpenseCategoryByID(
 }
 
 // GetExpenseCategoryByName gets an expense category from the expense categories rds table by name
-func (ec *CategoryRepo) GetExpenseCategoryByName(
+func (ec *CategoryRDS) GetExpenseCategoryByName(
 	ctx context.Context,
 	name string,
 ) (models.ExpenseCategoryTable, error) {
@@ -99,7 +99,7 @@ func (ec *CategoryRepo) GetExpenseCategoryByName(
 }
 
 // DeleteExpenseCategory deletes an expense category from the expense categories rds table
-func (ec *CategoryRepo) DeleteExpenseCategory(
+func (ec *CategoryRDS) DeleteExpenseCategory(
 	ctx context.Context,
 	id int64,
 ) error {

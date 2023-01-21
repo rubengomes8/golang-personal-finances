@@ -8,7 +8,7 @@ import (
 
 	"github.com/rubengomes8/golang-personal-finances/internal/enums"
 	models "github.com/rubengomes8/golang-personal-finances/internal/models/rds"
-	"github.com/rubengomes8/golang-personal-finances/internal/postgres/card"
+	"github.com/rubengomes8/golang-personal-finances/internal/repository/rds/card"
 )
 
 const (
@@ -18,24 +18,24 @@ const (
 
 // Repo implements the expense repository methods
 type Repo struct {
-	database        *sql.DB
-	cardRepo        card.CardRepo
-	categoryRepo    CategoryRepo
-	subCategoryRepo SubCategoryRepo
+	database       *sql.DB
+	cardRepo       card.CardRDS
+	categoryRepo   CategoryRDS
+	subCategoryRDS SubCategoryRDS
 }
 
 // NewRepo creates a new Repo
 func NewRepo(
 	database *sql.DB,
-	cardRepo card.CardRepo,
-	categoryRepo CategoryRepo,
-	subCategoryRepo SubCategoryRepo,
+	cardRepo card.CardRDS,
+	categoryRepo CategoryRDS,
+	subCategoryRDS SubCategoryRDS,
 ) Repo {
 	return Repo{
-		database:        database,
-		cardRepo:        cardRepo,
-		categoryRepo:    categoryRepo,
-		subCategoryRepo: subCategoryRepo,
+		database:       database,
+		cardRepo:       cardRepo,
+		categoryRepo:   categoryRepo,
+		subCategoryRDS: subCategoryRDS,
 	}
 }
 
