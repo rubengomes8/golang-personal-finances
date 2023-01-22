@@ -3,6 +3,7 @@ package service
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -240,16 +241,17 @@ func TestExpensesService_CreateExpense(t *testing.T) {
 		CardRepository                repository.CardRepo
 	}
 
-	type args struct {
-		ctx *gin.Context
+	type want struct {
+		statusCode int
+		expenseID  int
+		errorMsg   string
 	}
 
 	tests := []struct {
 		name    string
 		expense httpModels.Expense
 		fields  fields
-		want    int
-		args    args
+		want    want
 	}{
 		{
 			name: "Success",
@@ -259,19 +261,54 @@ func TestExpensesService_CreateExpense(t *testing.T) {
 				ExpensesSubCategoryRepository: &subCategoriesCache,
 			},
 			expense: httpModels.Expense{
-				ID:          1,
 				Value:       200.0,
 				Date:        "2020-02-01",
 				SubCategory: "Rent",
 				Card:        "CGD",
 				Description: "House Rent",
 			},
-			args: args{
-				ctx: &gin.Context{
-					Request: &http.Request{},
-				},
+			want: want{
+				statusCode: http.StatusCreated,
+				expenseID:  1,
 			},
-			want: 1,
+		},
+		{
+			name: "ErrorUnknownCard",
+			fields: fields{
+				ExpensesRepository:            &expensesCache,
+				CardRepository:                &cardsCache,
+				ExpensesSubCategoryRepository: &subCategoriesCache,
+			},
+			expense: httpModels.Expense{
+				Value:       200.0,
+				Date:        "2020-02-01",
+				SubCategory: "Rent",
+				Card:        "Unknown",
+				Description: "House Rent",
+			},
+			want: want{
+				statusCode: http.StatusBadRequest,
+				errorMsg:   "unknown subcategory or card:",
+			},
+		},
+		{
+			name: "ErrorUnexpectedDateFormat",
+			fields: fields{
+				ExpensesRepository:            &expensesCache,
+				CardRepository:                &cardsCache,
+				ExpensesSubCategoryRepository: &subCategoriesCache,
+			},
+			expense: httpModels.Expense{
+				Value:       200.0,
+				Date:        "01-Feb-2020",
+				SubCategory: "Rent",
+				Card:        "CGD",
+				Description: "House Rent",
+			},
+			want: want{
+				statusCode: http.StatusBadRequest,
+				errorMsg:   "could not parse date (should use YYYY-MM-DD format):",
+			},
 		},
 	}
 
@@ -292,8 +329,8 @@ func TestExpensesService_CreateExpense(t *testing.T) {
 			}
 
 			w := httptest.NewRecorder()
-			tt.args.ctx, _ = gin.CreateTestContext(w)
-			tt.args.ctx.Request = &http.Request{
+			ginCtx, _ := gin.CreateTestContext(w)
+			ginCtx.Request = &http.Request{
 				Method: http.MethodPost,
 				Body:   io.NopCloser(bytes.NewBuffer(data)),
 				URL: &url.URL{
@@ -305,17 +342,184 @@ func TestExpensesService_CreateExpense(t *testing.T) {
 
 			// WHEN
 			gin.SetMode(gin.TestMode)
-			expensesController.CreateExpense(tt.args.ctx)
+			expensesController.CreateExpense(ginCtx)
 
 			// THEN
-			assert.EqualValues(t, http.StatusCreated, w.Code)
+			assert.EqualValues(t, tt.want.statusCode, w.Code)
 
-			var r httpModels.ExpenseCreateResponse
-			err = json.NewDecoder(w.Body).Decode(&r)
-			if err != nil {
-				t.Fatalf("error decoding response: %v\n", err)
+			switch w.Code {
+			case http.StatusCreated:
+				var r httpModels.ExpenseCreateResponse
+				err = json.NewDecoder(w.Body).Decode(&r)
+				if err != nil {
+					t.Fatalf("error decoding response: %v\n", err)
+				}
+				assert.Equal(t, tt.want.expenseID, r.ID)
+			case http.StatusBadRequest:
+				var r httpModels.ErrorResponse
+				err = json.NewDecoder(w.Body).Decode(&r)
+				if err != nil {
+					t.Fatalf("error decoding response: %v\n", err)
+				}
+				assert.Contains(t, r.ErrorMsg, tt.want.errorMsg)
 			}
-			assert.Equal(t, tt.want, r.ID)
+		})
+	}
+}
+
+func TestExpensesService_UpdateExpense(t *testing.T) {
+
+	type fields struct {
+		ExpensesRepository            repository.ExpenseRepo
+		ExpensesSubCategoryRepository repository.ExpenseSubCategoryRepo
+		CardRepository                repository.CardRepo
+	}
+
+	type want struct {
+		statusCode int
+		expenseID  int
+		errorMsg   string
+	}
+
+	tests := []struct {
+		name    string
+		expense httpModels.Expense
+		fields  fields
+		want    want
+		params  map[string]string
+	}{
+		{
+			name: "Success",
+			fields: fields{
+				ExpensesRepository:            &expensesCache,
+				CardRepository:                &cardsCache,
+				ExpensesSubCategoryRepository: &subCategoriesCache,
+			},
+			expense: httpModels.Expense{
+				ID:          1,
+				Value:       250.0,
+				Date:        "2020-02-01",
+				SubCategory: "Rent",
+				Card:        "CGD",
+				Description: "House Rent",
+			},
+			want: want{
+				statusCode: http.StatusNoContent,
+				expenseID:  1,
+			},
+			params: map[string]string{"id": "1"},
+		},
+		{
+			name: "ErrorMissingParameterID",
+			fields: fields{
+				ExpensesRepository:            &expensesCache,
+				CardRepository:                &cardsCache,
+				ExpensesSubCategoryRepository: &subCategoriesCache,
+			},
+			expense: httpModels.Expense{
+				ID:          1,
+				Value:       250.0,
+				Date:        "2020-02-01",
+				SubCategory: "Rent",
+				Card:        "CGD",
+				Description: "House Rent",
+			},
+			want: want{
+				statusCode: http.StatusBadRequest,
+				errorMsg:   "id parameter must be an integer:",
+			},
+		},
+		{
+			name: "ErrorUnknownCard",
+			fields: fields{
+				ExpensesRepository:            &expensesCache,
+				CardRepository:                &cardsCache,
+				ExpensesSubCategoryRepository: &subCategoriesCache,
+			},
+			expense: httpModels.Expense{
+				ID:          1,
+				Value:       200.0,
+				Date:        "2020-02-01",
+				SubCategory: "Rent",
+				Card:        "Unknown",
+				Description: "House Rent",
+			},
+			want: want{
+				statusCode: http.StatusBadRequest,
+				errorMsg:   "unknown subcategory or card:",
+			},
+		},
+		{
+			name: "ErrorUnexpectedDateFormat",
+			fields: fields{
+				ExpensesRepository:            &expensesCache,
+				CardRepository:                &cardsCache,
+				ExpensesSubCategoryRepository: &subCategoriesCache,
+			},
+			expense: httpModels.Expense{
+				ID:          1,
+				Value:       200.0,
+				Date:        "01-Feb-2020",
+				SubCategory: "Rent",
+				Card:        "CGD",
+				Description: "House Rent",
+			},
+			want: want{
+				statusCode: http.StatusBadRequest,
+				errorMsg:   "could not parse date (should use YYYY-MM-DD format):",
+			},
+		},
+	}
+
+	expensesController, err := NewExpensesService(&expensesCache, &subCategoriesCache, &cardsCache)
+	if err != nil {
+		t.Fatalf("error creating expenses service: %v\n", err)
+	}
+
+	gin.SetMode(gin.TestMode)
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			// GIVEN
+			data, err := json.Marshal(tt.expense)
+			if err != nil {
+				t.Fatalf("error marshaling expense: %v\n", err)
+			}
+
+			w := httptest.NewRecorder()
+			ginCtx, _ := gin.CreateTestContext(w)
+			ginCtx.Request = &http.Request{
+				Method: http.MethodPut,
+				Body:   io.NopCloser(bytes.NewBuffer(data)),
+				URL: &url.URL{
+					Scheme: "http",
+					Host:   "localhost:8080",
+					Path:   fmt.Sprintf("/v1/expense/%d", tt.expense.ID),
+				},
+			}
+
+			for k, v := range tt.params {
+				ginCtx.Params = append(ginCtx.Params, gin.Param{Key: k, Value: v})
+			}
+
+			// WHEN
+			gin.SetMode(gin.TestMode)
+			expensesController.UpdateExpense(ginCtx)
+
+			// THEN
+			assert.EqualValues(t, tt.want.statusCode, w.Code)
+
+			switch w.Code {
+			case http.StatusNoContent:
+			case http.StatusBadRequest:
+				var r httpModels.ErrorResponse
+				err = json.NewDecoder(w.Body).Decode(&r)
+				if err != nil {
+					t.Fatalf("error decoding response: %v\n", err)
+				}
+				assert.Contains(t, r.ErrorMsg, tt.want.errorMsg)
+			}
 		})
 	}
 }

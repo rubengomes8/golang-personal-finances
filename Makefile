@@ -28,7 +28,8 @@ all: cards expense_categories expense_subcategories expenses
 
 # BUILD GO #
 build-expenses:
-	go build -o ${BIN_DIR}/expenses/server ./cmd/grpc-server/main.go
+	go build -o ${BIN_DIR}/grpc_server ./cmd/grpc/main.go
+	go build -o ${BIN_DIR}/http_server ./cmd/http/main.go
 
 build: build-expenses
 
