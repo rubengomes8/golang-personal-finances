@@ -148,13 +148,17 @@ func (e *ExpensesService) GetExpenseByID(ctx *gin.Context) {
 
 	expenseID, err := strconv.Atoi(paramID)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("id parameter must be an integer: %v", err)})
+		ctx.JSON(http.StatusBadRequest, httpModels.ErrorResponse{
+			ErrorMsg: fmt.Sprintf("id parameter must be an integer: %v", err),
+		})
 		return
 	}
 
 	expenseViewRecord, err := e.ExpensesRepository.GetExpenseByID(ctx, int64(expenseID))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("could not get expense by id: %v", err)})
+		ctx.JSON(http.StatusBadRequest, httpModels.ErrorResponse{
+			ErrorMsg: fmt.Sprintf("could not get expense by id: %v", err),
+		})
 		return
 	}
 
@@ -171,7 +175,9 @@ func (e *ExpensesService) GetExpensesByCategory(ctx *gin.Context) {
 
 	expenseViewRecords, err := e.ExpensesRepository.GetExpensesByCategory(ctx, paramCategory)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("could not get expenses by category: %v", err)})
+		ctx.JSON(http.StatusBadRequest, httpModels.ErrorResponse{
+			ErrorMsg: fmt.Sprintf("could not get expenses by category: %v", err),
+		})
 		return
 	}
 
@@ -188,7 +194,9 @@ func (e *ExpensesService) GetExpensesBySubCategory(ctx *gin.Context) {
 
 	expenseViewRecords, err := e.ExpensesRepository.GetExpensesBySubCategory(ctx, paramSubCategory)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("could not get expenses by subcategory: %v", err)})
+		ctx.JSON(http.StatusBadRequest, httpModels.ErrorResponse{
+			ErrorMsg: fmt.Sprintf("could not get expenses by subcategory: %v", err),
+		})
 		return
 	}
 
@@ -205,7 +213,9 @@ func (e *ExpensesService) GetExpensesByCard(ctx *gin.Context) {
 
 	expenseViewRecords, err := e.ExpensesRepository.GetExpensesByCard(ctx, paramCard)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("could not get expenses by card: %v", err)})
+		ctx.JSON(http.StatusBadRequest, httpModels.ErrorResponse{
+			ErrorMsg: fmt.Sprintf("could not get expenses by card: %v", err),
+		})
 		return
 	}
 
@@ -223,19 +233,25 @@ func (e *ExpensesService) GetExpensesByDates(ctx *gin.Context) {
 
 	minDate, err := dateStringToTime(paramMinDate)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("could not parse min_date (should use YYYY-MM-DD format): %v", err)})
+		ctx.JSON(http.StatusBadRequest, httpModels.ErrorResponse{
+			ErrorMsg: fmt.Sprintf("could not parse min_date (should use YYYY-MM-DD format): %v", err),
+		})
 		return
 	}
 
 	maxDate, err := dateStringToTime(paramMaxDate)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("could not parse max_date (should use YYYY-MM-DD format): %v", err)})
+		ctx.JSON(http.StatusBadRequest, httpModels.ErrorResponse{
+			ErrorMsg: fmt.Sprintf("could not parse max_date (should use YYYY-MM-DD format): %v", err),
+		})
 		return
 	}
 
 	expenseViewRecords, err := e.ExpensesRepository.GetExpensesByDates(ctx, minDate, maxDate)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("could not get expenses by dates: %v", err)})
+		ctx.JSON(http.StatusBadRequest, httpModels.ErrorResponse{
+			ErrorMsg: fmt.Sprintf("could not get expenses by dates: %v", err),
+		})
 		return
 	}
 
@@ -252,13 +268,17 @@ func (e *ExpensesService) DeleteExpense(ctx *gin.Context) {
 
 	expenseID, err := strconv.Atoi(paramID)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("id parameter must be an integer: %v", err)})
+		ctx.JSON(http.StatusBadRequest, httpModels.ErrorResponse{
+			ErrorMsg: fmt.Sprintf("id parameter must be an integer: %v", err),
+		})
 		return
 	}
 
 	err = e.ExpensesRepository.DeleteExpense(ctx, int64(expenseID))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("could not delete expense: %v", err)})
+		ctx.JSON(http.StatusBadRequest, httpModels.ErrorResponse{
+			ErrorMsg: fmt.Sprintf("could not delete expense: %v", err),
+		})
 		return
 	}
 
