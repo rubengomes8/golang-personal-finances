@@ -16,9 +16,17 @@ type Expense struct {
 }
 
 // NewExpense creates a Expense cache
-func NewExpense(repository []models.ExpenseTable) Expense {
+func NewExpense(
+	repository []models.ExpenseTable,
+	cardRepo Card,
+	catRepo ExpenseCategory,
+	subCatRepo ExpenseSubCategory,
+) Expense {
 	return Expense{
-		repository: repository,
+		cardrepository:        cardRepo,
+		categoryrepository:    catRepo,
+		subCategoryrepository: subCatRepo,
+		repository:            repository,
 	}
 }
 
@@ -52,6 +60,7 @@ func (ec *Expense) GetExpenseByID(ctx context.Context, id int64) (models.Expense
 	for _, exp := range ec.repository {
 		if exp.ID == id {
 			expense = exp
+			break
 		}
 	}
 

@@ -3,11 +3,9 @@ package service
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"reflect"
 	"testing"
 	"time"
@@ -17,7 +15,6 @@ import (
 	rdsModels "github.com/rubengomes8/golang-personal-finances/internal/models/rds"
 	"github.com/rubengomes8/golang-personal-finances/internal/repository"
 	"github.com/rubengomes8/golang-personal-finances/internal/repository/cache"
-
 	"github.com/stretchr/testify/assert"
 )
 
@@ -33,6 +30,15 @@ var (
 		SubCategory:   "Rent",
 		Card:          "CGD",
 		CategoryID:    1,
+		SubCategoryID: 1,
+		CardID:        1,
+		Description:   "Test",
+	}
+
+	houseRentExpenseTable = rdsModels.ExpenseTable{
+		ID:            1,
+		Value:         10.0,
+		Date:          firstFebruary2020ZeroHoursUTCTime,
 		SubCategoryID: 1,
 		CardID:        1,
 		Description:   "Test",
@@ -55,6 +61,15 @@ var (
 		SubCategory:   "Restaurants",
 		Card:          "Food allowance",
 		CategoryID:    2,
+		SubCategoryID: 2,
+		CardID:        2,
+		Description:   "Test",
+	}
+
+	restaurantExpenseTable = rdsModels.ExpenseTable{
+		ID:            2,
+		Value:         20.0,
+		Date:          firstFebruary2020ZeroHoursUTCTime,
 		SubCategoryID: 2,
 		CardID:        2,
 		Description:   "Test",
@@ -204,36 +219,29 @@ var (
 		{ID: 1, Name: "House"},
 		{ID: 2, Name: "Leisure"},
 	}
-	categoryCache = cache.NewExpenseCategory(categories)
+	categoriesCache = cache.NewExpenseCategory(categories)
 
 	subCategories = []rdsModels.ExpenseSubCategoryTable{
 		{ID: 1, Name: "Rent", CategoryID: 1},
 		{ID: 2, Name: "Restaurants", CategoryID: 2},
 	}
 	subCategoriesCache = cache.NewExpenseSubCategory(subCategories)
-
-	expenses = []rdsModels.ExpenseTable{
-		{
-			ID:            1,
-			Value:         200.0,
-			Date:          firstFebruary2020ZeroHoursUTCTime,
-			SubCategoryID: 1,
-			CardID:        1,
-			Description:   "House rent",
-		},
-		{
-			ID:            2,
-			Value:         50.0,
-			Date:          firstFebruary2020ZeroHoursUTCTime,
-			SubCategoryID: 2,
-			CardID:        2,
-			Description:   "Dinner on Ramiro",
-		},
-	}
-	expensesCache = cache.NewExpense(expenses)
 )
 
 func TestExpensesService_CreateExpense(t *testing.T) {
+
+	expenses := []rdsModels.ExpenseTable{
+		houseRentExpenseTable,
+		restaurantExpenseTable,
+	}
+	expensesCache := cache.NewExpense(expenses, cardsCache, categoriesCache, subCategoriesCache)
+
+	expensesController, err := NewExpensesService(&expensesCache, &subCategoriesCache, &cardsCache)
+	if err != nil {
+		t.Fatalf("error creating expenses service: %v\n", err)
+	}
+
+	gin.SetMode(gin.TestMode)
 
 	type fields struct {
 		ExpensesRepository            repository.ExpenseRepo
@@ -260,13 +268,7 @@ func TestExpensesService_CreateExpense(t *testing.T) {
 				CardRepository:                &cardsCache,
 				ExpensesSubCategoryRepository: &subCategoriesCache,
 			},
-			expense: httpModels.Expense{
-				Value:       200.0,
-				Date:        "2020-02-01",
-				SubCategory: "Rent",
-				Card:        "CGD",
-				Description: "House Rent",
-			},
+			expense: houseRentExpenseHTTPModel,
 			want: want{
 				statusCode: http.StatusCreated,
 				expenseID:  1,
@@ -312,13 +314,6 @@ func TestExpensesService_CreateExpense(t *testing.T) {
 		},
 	}
 
-	expensesController, err := NewExpensesService(&expensesCache, &subCategoriesCache, &cardsCache)
-	if err != nil {
-		t.Fatalf("error creating expenses service: %v\n", err)
-	}
-
-	gin.SetMode(gin.TestMode)
-
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
@@ -333,15 +328,9 @@ func TestExpensesService_CreateExpense(t *testing.T) {
 			ginCtx.Request = &http.Request{
 				Method: http.MethodPost,
 				Body:   io.NopCloser(bytes.NewBuffer(data)),
-				URL: &url.URL{
-					Scheme: "http",
-					Host:   "localhost:8080",
-					Path:   "/v1/expense",
-				},
 			}
 
 			// WHEN
-			gin.SetMode(gin.TestMode)
 			expensesController.CreateExpense(ginCtx)
 
 			// THEN
@@ -368,6 +357,19 @@ func TestExpensesService_CreateExpense(t *testing.T) {
 }
 
 func TestExpensesService_UpdateExpense(t *testing.T) {
+
+	expenses := []rdsModels.ExpenseTable{
+		houseRentExpenseTable,
+		restaurantExpenseTable,
+	}
+	expensesCache := cache.NewExpense(expenses, cardsCache, categoriesCache, subCategoriesCache)
+
+	expensesController, err := NewExpensesService(&expensesCache, &subCategoriesCache, &cardsCache)
+	if err != nil {
+		t.Fatalf("error creating expenses service: %v\n", err)
+	}
+
+	gin.SetMode(gin.TestMode)
 
 	type fields struct {
 		ExpensesRepository            repository.ExpenseRepo
@@ -398,10 +400,10 @@ func TestExpensesService_UpdateExpense(t *testing.T) {
 			expense: httpModels.Expense{
 				ID:          1,
 				Value:       250.0,
-				Date:        "2020-02-01",
+				Date:        firstFebruary2020String,
 				SubCategory: "Rent",
 				Card:        "CGD",
-				Description: "House Rent",
+				Description: "Test",
 			},
 			want: want{
 				statusCode: http.StatusNoContent,
@@ -471,13 +473,6 @@ func TestExpensesService_UpdateExpense(t *testing.T) {
 		},
 	}
 
-	expensesController, err := NewExpensesService(&expensesCache, &subCategoriesCache, &cardsCache)
-	if err != nil {
-		t.Fatalf("error creating expenses service: %v\n", err)
-	}
-
-	gin.SetMode(gin.TestMode)
-
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
@@ -492,11 +487,6 @@ func TestExpensesService_UpdateExpense(t *testing.T) {
 			ginCtx.Request = &http.Request{
 				Method: http.MethodPut,
 				Body:   io.NopCloser(bytes.NewBuffer(data)),
-				URL: &url.URL{
-					Scheme: "http",
-					Host:   "localhost:8080",
-					Path:   fmt.Sprintf("/v1/expense/%d", tt.expense.ID),
-				},
 			}
 
 			for k, v := range tt.params {
@@ -504,8 +494,706 @@ func TestExpensesService_UpdateExpense(t *testing.T) {
 			}
 
 			// WHEN
-			gin.SetMode(gin.TestMode)
 			expensesController.UpdateExpense(ginCtx)
+
+			// THEN
+			assert.EqualValues(t, tt.want.statusCode, w.Code)
+
+			switch w.Code {
+			case http.StatusNoContent:
+			case http.StatusBadRequest:
+				var r httpModels.ErrorResponse
+				err = json.NewDecoder(w.Body).Decode(&r)
+				if err != nil {
+					t.Fatalf("error decoding response: %v\n", err)
+				}
+				assert.Contains(t, r.ErrorMsg, tt.want.errorMsg)
+			}
+		})
+	}
+}
+
+func TestExpensesService_GetExpenseByID(t *testing.T) {
+
+	expenses := []rdsModels.ExpenseTable{
+		houseRentExpenseTable,
+		restaurantExpenseTable,
+		{
+			ID:            3,
+			Value:         20.0,
+			Date:          firstFebruary2020ZeroHoursUTCTime,
+			SubCategoryID: 2,
+			CardID:        3,
+			Description:   "Unknown card",
+		},
+	}
+	expensesCache := cache.NewExpense(expenses, cardsCache, categoriesCache, subCategoriesCache)
+
+	expensesController, err := NewExpensesService(&expensesCache, &subCategoriesCache, &cardsCache)
+	if err != nil {
+		t.Fatalf("error creating expenses service: %v\n", err)
+	}
+
+	type fields struct {
+		ExpensesRepository            repository.ExpenseRepo
+		ExpensesSubCategoryRepository repository.ExpenseSubCategoryRepo
+		CardRepository                repository.CardRepo
+	}
+
+	type want struct {
+		statusCode int
+		expense    httpModels.Expense
+		errorMsg   string
+	}
+
+	tests := []struct {
+		name   string
+		fields fields
+		want   want
+		params map[string]string
+	}{
+		{
+			name: "Success",
+			fields: fields{
+				ExpensesRepository:            &expensesCache,
+				CardRepository:                &cardsCache,
+				ExpensesSubCategoryRepository: &subCategoriesCache,
+			},
+			want: want{
+				statusCode: http.StatusOK,
+				expense:    houseRentExpenseHTTPModel,
+			},
+			params: map[string]string{"id": "1"},
+		},
+		{
+			name: "ErrorUnknownCard",
+			fields: fields{
+				ExpensesRepository:            &expensesCache,
+				CardRepository:                &cardsCache,
+				ExpensesSubCategoryRepository: &subCategoriesCache,
+			},
+			want: want{
+				statusCode: http.StatusBadRequest,
+				errorMsg:   "could not get expense by id:",
+			},
+			params: map[string]string{"id": "3"},
+		},
+		{
+			name: "ErrorParameterIDNotInteger",
+			fields: fields{
+				ExpensesRepository:            &expensesCache,
+				CardRepository:                &cardsCache,
+				ExpensesSubCategoryRepository: &subCategoriesCache,
+			},
+			want: want{
+				statusCode: http.StatusBadRequest,
+				errorMsg:   "id parameter must be an integer:",
+			},
+			params: map[string]string{"id": "abc"},
+		},
+	}
+
+	gin.SetMode(gin.TestMode)
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			// GIVEN
+			w := httptest.NewRecorder()
+			ginCtx, _ := gin.CreateTestContext(w)
+			ginCtx.Request = &http.Request{
+				Method: http.MethodGet,
+			}
+
+			for k, v := range tt.params {
+				ginCtx.Params = append(ginCtx.Params, gin.Param{Key: k, Value: v})
+			}
+
+			// WHEN
+			expensesController.GetExpenseByID(ginCtx)
+
+			// THEN
+			assert.EqualValues(t, tt.want.statusCode, w.Code)
+
+			switch w.Code {
+			case http.StatusOK:
+				var r httpModels.Expense
+				err = json.NewDecoder(w.Body).Decode(&r)
+				if err != nil {
+					t.Fatalf("error decoding response: %v\n", err)
+				}
+				assert.Equal(t, tt.want.expense, r)
+			case http.StatusBadRequest:
+				var r httpModels.ErrorResponse
+				err = json.NewDecoder(w.Body).Decode(&r)
+				if err != nil {
+					t.Fatalf("error decoding response: %v\n", err)
+				}
+				assert.Contains(t, r.ErrorMsg, tt.want.errorMsg)
+			}
+		})
+	}
+}
+
+func TestExpensesService_GetExpensesByCategory(t *testing.T) {
+
+	expenses := []rdsModels.ExpenseTable{
+		houseRentExpenseTable,
+		restaurantExpenseTable,
+		{
+			ID:            3,
+			Value:         250.0,
+			Date:          firstFebruary2020ZeroHoursUTCTime,
+			SubCategoryID: 1,
+			CardID:        1,
+			Description:   "Other House expense",
+		},
+	}
+	expensesCache := cache.NewExpense(expenses, cardsCache, categoriesCache, subCategoriesCache)
+
+	expensesController, err := NewExpensesService(&expensesCache, &subCategoriesCache, &cardsCache)
+	if err != nil {
+		t.Fatalf("error creating expenses service: %v\n", err)
+	}
+
+	type fields struct {
+		ExpensesRepository            repository.ExpenseRepo
+		ExpensesSubCategoryRepository repository.ExpenseSubCategoryRepo
+		CardRepository                repository.CardRepo
+	}
+
+	type want struct {
+		statusCode int
+		expenses   []httpModels.Expense
+		errorMsg   string
+	}
+
+	tests := []struct {
+		name   string
+		fields fields
+		want   want
+		params map[string]string
+	}{
+		{
+			name: "SuccessCategoryHouse",
+			fields: fields{
+				ExpensesRepository:            &expensesCache,
+				CardRepository:                &cardsCache,
+				ExpensesSubCategoryRepository: &subCategoriesCache,
+			},
+			want: want{
+				statusCode: http.StatusOK,
+				expenses: []httpModels.Expense{
+					houseRentExpenseHTTPModel,
+					{
+						ID:          3,
+						Value:       250.0,
+						Date:        firstFebruary2020String,
+						SubCategory: "Rent",
+						Card:        "CGD",
+						Description: "Other House expense",
+					},
+				},
+			},
+			params: map[string]string{"category": "House"},
+		},
+		{
+			name: "ErrorUnknownCategory",
+			fields: fields{
+				ExpensesRepository:            &expensesCache,
+				CardRepository:                &cardsCache,
+				ExpensesSubCategoryRepository: &subCategoriesCache,
+			},
+			want: want{
+				statusCode: http.StatusBadRequest,
+				errorMsg:   "could not get expenses by category:",
+			},
+			params: map[string]string{"category": "Unknown"},
+		},
+	}
+
+	gin.SetMode(gin.TestMode)
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			// GIVEN
+			w := httptest.NewRecorder()
+			ginCtx, _ := gin.CreateTestContext(w)
+			ginCtx.Request = &http.Request{
+				Method: http.MethodGet,
+			}
+
+			for k, v := range tt.params {
+				ginCtx.Params = append(ginCtx.Params, gin.Param{Key: k, Value: v})
+			}
+
+			// WHEN
+			expensesController.GetExpensesByCategory(ginCtx)
+
+			// THEN
+			assert.EqualValues(t, tt.want.statusCode, w.Code)
+
+			switch w.Code {
+			case http.StatusOK:
+				var r []httpModels.Expense
+				err = json.NewDecoder(w.Body).Decode(&r)
+				if err != nil {
+					t.Fatalf("error decoding response: %v\n", err)
+				}
+				assert.Equal(t, tt.want.expenses, r)
+			case http.StatusBadRequest:
+				var r httpModels.ErrorResponse
+				err = json.NewDecoder(w.Body).Decode(&r)
+				if err != nil {
+					t.Fatalf("error decoding response: %v\n", err)
+				}
+				assert.Contains(t, r.ErrorMsg, tt.want.errorMsg)
+			}
+		})
+	}
+}
+
+func TestExpensesService_GetExpensesBySubCategory(t *testing.T) {
+
+	expenses := []rdsModels.ExpenseTable{
+		houseRentExpenseTable,
+		restaurantExpenseTable,
+		{
+			ID:            3,
+			Value:         250.0,
+			Date:          firstFebruary2020ZeroHoursUTCTime,
+			SubCategoryID: 1,
+			CardID:        1,
+			Description:   "Other Rent expense",
+		},
+	}
+	expensesCache := cache.NewExpense(expenses, cardsCache, categoriesCache, subCategoriesCache)
+
+	expensesController, err := NewExpensesService(&expensesCache, &subCategoriesCache, &cardsCache)
+	if err != nil {
+		t.Fatalf("error creating expenses service: %v\n", err)
+	}
+
+	type fields struct {
+		ExpensesRepository            repository.ExpenseRepo
+		ExpensesSubCategoryRepository repository.ExpenseSubCategoryRepo
+		CardRepository                repository.CardRepo
+	}
+
+	type want struct {
+		statusCode int
+		expenses   []httpModels.Expense
+		errorMsg   string
+	}
+
+	tests := []struct {
+		name   string
+		fields fields
+		want   want
+		params map[string]string
+	}{
+		{
+			name: "SuccessSubCategoryRent",
+			fields: fields{
+				ExpensesRepository:            &expensesCache,
+				CardRepository:                &cardsCache,
+				ExpensesSubCategoryRepository: &subCategoriesCache,
+			},
+			want: want{
+				statusCode: http.StatusOK,
+				expenses: []httpModels.Expense{
+					houseRentExpenseHTTPModel,
+					{
+						ID:          3,
+						Value:       250.0,
+						Date:        firstFebruary2020String,
+						SubCategory: "Rent",
+						Card:        "CGD",
+						Description: "Other Rent expense",
+					},
+				},
+			},
+			params: map[string]string{"sub_category": "Rent"},
+		},
+		{
+			name: "ErrorUnknownSubCategory",
+			fields: fields{
+				ExpensesRepository:            &expensesCache,
+				CardRepository:                &cardsCache,
+				ExpensesSubCategoryRepository: &subCategoriesCache,
+			},
+			want: want{
+				statusCode: http.StatusBadRequest,
+				errorMsg:   "could not get expenses by subcategory:",
+			},
+			params: map[string]string{"sub_category": "Unknown"},
+		},
+	}
+
+	gin.SetMode(gin.TestMode)
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			// GIVEN
+			w := httptest.NewRecorder()
+			ginCtx, _ := gin.CreateTestContext(w)
+			ginCtx.Request = &http.Request{
+				Method: http.MethodGet,
+			}
+
+			for k, v := range tt.params {
+				ginCtx.Params = append(ginCtx.Params, gin.Param{Key: k, Value: v})
+			}
+
+			// WHEN
+			expensesController.GetExpensesBySubCategory(ginCtx)
+
+			// THEN
+			assert.EqualValues(t, tt.want.statusCode, w.Code)
+
+			switch w.Code {
+			case http.StatusOK:
+				var r []httpModels.Expense
+				err = json.NewDecoder(w.Body).Decode(&r)
+				if err != nil {
+					t.Fatalf("error decoding response: %v\n", err)
+				}
+				assert.Equal(t, tt.want.expenses, r)
+			case http.StatusBadRequest:
+				var r httpModels.ErrorResponse
+				err = json.NewDecoder(w.Body).Decode(&r)
+				if err != nil {
+					t.Fatalf("error decoding response: %v\n", err)
+				}
+				assert.Contains(t, r.ErrorMsg, tt.want.errorMsg)
+			}
+		})
+	}
+}
+
+func TestExpensesService_GetExpensesByCard(t *testing.T) {
+
+	expenses := []rdsModels.ExpenseTable{
+		houseRentExpenseTable,
+		restaurantExpenseTable,
+		{
+			ID:            3,
+			Value:         250.0,
+			Date:          firstFebruary2020ZeroHoursUTCTime,
+			SubCategoryID: 1,
+			CardID:        1,
+			Description:   "Other CGD card expense",
+		},
+	}
+	expensesCache := cache.NewExpense(expenses, cardsCache, categoriesCache, subCategoriesCache)
+
+	expensesController, err := NewExpensesService(&expensesCache, &subCategoriesCache, &cardsCache)
+	if err != nil {
+		t.Fatalf("error creating expenses service: %v\n", err)
+	}
+
+	type fields struct {
+		ExpensesRepository            repository.ExpenseRepo
+		ExpensesSubCategoryRepository repository.ExpenseSubCategoryRepo
+		CardRepository                repository.CardRepo
+	}
+
+	type want struct {
+		statusCode int
+		expenses   []httpModels.Expense
+		errorMsg   string
+	}
+
+	tests := []struct {
+		name   string
+		fields fields
+		want   want
+		params map[string]string
+	}{
+		{
+			name: "SuccessCardCGD",
+			fields: fields{
+				ExpensesRepository:            &expensesCache,
+				CardRepository:                &cardsCache,
+				ExpensesSubCategoryRepository: &subCategoriesCache,
+			},
+			want: want{
+				statusCode: http.StatusOK,
+				expenses: []httpModels.Expense{
+					houseRentExpenseHTTPModel,
+					{
+						ID:          3,
+						Value:       250.0,
+						Date:        firstFebruary2020String,
+						SubCategory: "Rent",
+						Card:        "CGD",
+						Description: "Other CGD card expense",
+					},
+				},
+			},
+			params: map[string]string{"card": "CGD"},
+		},
+		{
+			name: "ErrorUnknownCard",
+			fields: fields{
+				ExpensesRepository:            &expensesCache,
+				CardRepository:                &cardsCache,
+				ExpensesSubCategoryRepository: &subCategoriesCache,
+			},
+			want: want{
+				statusCode: http.StatusBadRequest,
+				errorMsg:   "could not get expenses by card:",
+			},
+			params: map[string]string{"card": "Unknown"},
+		},
+	}
+
+	gin.SetMode(gin.TestMode)
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			// GIVEN
+			w := httptest.NewRecorder()
+			ginCtx, _ := gin.CreateTestContext(w)
+			ginCtx.Request = &http.Request{
+				Method: http.MethodGet,
+			}
+
+			for k, v := range tt.params {
+				ginCtx.Params = append(ginCtx.Params, gin.Param{Key: k, Value: v})
+			}
+
+			// WHEN
+			expensesController.GetExpensesByCard(ginCtx)
+
+			// THEN
+			assert.EqualValues(t, tt.want.statusCode, w.Code)
+
+			switch w.Code {
+			case http.StatusOK:
+				var r []httpModels.Expense
+				err = json.NewDecoder(w.Body).Decode(&r)
+				if err != nil {
+					t.Fatalf("error decoding response: %v\n", err)
+				}
+				assert.Equal(t, tt.want.expenses, r)
+			case http.StatusBadRequest:
+				var r httpModels.ErrorResponse
+				err = json.NewDecoder(w.Body).Decode(&r)
+				if err != nil {
+					t.Fatalf("error decoding response: %v\n", err)
+				}
+				assert.Contains(t, r.ErrorMsg, tt.want.errorMsg)
+			}
+		})
+	}
+}
+
+func TestExpensesService_GetExpensesByDates(t *testing.T) {
+
+	expenses := []rdsModels.ExpenseTable{
+		houseRentExpenseTable,
+		restaurantExpenseTable,
+	}
+	expensesCache := cache.NewExpense(expenses, cardsCache, categoriesCache, subCategoriesCache)
+
+	expensesController, err := NewExpensesService(&expensesCache, &subCategoriesCache, &cardsCache)
+	if err != nil {
+		t.Fatalf("error creating expenses service: %v\n", err)
+	}
+
+	type fields struct {
+		ExpensesRepository            repository.ExpenseRepo
+		ExpensesSubCategoryRepository repository.ExpenseSubCategoryRepo
+		CardRepository                repository.CardRepo
+	}
+
+	type want struct {
+		statusCode int
+		expenses   []httpModels.Expense
+		errorMsg   string
+	}
+
+	tests := []struct {
+		name   string
+		fields fields
+		want   want
+		params map[string]string
+	}{
+		{
+			name: "Success",
+			fields: fields{
+				ExpensesRepository:            &expensesCache,
+				CardRepository:                &cardsCache,
+				ExpensesSubCategoryRepository: &subCategoriesCache,
+			},
+			want: want{
+				statusCode: http.StatusOK,
+				expenses: []httpModels.Expense{
+					houseRentExpenseHTTPModel,
+					restaurantExpenseHTTPModel,
+				},
+			},
+			params: map[string]string{"min_date": "2020-01-31", "max_date": "2020-02-02"},
+		},
+		{
+			name: "ErrorWrongMinDateFormat",
+			fields: fields{
+				ExpensesRepository:            &expensesCache,
+				CardRepository:                &cardsCache,
+				ExpensesSubCategoryRepository: &subCategoriesCache,
+			},
+			want: want{
+				statusCode: http.StatusBadRequest,
+				errorMsg:   "could not parse min_date (should use YYYY-MM-DD format):",
+			},
+			params: map[string]string{"min_date": "2020-Jan-31", "max_date": "2020-Feb-02"},
+		},
+		{
+			name: "ErrorWrongMaxDateFormat",
+			fields: fields{
+				ExpensesRepository:            &expensesCache,
+				CardRepository:                &cardsCache,
+				ExpensesSubCategoryRepository: &subCategoriesCache,
+			},
+			want: want{
+				statusCode: http.StatusBadRequest,
+				errorMsg:   "could not parse max_date (should use YYYY-MM-DD format):",
+			},
+			params: map[string]string{"min_date": "2020-01-31", "max_date": "2020-Feb-02"},
+		},
+	}
+
+	gin.SetMode(gin.TestMode)
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			// GIVEN
+			w := httptest.NewRecorder()
+			ginCtx, _ := gin.CreateTestContext(w)
+			ginCtx.Request = &http.Request{
+				Method: http.MethodGet,
+			}
+
+			for k, v := range tt.params {
+				ginCtx.Params = append(ginCtx.Params, gin.Param{Key: k, Value: v})
+			}
+
+			// WHEN
+			expensesController.GetExpensesByDates(ginCtx)
+
+			// THEN
+			assert.EqualValues(t, tt.want.statusCode, w.Code)
+
+			switch w.Code {
+			case http.StatusOK:
+				var r []httpModels.Expense
+				err = json.NewDecoder(w.Body).Decode(&r)
+				if err != nil {
+					t.Fatalf("error decoding response: %v\n", err)
+				}
+				assert.Equal(t, tt.want.expenses, r)
+			case http.StatusBadRequest:
+				var r httpModels.ErrorResponse
+				err = json.NewDecoder(w.Body).Decode(&r)
+				if err != nil {
+					t.Fatalf("error decoding response: %v\n", err)
+				}
+				assert.Contains(t, r.ErrorMsg, tt.want.errorMsg)
+			}
+		})
+	}
+}
+
+func TestExpensesService_DeleteExpense(t *testing.T) {
+
+	expenses := []rdsModels.ExpenseTable{
+		houseRentExpenseTable,
+		restaurantExpenseTable,
+	}
+	expensesCache := cache.NewExpense(expenses, cardsCache, categoriesCache, subCategoriesCache)
+
+	expensesController, err := NewExpensesService(&expensesCache, &subCategoriesCache, &cardsCache)
+	if err != nil {
+		t.Fatalf("error creating expenses service: %v\n", err)
+	}
+
+	type fields struct {
+		ExpensesRepository            repository.ExpenseRepo
+		ExpensesSubCategoryRepository repository.ExpenseSubCategoryRepo
+		CardRepository                repository.CardRepo
+	}
+
+	type want struct {
+		statusCode int
+		errorMsg   string
+	}
+
+	tests := []struct {
+		name   string
+		fields fields
+		want   want
+		params map[string]string
+	}{
+		{
+			name: "Success",
+			fields: fields{
+				ExpensesRepository:            &expensesCache,
+				CardRepository:                &cardsCache,
+				ExpensesSubCategoryRepository: &subCategoriesCache,
+			},
+			want: want{
+				statusCode: http.StatusNoContent,
+			},
+			params: map[string]string{"id": "1"},
+		},
+		{
+			name: "ErrorUnexistingExpense",
+			fields: fields{
+				ExpensesRepository:            &expensesCache,
+				CardRepository:                &cardsCache,
+				ExpensesSubCategoryRepository: &subCategoriesCache,
+			},
+			want: want{
+				statusCode: http.StatusBadRequest,
+				errorMsg:   "could not delete expense:",
+			},
+			params: map[string]string{"id": "5"},
+		},
+		{
+			name: "ErrorParameterIDNotInteger",
+			fields: fields{
+				ExpensesRepository:            &expensesCache,
+				CardRepository:                &cardsCache,
+				ExpensesSubCategoryRepository: &subCategoriesCache,
+			},
+			want: want{
+				statusCode: http.StatusBadRequest,
+				errorMsg:   "could not delete expense:",
+			},
+			params: map[string]string{"id": "5"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			// GIVEN
+			w := httptest.NewRecorder()
+			ginCtx, _ := gin.CreateTestContext(w)
+			ginCtx.Request = &http.Request{
+				Method: http.MethodDelete,
+			}
+
+			for k, v := range tt.params {
+				ginCtx.Params = append(ginCtx.Params, gin.Param{Key: k, Value: v})
+			}
+
+			// WHEN
+			expensesController.DeleteExpense(ginCtx)
 
 			// THEN
 			assert.EqualValues(t, tt.want.statusCode, w.Code)
