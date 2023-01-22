@@ -1,4 +1,4 @@
-/*{
+{
     // Use IntelliSense to learn about possible attributes.
     // Hover to view descriptions of existing attributes.
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
@@ -13,8 +13,8 @@
             "dlvFlags": ["--check-go-version=false"]
         }
 ]
-}*/
-
+}
+/*
 {
     "version": "0.2.0",
     "configurations": [
@@ -28,8 +28,8 @@
             // or just use "The current opened file"
             // "program": "${file}", 
             "env": {},
-            "args": ["-test.v", "--", "TestExpensesService_CreateExpense"],
+            "args": ["-test.v", "--", "TestExpensesService_UpdateExpense"],
             "dlvFlags": ["--check-go-version=false"]
         }
     ]
-}
+}*/
