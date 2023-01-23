@@ -17,19 +17,6 @@ var (
 	firstFebruary2020ZeroHoursUTCTime = time.Date(2020, time.Month(2), 1, 0, 0, 0, 0, time.UTC)
 	firstFebruary2020Unix             = int64(1580515200)
 
-	houseRentExpenseView = rdsModels.ExpenseView{
-		ID:            1,
-		Value:         10.0,
-		Date:          firstFebruary2020ZeroHoursUTCTime,
-		Category:      "House",
-		SubCategory:   "Rent",
-		Card:          "CGD",
-		CategoryID:    1,
-		SubCategoryID: 1,
-		CardID:        1,
-		Description:   "Test",
-	}
-
 	houseRentGRPCExpenseCreateRequest = grpc.ExpenseCreateRequest{
 		Value:       10.0,
 		Date:        firstFebruary2020Unix,
@@ -49,19 +36,6 @@ var (
 		Date:          firstFebruary2020ZeroHoursUTCTime,
 		SubCategoryID: 1,
 		CardID:        1,
-		Description:   "Test",
-	}
-
-	restaurantExpenseView = rdsModels.ExpenseView{
-		ID:            2,
-		Value:         20.0,
-		Date:          firstFebruary2020ZeroHoursUTCTime,
-		Category:      "Leisure",
-		SubCategory:   "Restaurants",
-		Card:          "Food allowance",
-		CategoryID:    2,
-		SubCategoryID: 2,
-		CardID:        2,
 		Description:   "Test",
 	}
 
