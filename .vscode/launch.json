@@ -24,11 +24,11 @@
             "request": "launch",
             "mode": "test",
             // Indicate the target here
-            "program": "${workspaceFolder}/internal/http/service/expenses_test.go",
+            "program": "${workspaceFolder}/internal/grpc/expenses/service_test.go",
             // or just use "The current opened file"
             // "program": "${file}", 
             "env": {},
-            "args": ["-test.v", "--", "TestExpensesService_UpdateExpense"],
+            "args": ["-test.v", "--"],
             "dlvFlags": ["--check-go-version=false"]
         }
     ]

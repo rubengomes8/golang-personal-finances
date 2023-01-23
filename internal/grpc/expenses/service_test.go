@@ -8,10 +8,9 @@ import (
 
 	rdsModels "github.com/rubengomes8/golang-personal-finances/internal/models/rds"
 	grpc "github.com/rubengomes8/golang-personal-finances/internal/pb/expenses"
-	"github.com/stretchr/testify/assert"
-
 	"github.com/rubengomes8/golang-personal-finances/internal/repository"
 	"github.com/rubengomes8/golang-personal-finances/internal/repository/cache"
+	"github.com/stretchr/testify/assert"
 )
 
 var (
@@ -244,6 +243,589 @@ func TestExpensesService_CreateExpense(t *testing.T) {
 				assert.Contains(t, err.Error(), tt.want.errorMsg)
 			}
 
+		})
+	}
+}
+
+func TestExpensesService_UpdateExpense(t *testing.T) {
+
+	expenses := []rdsModels.ExpenseTable{
+		houseRentExpenseTable,
+		restaurantExpenseTable,
+	}
+	expensesCache := cache.NewExpense(expenses, cardsCache, categoriesCache, subCategoriesCache)
+
+	type fields struct {
+		ExpensesRepository            repository.ExpenseRepo
+		ExpensesSubCategoryRepository repository.ExpenseSubCategoryRepo
+		CardRepository                repository.CardRepo
+	}
+
+	type args struct {
+		ctx context.Context
+		req *grpc.ExpenseUpdateRequest
+	}
+
+	type want struct {
+		response *grpc.ExpenseUpdateResponse
+		errorMsg string
+	}
+
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    want
+		wantErr bool
+	}{
+		{
+			name: "Success",
+			fields: fields{
+				ExpensesRepository:            &expensesCache,
+				ExpensesSubCategoryRepository: &subCategoriesCache,
+				CardRepository:                &cardsCache,
+			},
+			args: args{
+				ctx: context.Background(),
+				req: &grpc.ExpenseUpdateRequest{
+					Id:          1,
+					Value:       200.0,
+					Date:        firstFebruary2020Unix,
+					Category:    "House",
+					SubCategory: "Rent",
+					Card:        "CGD",
+					Description: "House rent update",
+				},
+			},
+			want: want{
+				response: &grpc.ExpenseUpdateResponse{
+					Id: 1,
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "ErrorUnknownCard",
+			fields: fields{
+				ExpensesRepository:            &expensesCache,
+				ExpensesSubCategoryRepository: &subCategoriesCache,
+				CardRepository:                &cardsCache,
+			},
+			args: args{
+				ctx: context.Background(),
+				req: &grpc.ExpenseUpdateRequest{
+					Value:       150.0,
+					Date:        firstFebruary2020Unix,
+					Category:    "House",
+					SubCategory: "Rent",
+					Card:        "Unknown",
+					Description: "Test",
+				},
+			},
+			want: want{
+				errorMsg: "could not get expense subcategory and/or card by name:",
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			s := &ExpensesService{
+				ExpensesRepository:            tt.fields.ExpensesRepository,
+				ExpensesSubCategoryRepository: tt.fields.ExpensesSubCategoryRepository,
+				CardRepository:                tt.fields.CardRepository,
+			}
+
+			got, err := s.UpdateExpense(tt.args.ctx, tt.args.req)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ExpensesService.UpdateExpense() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			switch {
+			case !tt.wantErr:
+				if !reflect.DeepEqual(got, tt.want.response) {
+					t.Errorf("ExpensesService.UpdateExpense() = %v, want %v", got, tt.want.response)
+				}
+			case tt.wantErr:
+				assert.Contains(t, err.Error(), tt.want.errorMsg)
+			}
+		})
+	}
+}
+
+func TestExpensesService_GetExpensesByDate(t *testing.T) {
+
+	expenses := []rdsModels.ExpenseTable{
+		houseRentExpenseTable,
+		restaurantExpenseTable,
+	}
+	expensesCache := cache.NewExpense(expenses, cardsCache, categoriesCache, subCategoriesCache)
+
+	type fields struct {
+		ExpensesRepository            repository.ExpenseRepo
+		ExpensesSubCategoryRepository repository.ExpenseSubCategoryRepo
+		CardRepository                repository.CardRepo
+	}
+
+	type args struct {
+		ctx context.Context
+		req *grpc.ExpensesGetRequestByDate
+	}
+
+	type want struct {
+		response *grpc.ExpensesGetResponse
+		errorMsg string
+	}
+
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    want
+		wantErr bool
+	}{
+		{
+			name: "Success",
+			fields: fields{
+				ExpensesRepository:            &expensesCache,
+				ExpensesSubCategoryRepository: &subCategoriesCache,
+				CardRepository:                &cardsCache,
+			},
+			args: args{
+				ctx: context.Background(),
+				req: &grpc.ExpensesGetRequestByDate{
+					MinDate: int64(1580515150),
+					MaxDate: int64(1580515250),
+				},
+			},
+			want: want{
+				response: &grpc.ExpensesGetResponse{
+					Expenses: []*grpc.ExpenseGetResponse{
+						{
+							Id:          houseRentExpenseTable.ID,
+							Value:       houseRentExpenseTable.Value,
+							Date:        firstFebruary2020Unix,
+							Category:    "House",
+							SubCategory: "Rent",
+							Card:        "CGD",
+							Description: houseRentExpenseTable.Description,
+						},
+						{
+							Id:          restaurantExpenseTable.ID,
+							Value:       restaurantExpenseTable.Value,
+							Date:        firstFebruary2020Unix,
+							Category:    "Leisure",
+							SubCategory: "Restaurants",
+							Card:        "Food allowance",
+							Description: restaurantExpenseTable.Description,
+						},
+					},
+				},
+			},
+			wantErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			s := &ExpensesService{
+				ExpensesRepository:            tt.fields.ExpensesRepository,
+				ExpensesSubCategoryRepository: tt.fields.ExpensesSubCategoryRepository,
+				CardRepository:                tt.fields.CardRepository,
+			}
+
+			got, err := s.GetExpensesByDate(tt.args.ctx, tt.args.req)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ExpensesService.GetExpensesByDate() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			switch {
+			case !tt.wantErr:
+				if !reflect.DeepEqual(got, tt.want.response) {
+					t.Errorf("ExpensesService.GetExpensesByDate() = %v, want %v", got, tt.want.response)
+				}
+			case tt.wantErr:
+				assert.Contains(t, err.Error(), tt.want.errorMsg)
+			}
+		})
+	}
+}
+
+func TestExpensesService_GetExpensesByCategory(t *testing.T) {
+
+	expenses := []rdsModels.ExpenseTable{
+		houseRentExpenseTable,
+		restaurantExpenseTable,
+		{
+			ID:            3,
+			Value:         200.0,
+			Date:          firstFebruary2020ZeroHoursUTCTime,
+			SubCategoryID: 1,
+			CardID:        1,
+			Description:   "House Rent Expense",
+		},
+	}
+	expensesCache := cache.NewExpense(expenses, cardsCache, categoriesCache, subCategoriesCache)
+
+	type fields struct {
+		ExpensesRepository            repository.ExpenseRepo
+		ExpensesSubCategoryRepository repository.ExpenseSubCategoryRepo
+		CardRepository                repository.CardRepo
+	}
+
+	type args struct {
+		ctx context.Context
+		req *grpc.ExpensesGetRequestByCategory
+	}
+
+	type want struct {
+		response *grpc.ExpensesGetResponse
+		errorMsg string
+	}
+
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    want
+		wantErr bool
+	}{
+		{
+			name: "Success",
+			fields: fields{
+				ExpensesRepository:            &expensesCache,
+				ExpensesSubCategoryRepository: &subCategoriesCache,
+				CardRepository:                &cardsCache,
+			},
+			args: args{
+				ctx: context.Background(),
+				req: &grpc.ExpensesGetRequestByCategory{
+					Category: "House",
+				},
+			},
+			want: want{
+				response: &grpc.ExpensesGetResponse{
+					Expenses: []*grpc.ExpenseGetResponse{
+						{
+							Id:          houseRentExpenseTable.ID,
+							Value:       houseRentExpenseTable.Value,
+							Date:        firstFebruary2020Unix,
+							Category:    "House",
+							SubCategory: "Rent",
+							Card:        "CGD",
+							Description: houseRentExpenseTable.Description,
+						},
+						{
+							Id:          3,
+							Value:       200.0,
+							Date:        firstFebruary2020Unix,
+							Category:    "House",
+							SubCategory: "Rent",
+							Card:        "CGD",
+							Description: "House Rent Expense",
+						},
+					},
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "ErrorUnknownCategory",
+			fields: fields{
+				ExpensesRepository:            &expensesCache,
+				ExpensesSubCategoryRepository: &subCategoriesCache,
+				CardRepository:                &cardsCache,
+			},
+			args: args{
+				ctx: context.Background(),
+				req: &grpc.ExpensesGetRequestByCategory{
+					Category: "Unknown",
+				},
+			},
+			want: want{
+				errorMsg: "could not get expenses by category:",
+			},
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			s := &ExpensesService{
+				ExpensesRepository:            tt.fields.ExpensesRepository,
+				ExpensesSubCategoryRepository: tt.fields.ExpensesSubCategoryRepository,
+				CardRepository:                tt.fields.CardRepository,
+			}
+
+			got, err := s.GetExpensesByCategory(tt.args.ctx, tt.args.req)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ExpensesService.GetExpensesByCategory() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			switch {
+			case !tt.wantErr:
+				if !reflect.DeepEqual(got, tt.want.response) {
+					t.Errorf("ExpensesService.GetExpensesByCategory() = %v, want %v", got, tt.want.response)
+				}
+			case tt.wantErr:
+				assert.Contains(t, err.Error(), tt.want.errorMsg)
+			}
+		})
+	}
+}
+
+func TestExpensesService_GetExpensesBySubCategory(t *testing.T) {
+
+	expenses := []rdsModels.ExpenseTable{
+		houseRentExpenseTable,
+		restaurantExpenseTable,
+		{
+			ID:            3,
+			Value:         200.0,
+			Date:          firstFebruary2020ZeroHoursUTCTime,
+			SubCategoryID: 1,
+			CardID:        1,
+			Description:   "House Rent Expense",
+		},
+	}
+	expensesCache := cache.NewExpense(expenses, cardsCache, categoriesCache, subCategoriesCache)
+
+	type fields struct {
+		ExpensesRepository            repository.ExpenseRepo
+		ExpensesSubCategoryRepository repository.ExpenseSubCategoryRepo
+		CardRepository                repository.CardRepo
+	}
+
+	type args struct {
+		ctx context.Context
+		req *grpc.ExpensesGetRequestBySubCategory
+	}
+
+	type want struct {
+		response *grpc.ExpensesGetResponse
+		errorMsg string
+	}
+
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    want
+		wantErr bool
+	}{
+		{
+			name: "Success",
+			fields: fields{
+				ExpensesRepository:            &expensesCache,
+				ExpensesSubCategoryRepository: &subCategoriesCache,
+				CardRepository:                &cardsCache,
+			},
+			args: args{
+				ctx: context.Background(),
+				req: &grpc.ExpensesGetRequestBySubCategory{
+					SubCategory: "Rent",
+				},
+			},
+			want: want{
+				response: &grpc.ExpensesGetResponse{
+					Expenses: []*grpc.ExpenseGetResponse{
+						{
+							Id:          houseRentExpenseTable.ID,
+							Value:       houseRentExpenseTable.Value,
+							Date:        firstFebruary2020Unix,
+							Category:    "House",
+							SubCategory: "Rent",
+							Card:        "CGD",
+							Description: houseRentExpenseTable.Description,
+						},
+						{
+							Id:          3,
+							Value:       200.0,
+							Date:        firstFebruary2020Unix,
+							Category:    "House",
+							SubCategory: "Rent",
+							Card:        "CGD",
+							Description: "House Rent Expense",
+						},
+					},
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "ErrorUnknownSubCategory",
+			fields: fields{
+				ExpensesRepository:            &expensesCache,
+				ExpensesSubCategoryRepository: &subCategoriesCache,
+				CardRepository:                &cardsCache,
+			},
+			args: args{
+				ctx: context.Background(),
+				req: &grpc.ExpensesGetRequestBySubCategory{
+					SubCategory: "Unknown",
+				},
+			},
+			want: want{
+				errorMsg: "could not get expenses by subcategory:",
+			},
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			s := &ExpensesService{
+				ExpensesRepository:            tt.fields.ExpensesRepository,
+				ExpensesSubCategoryRepository: tt.fields.ExpensesSubCategoryRepository,
+				CardRepository:                tt.fields.CardRepository,
+			}
+
+			got, err := s.GetExpensesBySubCategory(tt.args.ctx, tt.args.req)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ExpensesService.GetExpensesBySubCategory() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			switch {
+			case !tt.wantErr:
+				if !reflect.DeepEqual(got, tt.want.response) {
+					t.Errorf("ExpensesService.GetExpensesBySubCategory() = %v, want %v", got, tt.want.response)
+				}
+			case tt.wantErr:
+				assert.Contains(t, err.Error(), tt.want.errorMsg)
+			}
+		})
+	}
+}
+
+func TestExpensesService_GetExpensesByCard(t *testing.T) {
+
+	expenses := []rdsModels.ExpenseTable{
+		houseRentExpenseTable,
+		restaurantExpenseTable,
+		{
+			ID:            3,
+			Value:         200.0,
+			Date:          firstFebruary2020ZeroHoursUTCTime,
+			SubCategoryID: 1,
+			CardID:        1,
+			Description:   "House Rent Expense",
+		},
+	}
+	expensesCache := cache.NewExpense(expenses, cardsCache, categoriesCache, subCategoriesCache)
+
+	type fields struct {
+		ExpensesRepository            repository.ExpenseRepo
+		ExpensesSubCategoryRepository repository.ExpenseSubCategoryRepo
+		CardRepository                repository.CardRepo
+	}
+
+	type args struct {
+		ctx context.Context
+		req *grpc.ExpensesGetRequestByCard
+	}
+
+	type want struct {
+		response *grpc.ExpensesGetResponse
+		errorMsg string
+	}
+
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    want
+		wantErr bool
+	}{
+		{
+			name: "Success",
+			fields: fields{
+				ExpensesRepository:            &expensesCache,
+				ExpensesSubCategoryRepository: &subCategoriesCache,
+				CardRepository:                &cardsCache,
+			},
+			args: args{
+				ctx: context.Background(),
+				req: &grpc.ExpensesGetRequestByCard{
+					Card: "CGD",
+				},
+			},
+			want: want{
+				response: &grpc.ExpensesGetResponse{
+					Expenses: []*grpc.ExpenseGetResponse{
+						{
+							Id:          houseRentExpenseTable.ID,
+							Value:       houseRentExpenseTable.Value,
+							Date:        firstFebruary2020Unix,
+							Category:    "House",
+							SubCategory: "Rent",
+							Card:        "CGD",
+							Description: houseRentExpenseTable.Description,
+						},
+						{
+							Id:          3,
+							Value:       200.0,
+							Date:        firstFebruary2020Unix,
+							Category:    "House",
+							SubCategory: "Rent",
+							Card:        "CGD",
+							Description: "House Rent Expense",
+						},
+					},
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "ErrorUnknownCard",
+			fields: fields{
+				ExpensesRepository:            &expensesCache,
+				ExpensesSubCategoryRepository: &subCategoriesCache,
+				CardRepository:                &cardsCache,
+			},
+			args: args{
+				ctx: context.Background(),
+				req: &grpc.ExpensesGetRequestByCard{
+					Card: "Unknown",
+				},
+			},
+			want: want{
+				errorMsg: "could not get expenses by card:",
+			},
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			s := &ExpensesService{
+				ExpensesRepository:            tt.fields.ExpensesRepository,
+				ExpensesSubCategoryRepository: tt.fields.ExpensesSubCategoryRepository,
+				CardRepository:                tt.fields.CardRepository,
+			}
+
+			got, err := s.GetExpensesByCard(tt.args.ctx, tt.args.req)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ExpensesService.GetExpensesByCard() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			switch {
+			case !tt.wantErr:
+				if !reflect.DeepEqual(got, tt.want.response) {
+					t.Errorf("ExpensesService.GetExpensesByCard() = %v, want %v", got, tt.want.response)
+				}
+			case tt.wantErr:
+				assert.Contains(t, err.Error(), tt.want.errorMsg)
+			}
 		})
 	}
 }
