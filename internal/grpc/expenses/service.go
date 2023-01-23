@@ -221,13 +221,11 @@ func expensesViewToExpensesGetResponse(
 
 	var responseExpenses []*expenses.ExpenseGetResponse
 
-	var responseExpense expenses.ExpenseGetResponse
-
 	for _, exp := range expenseViewRecords {
 
 		unixDate := timeToUnix(exp.Date)
 
-		responseExpense = expenses.ExpenseGetResponse{
+		responseExpense := expenses.ExpenseGetResponse{
 			Id:          exp.ID,
 			Value:       exp.Value,
 			Date:        unixDate,
