@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	rdsModels "github.com/rubengomes8/golang-personal-finances/internal/models/rds"
 
-	jwt "github.com/dgrijalva/jwt-go"
+	jwt "github.com/golang-jwt/jwt"
 	"golang.org/x/crypto/bcrypt"
 )
 

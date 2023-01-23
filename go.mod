@@ -3,8 +3,8 @@ module github.com/rubengomes8/golang-personal-finances
 go 1.17
 
 require (
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.8.2
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/lib/pq v1.10.7
 	github.com/stretchr/testify v1.8.1
 	golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3
