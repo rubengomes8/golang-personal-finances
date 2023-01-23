@@ -2,22 +2,31 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
-	controllers "github.com/rubengomes8/golang-personal-finances/internal/http/service"
+	"github.com/rubengomes8/golang-personal-finances/internal/http/auth"
+	"github.com/rubengomes8/golang-personal-finances/internal/http/service"
 )
 
 // SetupRouter sets up the http routes
-func SetupRouter(expensesController controllers.ExpensesService) *gin.Engine {
+func SetupRouter(expensesService service.ExpensesService, authService service.AuthService) *gin.Engine {
 	r := gin.Default()
+
+	authentication := r.Group("/auth")
+	{
+		authentication.POST("register/", authService.Register)
+		authentication.POST("login/", authService.Login)
+	}
+
 	v1 := r.Group("/v1")
 	{
-		v1.GET("expense/:id", expensesController.GetExpenseByID)
-		v1.GET("expenses/dates/:min_date/:max_date", expensesController.GetExpensesByDates)
-		v1.GET("expenses/category/:category", expensesController.GetExpensesByCategory)
-		v1.GET("expenses/subcategory/:sub_category", expensesController.GetExpensesBySubCategory)
-		v1.GET("expenses/card/:card", expensesController.GetExpensesByCard)
-		v1.POST("expense", expensesController.CreateExpense)
-		v1.PUT("expense/:id", expensesController.UpdateExpense)
-		v1.DELETE("expense/:id", expensesController.DeleteExpense)
+		v1.Use(auth.JwtAuthMiddleware())
+		v1.GET("expense/:id", expensesService.GetExpenseByID)
+		v1.GET("expenses/dates/:min_date/:max_date", expensesService.GetExpensesByDates)
+		v1.GET("expenses/category/:category", expensesService.GetExpensesByCategory)
+		v1.GET("expenses/subcategory/:sub_category", expensesService.GetExpensesBySubCategory)
+		v1.GET("expenses/card/:card", expensesService.GetExpensesByCard)
+		v1.POST("expense", expensesService.CreateExpense)
+		v1.PUT("expense/:id", expensesService.UpdateExpense)
+		v1.DELETE("expense/:id", expensesService.DeleteExpense)
 	}
 
 	return r
