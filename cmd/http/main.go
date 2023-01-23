@@ -6,6 +6,7 @@ import (
 	"github.com/rubengomes8/golang-personal-finances/internal/enums"
 	"github.com/rubengomes8/golang-personal-finances/internal/http/routes"
 	"github.com/rubengomes8/golang-personal-finances/internal/http/service"
+	"github.com/rubengomes8/golang-personal-finances/internal/repository/cache"
 	"github.com/rubengomes8/golang-personal-finances/internal/repository/rds"
 	"github.com/rubengomes8/golang-personal-finances/internal/repository/rds/card"
 	"github.com/rubengomes8/golang-personal-finances/internal/repository/rds/expense"
@@ -31,12 +32,18 @@ func main() {
 	expSubCategoryRepo := expense.NewSubCategoryRDS(database)
 	expensesRepository := expense.NewRepo(database, cardRepo, expCategoryRepo, expSubCategoryRepo)
 
-	expensesController, err := service.NewExpensesService(&expensesRepository, &expSubCategoryRepo, &cardRepo)
+	expensesService, err := service.NewExpensesService(&expensesRepository, &expSubCategoryRepo, &cardRepo)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	r := routes.SetupRouter(expensesController)
+	userRepo := cache.NewUser()
+	authService, err := service.NewAuthService(&userRepo)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	r := routes.SetupRouter(expensesService, authService)
 	err = r.Run()
 	if err != nil {
 		log.Fatal(err)
