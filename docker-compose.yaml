@@ -10,20 +10,24 @@ services:
       context: . 
       dockerfile: docker/deploy-http/Dockerfile
     restart: unless-stopped
+    networks:
+      - core
     depends_on:
       - db
     ports:
       - 8080:8080
 
-  app-grpc:
-    build:
-      context: . 
-      dockerfile: docker/deploy-grpc/Dockerfile
-    restart: unless-stopped
-    depends_on:
-      - db
-    ports:
-      - 50051:50051
+  # app-grpc:
+  #   build:
+  #     context: . 
+  #     dockerfile: docker/deploy-grpc/Dockerfile
+  #   restart: unless-stopped
+  #   networks:
+  #     - grpc
+  #   depends_on:
+  #     - db
+  #   ports:
+  #     - 50051:50051
 
   db:
     build: ./docker/db

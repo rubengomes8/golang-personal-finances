@@ -1,4 +1,4 @@
-create view incomes_view (
+create view incomes_view as (
 	select 
 		i.id, i.value, i.date, i.description, i.category_id, 
         ic.name as category_name, i.card_id, c.name as card_name 

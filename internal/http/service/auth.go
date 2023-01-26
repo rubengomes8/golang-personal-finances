@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/rubengomes8/golang-personal-finances/internal/http/auth"
@@ -47,11 +48,11 @@ func (a *AuthService) Register(ctx *gin.Context) {
 	user := dbModels.UserTable{
 		Username: input.Username,
 		Passhash: hashedPwd,
-		Salt:     "",
 	}
 
 	_, err = a.UserRepo.InsertUser(ctx, user)
 	if err != nil {
+		log.Printf("user: %+v", user)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
 			ErrorMsg: fmt.Sprintf("could not insert user: %v", err),
 		})

@@ -26,11 +26,11 @@ func NewUserRepo(database *sql.DB) UserRepo {
 
 func (u UserRepo) InsertUser(ctx context.Context, user models.UserTable) (int64, error) {
 
-	insertStmt := fmt.Sprintf("INSERT INTO %s (username, salt, passhash) VALUES ($1, $2, $3) RETURNING id", tableNameUsers)
+	insertStmt := fmt.Sprintf("INSERT INTO %s (username, passhash) VALUES ($1, $2) RETURNING id", tableNameUsers)
 
 	var id int64
 
-	err := u.database.QueryRowContext(ctx, insertStmt, user.Username, user.Salt, user.Passhash).Scan(&id)
+	err := u.database.QueryRowContext(ctx, insertStmt, user.Username, user.Passhash).Scan(&id)
 	if err != nil {
 		return 0, fmt.Errorf("error scanning user id: %v", err)
 	}
@@ -40,12 +40,12 @@ func (u UserRepo) InsertUser(ctx context.Context, user models.UserTable) (int64,
 
 func (u UserRepo) GetUserByUsername(ctx context.Context, username string) (models.UserTable, error) {
 
-	selectStmt := fmt.Sprintf("SELECT id, username, salt, passhash FROM %s WHERE name = $1", tableNameUsers)
+	selectStmt := fmt.Sprintf("SELECT id, username, passhash FROM %s WHERE username = $1", tableNameUsers)
 
 	row := u.database.QueryRowContext(ctx, selectStmt, username)
 
 	var user models.UserTable
-	err := row.Scan(&user.ID, &user.Username, &user.Salt, &user.Passhash)
+	err := row.Scan(&user.ID, &user.Username, &user.Passhash)
 	if err != nil {
 		return models.UserTable{}, fmt.Errorf("error scanning user fields: %v", err)
 	}

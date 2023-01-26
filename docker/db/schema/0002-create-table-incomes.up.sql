@@ -9,10 +9,10 @@ CREATE TABLE incomes (
     date DATE NOT NULL,
     description VARCHAR(50),
 
-    income_id INTEGER NOT NULL,
+    category_id INTEGER NOT NULL,
     card_id INTEGER NOT NULL,
 
-    CONSTRAINT fk_income FOREIGN KEY(income_id) REFERENCES income_categories(id),
+    CONSTRAINT fk_category FOREIGN KEY(category_id) REFERENCES income_categories(id),
     CONSTRAINT fk_card FOREIGN KEY(card_id) REFERENCES cards(id)
 
 );
