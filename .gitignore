@@ -1,5 +1,16 @@
-bin/**
-**/__debug_bin
+# executables
+*bin/
+
+# coverage
 coverage.out
 coverage.txt
-.DS_Store
+
+# macbook
+*.DS_Store
+
+# vendor
+*vendor/
+
+# vscode
+*.vscode
+**__debug_bin
