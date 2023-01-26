@@ -14,14 +14,14 @@ import (
 	dbModels "github.com/rubengomes8/golang-personal-finances/internal/repository/models"
 )
 
-// Expenses implements handles the http requests
+// Expenses handles the expenses http requests
 type Expenses struct {
 	ExpensesRepository            repository.ExpenseRepo
 	ExpensesSubCategoryRepository repository.ExpenseSubCategoryRepo
 	CardRepository                repository.CardRepo
 }
 
-// NewExpenses creates a new Expenses
+// NewExpenses creates a new Expenses service
 func NewExpenses(
 	expRepo repository.ExpenseRepo,
 	expSubCatRepo repository.ExpenseSubCategoryRepo,
@@ -37,7 +37,7 @@ func NewExpenses(
 // CreateExpense creates an expense on the database
 func (e *Expenses) CreateExpense(ctx *gin.Context) {
 
-	var expense models.Expense
+	var expense models.ExpenseCreateRequest
 	err := json.NewDecoder(ctx.Request.Body).Decode(&expense)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
@@ -85,7 +85,7 @@ func (e *Expenses) CreateExpense(ctx *gin.Context) {
 // UpdateExpense updates an expense on the database
 func (e *Expenses) UpdateExpense(ctx *gin.Context) {
 
-	var expense models.Expense
+	var expense models.ExpenseCreateRequest
 	err := json.NewDecoder(ctx.Request.Body).Decode(&expense)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
@@ -311,8 +311,8 @@ func timeToStringDate(t time.Time) string {
 	return t.Format("2006-01-02")
 }
 
-func expenseViewToExpenseGetResponse(expenseView dbModels.ExpenseView) models.Expense {
-	return models.Expense{
+func expenseViewToExpenseGetResponse(expenseView dbModels.ExpenseView) models.ExpenseCreateRequest {
+	return models.ExpenseCreateRequest{
 		ID:          int(expenseView.ID),
 		Value:       expenseView.Value,
 		Date:        timeToStringDate(expenseView.Date),
@@ -322,8 +322,8 @@ func expenseViewToExpenseGetResponse(expenseView dbModels.ExpenseView) models.Ex
 	}
 }
 
-func expensesViewToExpensesGetResponse(expenseViewRecords []dbModels.ExpenseView) []models.Expense {
-	var responseExpenses []models.Expense
+func expensesViewToExpensesGetResponse(expenseViewRecords []dbModels.ExpenseView) []models.ExpenseCreateRequest {
+	var responseExpenses []models.ExpenseCreateRequest
 	for _, exp := range expenseViewRecords {
 		responseExpenses = append(responseExpenses, expenseViewToExpenseGetResponse(exp))
 	}

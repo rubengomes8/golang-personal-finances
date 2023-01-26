@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	tableName = "cards"
+	tableNameCards = "cards"
 )
 
 // CardRepo implements the card repository methods
@@ -26,9 +26,9 @@ func NewCardRepo(database *sql.DB) CardRepo {
 }
 
 // InsertCardRepo inserts a card on the cards' db table
-func (c *CardRepo) InsertCard(ctx context.Context, card models.CardTable) (int64, error) {
+func (c CardRepo) InsertCard(ctx context.Context, card models.CardTable) (int64, error) {
 
-	insertStmt := fmt.Sprintf("INSERT INTO %s (name) VALUES ($1) RETURNING id", tableName)
+	insertStmt := fmt.Sprintf("INSERT INTO %s (name) VALUES ($1) RETURNING id", tableNameCards)
 
 	var id int64
 
@@ -41,8 +41,8 @@ func (c *CardRepo) InsertCard(ctx context.Context, card models.CardTable) (int64
 }
 
 // UpdateCardRepo updates a card on the cards' db table
-func (c *CardRepo) UpdateCard(ctx context.Context, card models.CardTable) (int64, error) {
-	updateStmt := fmt.Sprintf("UPDATE %s SET name = $1 WHERE id = $2", tableName)
+func (c CardRepo) UpdateCard(ctx context.Context, card models.CardTable) (int64, error) {
+	updateStmt := fmt.Sprintf("UPDATE %s SET name = $1 WHERE id = $2", tableNameCards)
 
 	_, err := c.database.ExecContext(ctx, updateStmt, card.Name, card.ID)
 	if err != nil {
@@ -53,9 +53,9 @@ func (c *CardRepo) UpdateCard(ctx context.Context, card models.CardTable) (int64
 }
 
 // GetCardByID gets a card from the cards' db table by id
-func (c *CardRepo) GetCardByID(ctx context.Context, id int64) (models.CardTable, error) {
+func (c CardRepo) GetCardByID(ctx context.Context, id int64) (models.CardTable, error) {
 
-	selectStmt := fmt.Sprintf("SELECT * FROM %s WHERE id = $1", tableName)
+	selectStmt := fmt.Sprintf("SELECT * FROM %s WHERE id = $1", tableNameCards)
 
 	row := c.database.QueryRowContext(ctx, selectStmt, id)
 
@@ -70,9 +70,9 @@ func (c *CardRepo) GetCardByID(ctx context.Context, id int64) (models.CardTable,
 }
 
 // GetCardByName gets a card from the cards' db table by name
-func (c *CardRepo) GetCardByName(ctx context.Context, name string) (models.CardTable, error) {
+func (c CardRepo) GetCardByName(ctx context.Context, name string) (models.CardTable, error) {
 
-	selectStmt := fmt.Sprintf("SELECT * FROM %s WHERE name = $1", tableName)
+	selectStmt := fmt.Sprintf("SELECT * FROM %s WHERE name = $1", tableNameCards)
 
 	row := c.database.QueryRowContext(ctx, selectStmt, name)
 
@@ -86,8 +86,8 @@ func (c *CardRepo) GetCardByName(ctx context.Context, name string) (models.CardT
 }
 
 // DeleteCardRepo deletes a card from the cards' db table
-func (c *CardRepo) DeleteCard(ctx context.Context, id int64) error {
-	deleteStmt := fmt.Sprintf("DELETE FROM %s WHERE id = $1", tableName)
+func (c CardRepo) DeleteCard(ctx context.Context, id int64) error {
+	deleteStmt := fmt.Sprintf("DELETE FROM %s WHERE id = $1", tableNameCards)
 
 	result, err := c.database.ExecContext(ctx, deleteStmt, id)
 	if err != nil {

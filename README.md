@@ -21,8 +21,13 @@ Here is a simple diagram that describes the project:
 
 ## How to run locally
 
+### HTTP Server
 1. On the project root folder run `make docker-up` - It builds the database and the gRPC / HTTP apps
 2. After the environment is set up, you can test the HTTP Server using this postman collection + postman environment: [Postman Directory](resources/postman/)
-3. You can also test the gRPC Server using this client: [Github gRPC Client](https://github.com/rubengomes8/golang-personal-finances-client) - or create your own
+
+## gRPC Server
+1. On the project root folder run `make build-grpc` - It builds a binary and places it under the `bin/` folder
+2. Run the executable: `./bin/grpc_server`
+2. You can test the gRPC Server using this client: [Github gRPC Client](https://github.com/rubengomes8/golang-personal-finances-client) - or create your own
 
 

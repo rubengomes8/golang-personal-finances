@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	tableNameSubCategories = "expense_subcategories"
+	tableNameExpenseSubCategories = "expense_subcategories"
 )
 
 // ExpenseSubCategoryRepo implements the expense subcategory repository methods
@@ -31,7 +31,7 @@ func (es *ExpenseSubCategoryRepo) InsertExpenseSubCategory(
 	expenseSubCategory models.ExpenseSubCategoryTable,
 ) (int64, error) {
 
-	insertStmt := fmt.Sprintf("INSERT INTO %s (name) VALUES ($1) RETURNING id", tableNameSubCategories)
+	insertStmt := fmt.Sprintf("INSERT INTO %s (name) VALUES ($1) RETURNING id", tableNameExpenseSubCategories)
 
 	var id int64
 	err := es.database.QueryRowContext(ctx, insertStmt, expenseSubCategory.Name).Scan(&id)
@@ -48,7 +48,7 @@ func (es *ExpenseSubCategoryRepo) UpdateExpenseSubCategory(
 	expenseSubCategory models.ExpenseSubCategoryTable,
 ) (int64, error) {
 
-	updateStmt := fmt.Sprintf("UPDATE %s SET name = $1, category_id = $2 WHERE id = $3", tableNameSubCategories)
+	updateStmt := fmt.Sprintf("UPDATE %s SET name = $1, category_id = $2 WHERE id = $3", tableNameExpenseSubCategories)
 
 	_, err := es.database.ExecContext(ctx, updateStmt, expenseSubCategory.Name, expenseSubCategory.CategoryID, expenseSubCategory.ID)
 	if err != nil {
@@ -64,7 +64,7 @@ func (es *ExpenseSubCategoryRepo) GetExpenseSubCategoryByID(
 	id int64,
 ) (models.ExpenseSubCategoryTable, error) {
 
-	selectStmt := fmt.Sprintf("SELECT * FROM %s WHERE id = $1", tableNameSubCategories)
+	selectStmt := fmt.Sprintf("SELECT * FROM %s WHERE id = $1", tableNameExpenseSubCategories)
 
 	row := es.database.QueryRowContext(ctx, selectStmt, id)
 
@@ -83,7 +83,7 @@ func (es *ExpenseSubCategoryRepo) GetExpenseSubCategoryByName(
 	name string,
 ) (models.ExpenseSubCategoryTable, error) {
 
-	selectStmt := fmt.Sprintf("SELECT * FROM %s WHERE name = $1", tableNameSubCategories)
+	selectStmt := fmt.Sprintf("SELECT * FROM %s WHERE name = $1", tableNameExpenseSubCategories)
 
 	row := es.database.QueryRowContext(ctx, selectStmt, name)
 
@@ -99,7 +99,7 @@ func (es *ExpenseSubCategoryRepo) GetExpenseSubCategoryByName(
 // DeleteExpenseSubCategory deletes an expense category from the expense subcategories db table
 func (es *ExpenseSubCategoryRepo) DeleteExpenseSubCategory(ctx context.Context, id int64) error {
 
-	deleteStmt := fmt.Sprintf("DELETE FROM %s WHERE id = $1", tableNameSubCategories)
+	deleteStmt := fmt.Sprintf("DELETE FROM %s WHERE id = $1", tableNameExpenseSubCategories)
 
 	result, err := es.database.ExecContext(ctx, deleteStmt, id)
 	if err != nil {

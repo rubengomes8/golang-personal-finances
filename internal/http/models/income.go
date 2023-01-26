@@ -1,16 +1,16 @@
 package models
 
-// ExpenseCreateRequest is the http expense model
-type ExpenseCreateRequest struct {
+// IncomeCreateRequest is the http expense model
+type IncomeCreateRequest struct {
 	ID          int     `json:"id,omitempty"`
 	Value       float64 `json:"value,omitempty"`
 	Date        string  `json:"date,omitempty"` // Should be on this format YYYY-MM-DD
-	SubCategory string  `json:"sub_category,omitempty"`
+	Category    string  `json:"category,omitempty"`
 	Card        string  `json:"card,omitempty"`
 	Description string  `json:"description,omitempty"`
 }
 
-// ExpenseCreateResponse is the http create response model for expense
-type ExpenseCreateResponse struct {
+// IncomeCreateResponse is the http create response model for expense
+type IncomeCreateResponse struct {
 	ID int `json:"id,omitempty"`
 }

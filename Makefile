@@ -1,4 +1,5 @@
 GO_MODULE=github.com/rubengomes8/golang-personal-finances
+BIN_DIR=bin
 
 # DOCKER #
 docker-up:
@@ -26,6 +27,11 @@ expenses:
 	protoc --proto_path=./proto --go_out=. --go_opt=module=${GO_MODULE} --go-grpc_out=. --go-grpc_opt=module=${GO_MODULE} expenses.proto
 
 all: cards expense_categories expense_subcategories expenses
+
+
+# BUILD #
+build-grpc:
+	go build -o ${BIN_DIR}/grpc_server ./cmd/grpc/main.go
 
 
 # LINT #

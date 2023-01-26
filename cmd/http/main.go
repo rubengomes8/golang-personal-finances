@@ -6,7 +6,6 @@ import (
 	"github.com/rubengomes8/golang-personal-finances/internal/enums"
 	"github.com/rubengomes8/golang-personal-finances/internal/http/routes"
 	"github.com/rubengomes8/golang-personal-finances/internal/http/service"
-	"github.com/rubengomes8/golang-personal-finances/internal/repository/cache"
 	"github.com/rubengomes8/golang-personal-finances/internal/repository/database"
 
 	_ "github.com/lib/pq"
@@ -35,7 +34,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	userRepo := cache.NewUser()
+	userRepo := database.NewUserRepo(db)
 	authService, err := service.NewAuthService(&userRepo)
 	if err != nil {
 		log.Fatal(err)
