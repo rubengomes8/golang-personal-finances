@@ -22,8 +22,8 @@ Here is a simple diagram that describes the project:
 ## How to run locally
 
 1. On the project root folder run `make docker-up` - It builds the database and the gRPC / HTTP apps
-2. After the environment is set up, you can test the HTTP Server using this postman collection + postman environment: ![postman files](resources/postman/)
+2. After the environment is set up, you can test the HTTP Server using this postman collection + postman environment: [Postman Directory](resources/postman/)
 3. You can also test the gRPC Server using this client https://github.com/rubengomes8/golang-personal-finances-client / or create your own - (**TODO**: need to update it)
-
+[label](https://file%2B.vscode-resource.vscode-cdn.net/Users/rubengomes/go/src/github.com/rubengomes8/golang-personal-finances/resources/postman)
 
 
