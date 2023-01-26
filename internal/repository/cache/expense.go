@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	models "github.com/rubengomes8/golang-personal-finances/internal/models/rds"
+	"github.com/rubengomes8/golang-personal-finances/internal/repository/models"
 )
 
 // Expense implements the expense repository methods

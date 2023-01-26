@@ -5,19 +5,16 @@ import (
 	"net"
 
 	"github.com/rubengomes8/golang-personal-finances/internal/enums"
-	server "github.com/rubengomes8/golang-personal-finances/internal/grpc/expenses"
+	"github.com/rubengomes8/golang-personal-finances/internal/grpc/service"
 	"github.com/rubengomes8/golang-personal-finances/internal/pb/expenses"
-	"github.com/rubengomes8/golang-personal-finances/internal/repository/rds"
-	"github.com/rubengomes8/golang-personal-finances/internal/repository/rds/card"
-	"github.com/rubengomes8/golang-personal-finances/internal/repository/rds/expense"
-	expenseRepo "github.com/rubengomes8/golang-personal-finances/internal/repository/rds/expense"
+	"github.com/rubengomes8/golang-personal-finances/internal/repository/database"
 
 	_ "github.com/lib/pq"
 	"google.golang.org/grpc"
 )
 
 func main() {
-	database, err := rds.NewDB(
+	db, err := database.New(
 		enums.DatabaseHost,
 		enums.DatabaseUser,
 		enums.DatabasePwd,
@@ -35,12 +32,12 @@ func main() {
 
 	grpcServer := grpc.NewServer()
 
-	cardRepo := card.NewCardRDS(database)
-	expCategoryRepo := expense.NewCategoryRDS(database)
-	expSubCategoryRepo := expense.NewSubCategoryRDS(database)
-	expensesRepository := expenseRepo.NewRepo(database, cardRepo, expCategoryRepo, expSubCategoryRepo)
+	cardRepo := database.NewCardRepo(db)
+	expCategoryRepo := database.NewExpenseCategoryRepo(db)
+	expSubCategoryRepo := database.NewExpenseSubCategoryRepo(db)
+	expensesRepository := database.NewExpensesRepo(db, cardRepo, expCategoryRepo, expSubCategoryRepo)
 
-	expensesService, err := server.NewExpensesService(&expensesRepository, &expSubCategoryRepo, &cardRepo)
+	expensesService, err := service.NewExpenses(&expensesRepository, &expSubCategoryRepo, &cardRepo)
 	if err != nil {
 		log.Fatalf("Failed to create the finances server: %v\n", err)
 	}

@@ -9,25 +9,25 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	httpModels "github.com/rubengomes8/golang-personal-finances/internal/models/http"
-	rdsModels "github.com/rubengomes8/golang-personal-finances/internal/models/rds"
+	"github.com/rubengomes8/golang-personal-finances/internal/http/models"
 	"github.com/rubengomes8/golang-personal-finances/internal/repository"
+	dbModels "github.com/rubengomes8/golang-personal-finances/internal/repository/models"
 )
 
-// ExpensesService implements handles the http requests
-type ExpensesService struct {
+// Expenses implements handles the http requests
+type Expenses struct {
 	ExpensesRepository            repository.ExpenseRepo
 	ExpensesSubCategoryRepository repository.ExpenseSubCategoryRepo
 	CardRepository                repository.CardRepo
 }
 
-// NewExpensesService creates a new ExpensesService
-func NewExpensesService(
+// NewExpenses creates a new Expenses
+func NewExpenses(
 	expRepo repository.ExpenseRepo,
 	expSubCatRepo repository.ExpenseSubCategoryRepo,
 	cardRepo repository.CardRepo,
-) (ExpensesService, error) {
-	return ExpensesService{
+) (Expenses, error) {
+	return Expenses{
 		ExpensesRepository:            expRepo,
 		ExpensesSubCategoryRepository: expSubCatRepo,
 		CardRepository:                cardRepo,
@@ -35,12 +35,12 @@ func NewExpensesService(
 }
 
 // CreateExpense creates an expense on the database
-func (e *ExpensesService) CreateExpense(ctx *gin.Context) {
+func (e *Expenses) CreateExpense(ctx *gin.Context) {
 
-	var expense httpModels.Expense
+	var expense models.Expense
 	err := json.NewDecoder(ctx.Request.Body).Decode(&expense)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, httpModels.ErrorResponse{
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
 			ErrorMsg: fmt.Sprintf("could not decode expense: %v", err),
 		})
 		return
@@ -48,7 +48,7 @@ func (e *ExpensesService) CreateExpense(ctx *gin.Context) {
 
 	expSubCategory, card, err := e.getExpenseSubcategoryAndCardIDByNames(ctx, expense.SubCategory, expense.Card)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, httpModels.ErrorResponse{
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
 			ErrorMsg: fmt.Sprintf("unknown subcategory or card: %v", err),
 		})
 		return
@@ -56,13 +56,13 @@ func (e *ExpensesService) CreateExpense(ctx *gin.Context) {
 
 	date, err := dateStringToTime(expense.Date)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, httpModels.ErrorResponse{
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
 			ErrorMsg: fmt.Sprintf("could not parse date (should use YYYY-MM-DD format): %v", err),
 		})
 		return
 	}
 
-	expenseRecord := rdsModels.ExpenseTable{
+	expenseRecord := dbModels.ExpenseTable{
 		Value:         expense.Value,
 		Date:          date,
 		SubCategoryID: expSubCategory.ID,
@@ -72,23 +72,23 @@ func (e *ExpensesService) CreateExpense(ctx *gin.Context) {
 
 	id, err := e.ExpensesRepository.InsertExpense(ctx, expenseRecord)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, httpModels.ErrorResponse{
+		ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
 			ErrorMsg: fmt.Sprintf("could not insert expense: %v", err),
 		})
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, &httpModels.ExpenseCreateResponse{ID: int(id)})
+	ctx.JSON(http.StatusCreated, &models.ExpenseCreateResponse{ID: int(id)})
 	ctx.Writer.Flush()
 }
 
 // UpdateExpense updates an expense on the database
-func (e *ExpensesService) UpdateExpense(ctx *gin.Context) {
+func (e *Expenses) UpdateExpense(ctx *gin.Context) {
 
-	var expense httpModels.Expense
+	var expense models.Expense
 	err := json.NewDecoder(ctx.Request.Body).Decode(&expense)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, httpModels.ErrorResponse{
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
 			ErrorMsg: fmt.Sprintf("could not decode expense: %v", err),
 		})
 		return
@@ -96,7 +96,7 @@ func (e *ExpensesService) UpdateExpense(ctx *gin.Context) {
 
 	expSubCategory, card, err := e.getExpenseSubcategoryAndCardIDByNames(ctx, expense.SubCategory, expense.Card)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, httpModels.ErrorResponse{
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
 			ErrorMsg: fmt.Sprintf("unknown subcategory or card: %v", err),
 		})
 		return
@@ -104,7 +104,7 @@ func (e *ExpensesService) UpdateExpense(ctx *gin.Context) {
 
 	date, err := dateStringToTime(expense.Date)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, httpModels.ErrorResponse{
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
 			ErrorMsg: fmt.Sprintf("could not parse date (should use YYYY-MM-DD format): %v", err),
 		})
 		return
@@ -114,13 +114,13 @@ func (e *ExpensesService) UpdateExpense(ctx *gin.Context) {
 
 	expenseID, err := strconv.Atoi(paramID)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, httpModels.ErrorResponse{
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
 			ErrorMsg: fmt.Sprintf("id parameter must be an integer: %v", err),
 		})
 		return
 	}
 
-	expenseRecord := rdsModels.ExpenseTable{
+	expenseRecord := dbModels.ExpenseTable{
 		ID:            int64(expenseID),
 		Value:         expense.Value,
 		Date:          date,
@@ -131,7 +131,7 @@ func (e *ExpensesService) UpdateExpense(ctx *gin.Context) {
 
 	_, err = e.ExpensesRepository.UpdateExpense(ctx, expenseRecord)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, httpModels.ErrorResponse{
+		ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
 			ErrorMsg: fmt.Sprintf("could not update expense: %v", err),
 		})
 		return
@@ -142,13 +142,13 @@ func (e *ExpensesService) UpdateExpense(ctx *gin.Context) {
 }
 
 // GetExpenseByID gets an expense from the database that match the id provided
-func (e *ExpensesService) GetExpenseByID(ctx *gin.Context) {
+func (e *Expenses) GetExpenseByID(ctx *gin.Context) {
 
 	paramID := ctx.Param("id")
 
 	expenseID, err := strconv.Atoi(paramID)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, httpModels.ErrorResponse{
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
 			ErrorMsg: fmt.Sprintf("id parameter must be an integer: %v", err),
 		})
 		return
@@ -156,7 +156,7 @@ func (e *ExpensesService) GetExpenseByID(ctx *gin.Context) {
 
 	expenseViewRecord, err := e.ExpensesRepository.GetExpenseByID(ctx, int64(expenseID))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, httpModels.ErrorResponse{
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
 			ErrorMsg: fmt.Sprintf("could not get expense by id: %v", err),
 		})
 		return
@@ -169,13 +169,13 @@ func (e *ExpensesService) GetExpenseByID(ctx *gin.Context) {
 }
 
 // GetExpensesByCategory gets a list of expenses from the database that match the category provided
-func (e *ExpensesService) GetExpensesByCategory(ctx *gin.Context) {
+func (e *Expenses) GetExpensesByCategory(ctx *gin.Context) {
 
 	paramCategory := ctx.Param("category")
 
 	expenseViewRecords, err := e.ExpensesRepository.GetExpensesByCategory(ctx, paramCategory)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, httpModels.ErrorResponse{
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
 			ErrorMsg: fmt.Sprintf("could not get expenses by category: %v", err),
 		})
 		return
@@ -188,13 +188,13 @@ func (e *ExpensesService) GetExpensesByCategory(ctx *gin.Context) {
 }
 
 // GetExpensesBySubCategory gets a list of expenses from the database that match the subcategory provided
-func (e *ExpensesService) GetExpensesBySubCategory(ctx *gin.Context) {
+func (e *Expenses) GetExpensesBySubCategory(ctx *gin.Context) {
 
 	paramSubCategory := ctx.Param("sub_category")
 
 	expenseViewRecords, err := e.ExpensesRepository.GetExpensesBySubCategory(ctx, paramSubCategory)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, httpModels.ErrorResponse{
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
 			ErrorMsg: fmt.Sprintf("could not get expenses by subcategory: %v", err),
 		})
 		return
@@ -207,13 +207,13 @@ func (e *ExpensesService) GetExpensesBySubCategory(ctx *gin.Context) {
 }
 
 // GetExpensesByCard gets a list of expenses from the database that match the card provided
-func (e *ExpensesService) GetExpensesByCard(ctx *gin.Context) {
+func (e *Expenses) GetExpensesByCard(ctx *gin.Context) {
 
 	paramCard := ctx.Param("card")
 
 	expenseViewRecords, err := e.ExpensesRepository.GetExpensesByCard(ctx, paramCard)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, httpModels.ErrorResponse{
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
 			ErrorMsg: fmt.Sprintf("could not get expenses by card: %v", err),
 		})
 		return
@@ -226,14 +226,14 @@ func (e *ExpensesService) GetExpensesByCard(ctx *gin.Context) {
 }
 
 // GetExpensesByDates gets a list of expenses from the database that match the dates' range provided
-func (e *ExpensesService) GetExpensesByDates(ctx *gin.Context) {
+func (e *Expenses) GetExpensesByDates(ctx *gin.Context) {
 
 	paramMinDate := ctx.Param("min_date")
 	paramMaxDate := ctx.Param("max_date")
 
 	minDate, err := dateStringToTime(paramMinDate)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, httpModels.ErrorResponse{
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
 			ErrorMsg: fmt.Sprintf("could not parse min_date (should use YYYY-MM-DD format): %v", err),
 		})
 		return
@@ -241,7 +241,7 @@ func (e *ExpensesService) GetExpensesByDates(ctx *gin.Context) {
 
 	maxDate, err := dateStringToTime(paramMaxDate)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, httpModels.ErrorResponse{
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
 			ErrorMsg: fmt.Sprintf("could not parse max_date (should use YYYY-MM-DD format): %v", err),
 		})
 		return
@@ -249,7 +249,7 @@ func (e *ExpensesService) GetExpensesByDates(ctx *gin.Context) {
 
 	expenseViewRecords, err := e.ExpensesRepository.GetExpensesByDates(ctx, minDate, maxDate)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, httpModels.ErrorResponse{
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
 			ErrorMsg: fmt.Sprintf("could not get expenses by dates: %v", err),
 		})
 		return
@@ -262,13 +262,13 @@ func (e *ExpensesService) GetExpensesByDates(ctx *gin.Context) {
 }
 
 // DeleteExpense deletes an expense from the database that match the id provided
-func (e *ExpensesService) DeleteExpense(ctx *gin.Context) {
+func (e *Expenses) DeleteExpense(ctx *gin.Context) {
 
 	paramID := ctx.Param("id")
 
 	expenseID, err := strconv.Atoi(paramID)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, httpModels.ErrorResponse{
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
 			ErrorMsg: fmt.Sprintf("id parameter must be an integer: %v", err),
 		})
 		return
@@ -276,7 +276,7 @@ func (e *ExpensesService) DeleteExpense(ctx *gin.Context) {
 
 	err = e.ExpensesRepository.DeleteExpense(ctx, int64(expenseID))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, httpModels.ErrorResponse{
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
 			ErrorMsg: fmt.Sprintf("could not delete expense: %v", err),
 		})
 		return
@@ -286,18 +286,18 @@ func (e *ExpensesService) DeleteExpense(ctx *gin.Context) {
 	ctx.Writer.Flush()
 }
 
-func (e *ExpensesService) getExpenseSubcategoryAndCardIDByNames(
+func (e *Expenses) getExpenseSubcategoryAndCardIDByNames(
 	ctx context.Context,
 	subCategory, card string,
-) (rdsModels.ExpenseSubCategoryTable, rdsModels.CardTable, error) {
+) (dbModels.ExpenseSubCategoryTable, dbModels.CardTable, error) {
 	subCategoryModel, err := e.ExpensesSubCategoryRepository.GetExpenseSubCategoryByName(ctx, subCategory)
 	if err != nil {
-		return rdsModels.ExpenseSubCategoryTable{}, rdsModels.CardTable{}, fmt.Errorf("could not get expense sub category by name: %v", err)
+		return dbModels.ExpenseSubCategoryTable{}, dbModels.CardTable{}, fmt.Errorf("could not get expense sub category by name: %v", err)
 	}
 
 	cardModel, err := e.CardRepository.GetCardByName(ctx, card)
 	if err != nil {
-		return rdsModels.ExpenseSubCategoryTable{}, rdsModels.CardTable{}, fmt.Errorf("could not get expense card by name: %v", err)
+		return dbModels.ExpenseSubCategoryTable{}, dbModels.CardTable{}, fmt.Errorf("could not get expense card by name: %v", err)
 	}
 
 	return subCategoryModel, cardModel, nil
@@ -311,8 +311,8 @@ func timeToStringDate(t time.Time) string {
 	return t.Format("2006-01-02")
 }
 
-func expenseViewToExpenseGetResponse(expenseView rdsModels.ExpenseView) httpModels.Expense {
-	return httpModels.Expense{
+func expenseViewToExpenseGetResponse(expenseView dbModels.ExpenseView) models.Expense {
+	return models.Expense{
 		ID:          int(expenseView.ID),
 		Value:       expenseView.Value,
 		Date:        timeToStringDate(expenseView.Date),
@@ -322,8 +322,8 @@ func expenseViewToExpenseGetResponse(expenseView rdsModels.ExpenseView) httpMode
 	}
 }
 
-func expensesViewToExpensesGetResponse(expenseViewRecords []rdsModels.ExpenseView) []httpModels.Expense {
-	var responseExpenses []httpModels.Expense
+func expensesViewToExpensesGetResponse(expenseViewRecords []dbModels.ExpenseView) []models.Expense {
+	var responseExpenses []models.Expense
 	for _, exp := range expenseViewRecords {
 		responseExpenses = append(responseExpenses, expenseViewToExpenseGetResponse(exp))
 	}

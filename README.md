@@ -4,7 +4,6 @@
 [![codecov](https://codecov.io/gh/rubengomes8/golang-personal-finances/branch/main/graph/badge.svg)](https://codecov.io/gh/rubengomes8/golang-personal-finances)
 
 ## Objective
-
 This repo builds a service whose goal is to manage personal finances. It creates:
 - a database
 - a HTTP Server to manage expenses/incomes and its metadata (categories, cards)

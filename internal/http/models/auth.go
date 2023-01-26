@@ -1,4 +1,4 @@
-package http
+package models
 
 // RegisterInput is the http register user model
 type RegisterInput struct {

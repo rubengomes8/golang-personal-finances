@@ -1,4 +1,4 @@
-package http
+package models
 
 // ErrorResponse is the error model for http responses
 type ErrorResponse struct {

@@ -11,10 +11,10 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	httpModels "github.com/rubengomes8/golang-personal-finances/internal/models/http"
-	rdsModels "github.com/rubengomes8/golang-personal-finances/internal/models/rds"
+	"github.com/rubengomes8/golang-personal-finances/internal/http/models"
 	"github.com/rubengomes8/golang-personal-finances/internal/repository"
 	"github.com/rubengomes8/golang-personal-finances/internal/repository/cache"
+	dbModels "github.com/rubengomes8/golang-personal-finances/internal/repository/models"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -22,7 +22,7 @@ var (
 	firstFebruary2020ZeroHoursUTCTime = time.Date(2020, time.Month(2), 1, 0, 0, 0, 0, time.UTC)
 	firstFebruary2020String           = "2020-02-01"
 
-	houseRentExpenseView = rdsModels.ExpenseView{
+	houseRentExpenseView = dbModels.ExpenseView{
 		ID:            1,
 		Value:         10.0,
 		Date:          firstFebruary2020ZeroHoursUTCTime,
@@ -35,7 +35,7 @@ var (
 		Description:   "Test",
 	}
 
-	houseRentExpenseTable = rdsModels.ExpenseTable{
+	houseRentExpenseTable = dbModels.ExpenseTable{
 		ID:            1,
 		Value:         10.0,
 		Date:          firstFebruary2020ZeroHoursUTCTime,
@@ -44,7 +44,7 @@ var (
 		Description:   "Test",
 	}
 
-	houseRentExpenseHTTPModel = httpModels.Expense{
+	houseRentExpenseHTTPModel = models.Expense{
 		ID:          1,
 		Value:       10.0,
 		Date:        firstFebruary2020String,
@@ -53,7 +53,7 @@ var (
 		Description: "Test",
 	}
 
-	restaurantExpenseView = rdsModels.ExpenseView{
+	restaurantExpenseView = dbModels.ExpenseView{
 		ID:            2,
 		Value:         20.0,
 		Date:          firstFebruary2020ZeroHoursUTCTime,
@@ -66,7 +66,7 @@ var (
 		Description:   "Test",
 	}
 
-	restaurantExpenseTable = rdsModels.ExpenseTable{
+	restaurantExpenseTable = dbModels.ExpenseTable{
 		ID:            2,
 		Value:         20.0,
 		Date:          firstFebruary2020ZeroHoursUTCTime,
@@ -75,7 +75,7 @@ var (
 		Description:   "Test",
 	}
 
-	restaurantExpenseHTTPModel = httpModels.Expense{
+	restaurantExpenseHTTPModel = models.Expense{
 		ID:          2,
 		Value:       20.0,
 		Date:        firstFebruary2020String,
@@ -154,12 +154,12 @@ func Test_dateStringToTime(t *testing.T) {
 
 func Test_expenseViewToExpenseGetResponse(t *testing.T) {
 	type args struct {
-		expenseView rdsModels.ExpenseView
+		expenseView dbModels.ExpenseView
 	}
 	tests := []struct {
 		name string
 		args args
-		want httpModels.Expense
+		want models.Expense
 	}{
 		{
 			name: "Success",
@@ -180,21 +180,21 @@ func Test_expenseViewToExpenseGetResponse(t *testing.T) {
 
 func Test_expensesViewToExpensesGetResponse(t *testing.T) {
 	type args struct {
-		expenseViewRecords []rdsModels.ExpenseView
+		expenseViewRecords []dbModels.ExpenseView
 	}
 	tests := []struct {
 		name string
 		args args
-		want []httpModels.Expense
+		want []models.Expense
 	}{
 		{
 			name: "Success",
 			args: args{
-				expenseViewRecords: []rdsModels.ExpenseView{
+				expenseViewRecords: []dbModels.ExpenseView{
 					houseRentExpenseView, restaurantExpenseView,
 				},
 			},
-			want: []httpModels.Expense{
+			want: []models.Expense{
 				houseRentExpenseHTTPModel, restaurantExpenseHTTPModel,
 			},
 		},
@@ -209,34 +209,34 @@ func Test_expensesViewToExpensesGetResponse(t *testing.T) {
 }
 
 var (
-	cards = []rdsModels.CardTable{
+	cards = []dbModels.CardTable{
 		{ID: 1, Name: "CGD"},
 		{ID: 2, Name: "Food allowance"},
 	}
 	cardsCache = cache.NewCard(cards)
 
-	categories = []rdsModels.ExpenseCategoryTable{
+	categories = []dbModels.ExpenseCategoryTable{
 		{ID: 1, Name: "House"},
 		{ID: 2, Name: "Leisure"},
 	}
 	categoriesCache = cache.NewExpenseCategory(categories)
 
-	subCategories = []rdsModels.ExpenseSubCategoryTable{
+	subCategories = []dbModels.ExpenseSubCategoryTable{
 		{ID: 1, Name: "Rent", CategoryID: 1},
 		{ID: 2, Name: "Restaurants", CategoryID: 2},
 	}
 	subCategoriesCache = cache.NewExpenseSubCategory(subCategories)
 )
 
-func TestExpensesService_CreateExpense(t *testing.T) {
+func TestExpenses_CreateExpense(t *testing.T) {
 
-	expenses := []rdsModels.ExpenseTable{
+	expenses := []dbModels.ExpenseTable{
 		houseRentExpenseTable,
 		restaurantExpenseTable,
 	}
 	expensesCache := cache.NewExpense(expenses, cardsCache, categoriesCache, subCategoriesCache)
 
-	expensesController, err := NewExpensesService(&expensesCache, &subCategoriesCache, &cardsCache)
+	expensesController, err := NewExpenses(&expensesCache, &subCategoriesCache, &cardsCache)
 	if err != nil {
 		t.Fatalf("error creating expenses service: %v\n", err)
 	}
@@ -257,7 +257,7 @@ func TestExpensesService_CreateExpense(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		expense httpModels.Expense
+		expense models.Expense
 		fields  fields
 		want    want
 	}{
@@ -281,7 +281,7 @@ func TestExpensesService_CreateExpense(t *testing.T) {
 				CardRepository:                &cardsCache,
 				ExpensesSubCategoryRepository: &subCategoriesCache,
 			},
-			expense: httpModels.Expense{
+			expense: models.Expense{
 				Value:       200.0,
 				Date:        "2020-02-01",
 				SubCategory: "Rent",
@@ -300,7 +300,7 @@ func TestExpensesService_CreateExpense(t *testing.T) {
 				CardRepository:                &cardsCache,
 				ExpensesSubCategoryRepository: &subCategoriesCache,
 			},
-			expense: httpModels.Expense{
+			expense: models.Expense{
 				Value:       200.0,
 				Date:        "01-Feb-2020",
 				SubCategory: "Rent",
@@ -338,14 +338,14 @@ func TestExpensesService_CreateExpense(t *testing.T) {
 
 			switch w.Code {
 			case http.StatusCreated:
-				var r httpModels.ExpenseCreateResponse
+				var r models.ExpenseCreateResponse
 				err = json.NewDecoder(w.Body).Decode(&r)
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
 				}
 				assert.Equal(t, tt.want.expenseID, r.ID)
 			case http.StatusBadRequest:
-				var r httpModels.ErrorResponse
+				var r models.ErrorResponse
 				err = json.NewDecoder(w.Body).Decode(&r)
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
@@ -356,15 +356,15 @@ func TestExpensesService_CreateExpense(t *testing.T) {
 	}
 }
 
-func TestExpensesService_UpdateExpense(t *testing.T) {
+func TestExpenses_UpdateExpense(t *testing.T) {
 
-	expenses := []rdsModels.ExpenseTable{
+	expenses := []dbModels.ExpenseTable{
 		houseRentExpenseTable,
 		restaurantExpenseTable,
 	}
 	expensesCache := cache.NewExpense(expenses, cardsCache, categoriesCache, subCategoriesCache)
 
-	expensesController, err := NewExpensesService(&expensesCache, &subCategoriesCache, &cardsCache)
+	expensesController, err := NewExpenses(&expensesCache, &subCategoriesCache, &cardsCache)
 	if err != nil {
 		t.Fatalf("error creating expenses service: %v\n", err)
 	}
@@ -385,7 +385,7 @@ func TestExpensesService_UpdateExpense(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		expense httpModels.Expense
+		expense models.Expense
 		fields  fields
 		want    want
 		params  map[string]string
@@ -397,7 +397,7 @@ func TestExpensesService_UpdateExpense(t *testing.T) {
 				CardRepository:                &cardsCache,
 				ExpensesSubCategoryRepository: &subCategoriesCache,
 			},
-			expense: httpModels.Expense{
+			expense: models.Expense{
 				ID:          1,
 				Value:       250.0,
 				Date:        firstFebruary2020String,
@@ -418,7 +418,7 @@ func TestExpensesService_UpdateExpense(t *testing.T) {
 				CardRepository:                &cardsCache,
 				ExpensesSubCategoryRepository: &subCategoriesCache,
 			},
-			expense: httpModels.Expense{
+			expense: models.Expense{
 				ID:          1,
 				Value:       250.0,
 				Date:        "2020-02-01",
@@ -438,7 +438,7 @@ func TestExpensesService_UpdateExpense(t *testing.T) {
 				CardRepository:                &cardsCache,
 				ExpensesSubCategoryRepository: &subCategoriesCache,
 			},
-			expense: httpModels.Expense{
+			expense: models.Expense{
 				ID:          1,
 				Value:       200.0,
 				Date:        "2020-02-01",
@@ -458,7 +458,7 @@ func TestExpensesService_UpdateExpense(t *testing.T) {
 				CardRepository:                &cardsCache,
 				ExpensesSubCategoryRepository: &subCategoriesCache,
 			},
-			expense: httpModels.Expense{
+			expense: models.Expense{
 				ID:          1,
 				Value:       200.0,
 				Date:        "01-Feb-2020",
@@ -502,7 +502,7 @@ func TestExpensesService_UpdateExpense(t *testing.T) {
 			switch w.Code {
 			case http.StatusNoContent:
 			case http.StatusBadRequest:
-				var r httpModels.ErrorResponse
+				var r models.ErrorResponse
 				err = json.NewDecoder(w.Body).Decode(&r)
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
@@ -513,9 +513,9 @@ func TestExpensesService_UpdateExpense(t *testing.T) {
 	}
 }
 
-func TestExpensesService_GetExpenseByID(t *testing.T) {
+func TestExpenses_GetExpenseByID(t *testing.T) {
 
-	expenses := []rdsModels.ExpenseTable{
+	expenses := []dbModels.ExpenseTable{
 		houseRentExpenseTable,
 		restaurantExpenseTable,
 		{
@@ -529,7 +529,7 @@ func TestExpensesService_GetExpenseByID(t *testing.T) {
 	}
 	expensesCache := cache.NewExpense(expenses, cardsCache, categoriesCache, subCategoriesCache)
 
-	expensesController, err := NewExpensesService(&expensesCache, &subCategoriesCache, &cardsCache)
+	expensesController, err := NewExpenses(&expensesCache, &subCategoriesCache, &cardsCache)
 	if err != nil {
 		t.Fatalf("error creating expenses service: %v\n", err)
 	}
@@ -542,7 +542,7 @@ func TestExpensesService_GetExpenseByID(t *testing.T) {
 
 	type want struct {
 		statusCode int
-		expense    httpModels.Expense
+		expense    models.Expense
 		errorMsg   string
 	}
 
@@ -617,14 +617,14 @@ func TestExpensesService_GetExpenseByID(t *testing.T) {
 
 			switch w.Code {
 			case http.StatusOK:
-				var r httpModels.Expense
+				var r models.Expense
 				err = json.NewDecoder(w.Body).Decode(&r)
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
 				}
 				assert.Equal(t, tt.want.expense, r)
 			case http.StatusBadRequest:
-				var r httpModels.ErrorResponse
+				var r models.ErrorResponse
 				err = json.NewDecoder(w.Body).Decode(&r)
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
@@ -635,9 +635,9 @@ func TestExpensesService_GetExpenseByID(t *testing.T) {
 	}
 }
 
-func TestExpensesService_GetExpensesByCategory(t *testing.T) {
+func TestExpenses_GetExpensesByCategory(t *testing.T) {
 
-	expenses := []rdsModels.ExpenseTable{
+	expenses := []dbModels.ExpenseTable{
 		houseRentExpenseTable,
 		restaurantExpenseTable,
 		{
@@ -651,7 +651,7 @@ func TestExpensesService_GetExpensesByCategory(t *testing.T) {
 	}
 	expensesCache := cache.NewExpense(expenses, cardsCache, categoriesCache, subCategoriesCache)
 
-	expensesController, err := NewExpensesService(&expensesCache, &subCategoriesCache, &cardsCache)
+	expensesController, err := NewExpenses(&expensesCache, &subCategoriesCache, &cardsCache)
 	if err != nil {
 		t.Fatalf("error creating expenses service: %v\n", err)
 	}
@@ -664,7 +664,7 @@ func TestExpensesService_GetExpensesByCategory(t *testing.T) {
 
 	type want struct {
 		statusCode int
-		expenses   []httpModels.Expense
+		expenses   []models.Expense
 		errorMsg   string
 	}
 
@@ -683,7 +683,7 @@ func TestExpensesService_GetExpensesByCategory(t *testing.T) {
 			},
 			want: want{
 				statusCode: http.StatusOK,
-				expenses: []httpModels.Expense{
+				expenses: []models.Expense{
 					houseRentExpenseHTTPModel,
 					{
 						ID:          3,
@@ -736,14 +736,14 @@ func TestExpensesService_GetExpensesByCategory(t *testing.T) {
 
 			switch w.Code {
 			case http.StatusOK:
-				var r []httpModels.Expense
+				var r []models.Expense
 				err = json.NewDecoder(w.Body).Decode(&r)
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
 				}
 				assert.Equal(t, tt.want.expenses, r)
 			case http.StatusBadRequest:
-				var r httpModels.ErrorResponse
+				var r models.ErrorResponse
 				err = json.NewDecoder(w.Body).Decode(&r)
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
@@ -754,9 +754,9 @@ func TestExpensesService_GetExpensesByCategory(t *testing.T) {
 	}
 }
 
-func TestExpensesService_GetExpensesBySubCategory(t *testing.T) {
+func TestExpenses_GetExpensesBySubCategory(t *testing.T) {
 
-	expenses := []rdsModels.ExpenseTable{
+	expenses := []dbModels.ExpenseTable{
 		houseRentExpenseTable,
 		restaurantExpenseTable,
 		{
@@ -770,7 +770,7 @@ func TestExpensesService_GetExpensesBySubCategory(t *testing.T) {
 	}
 	expensesCache := cache.NewExpense(expenses, cardsCache, categoriesCache, subCategoriesCache)
 
-	expensesController, err := NewExpensesService(&expensesCache, &subCategoriesCache, &cardsCache)
+	expensesController, err := NewExpenses(&expensesCache, &subCategoriesCache, &cardsCache)
 	if err != nil {
 		t.Fatalf("error creating expenses service: %v\n", err)
 	}
@@ -783,7 +783,7 @@ func TestExpensesService_GetExpensesBySubCategory(t *testing.T) {
 
 	type want struct {
 		statusCode int
-		expenses   []httpModels.Expense
+		expenses   []models.Expense
 		errorMsg   string
 	}
 
@@ -802,7 +802,7 @@ func TestExpensesService_GetExpensesBySubCategory(t *testing.T) {
 			},
 			want: want{
 				statusCode: http.StatusOK,
-				expenses: []httpModels.Expense{
+				expenses: []models.Expense{
 					houseRentExpenseHTTPModel,
 					{
 						ID:          3,
@@ -855,14 +855,14 @@ func TestExpensesService_GetExpensesBySubCategory(t *testing.T) {
 
 			switch w.Code {
 			case http.StatusOK:
-				var r []httpModels.Expense
+				var r []models.Expense
 				err = json.NewDecoder(w.Body).Decode(&r)
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
 				}
 				assert.Equal(t, tt.want.expenses, r)
 			case http.StatusBadRequest:
-				var r httpModels.ErrorResponse
+				var r models.ErrorResponse
 				err = json.NewDecoder(w.Body).Decode(&r)
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
@@ -873,9 +873,9 @@ func TestExpensesService_GetExpensesBySubCategory(t *testing.T) {
 	}
 }
 
-func TestExpensesService_GetExpensesByCard(t *testing.T) {
+func TestExpenses_GetExpensesByCard(t *testing.T) {
 
-	expenses := []rdsModels.ExpenseTable{
+	expenses := []dbModels.ExpenseTable{
 		houseRentExpenseTable,
 		restaurantExpenseTable,
 		{
@@ -889,7 +889,7 @@ func TestExpensesService_GetExpensesByCard(t *testing.T) {
 	}
 	expensesCache := cache.NewExpense(expenses, cardsCache, categoriesCache, subCategoriesCache)
 
-	expensesController, err := NewExpensesService(&expensesCache, &subCategoriesCache, &cardsCache)
+	expensesController, err := NewExpenses(&expensesCache, &subCategoriesCache, &cardsCache)
 	if err != nil {
 		t.Fatalf("error creating expenses service: %v\n", err)
 	}
@@ -902,7 +902,7 @@ func TestExpensesService_GetExpensesByCard(t *testing.T) {
 
 	type want struct {
 		statusCode int
-		expenses   []httpModels.Expense
+		expenses   []models.Expense
 		errorMsg   string
 	}
 
@@ -921,7 +921,7 @@ func TestExpensesService_GetExpensesByCard(t *testing.T) {
 			},
 			want: want{
 				statusCode: http.StatusOK,
-				expenses: []httpModels.Expense{
+				expenses: []models.Expense{
 					houseRentExpenseHTTPModel,
 					{
 						ID:          3,
@@ -974,14 +974,14 @@ func TestExpensesService_GetExpensesByCard(t *testing.T) {
 
 			switch w.Code {
 			case http.StatusOK:
-				var r []httpModels.Expense
+				var r []models.Expense
 				err = json.NewDecoder(w.Body).Decode(&r)
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
 				}
 				assert.Equal(t, tt.want.expenses, r)
 			case http.StatusBadRequest:
-				var r httpModels.ErrorResponse
+				var r models.ErrorResponse
 				err = json.NewDecoder(w.Body).Decode(&r)
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
@@ -992,15 +992,15 @@ func TestExpensesService_GetExpensesByCard(t *testing.T) {
 	}
 }
 
-func TestExpensesService_GetExpensesByDates(t *testing.T) {
+func TestExpenses_GetExpensesByDates(t *testing.T) {
 
-	expenses := []rdsModels.ExpenseTable{
+	expenses := []dbModels.ExpenseTable{
 		houseRentExpenseTable,
 		restaurantExpenseTable,
 	}
 	expensesCache := cache.NewExpense(expenses, cardsCache, categoriesCache, subCategoriesCache)
 
-	expensesController, err := NewExpensesService(&expensesCache, &subCategoriesCache, &cardsCache)
+	expensesController, err := NewExpenses(&expensesCache, &subCategoriesCache, &cardsCache)
 	if err != nil {
 		t.Fatalf("error creating expenses service: %v\n", err)
 	}
@@ -1013,7 +1013,7 @@ func TestExpensesService_GetExpensesByDates(t *testing.T) {
 
 	type want struct {
 		statusCode int
-		expenses   []httpModels.Expense
+		expenses   []models.Expense
 		errorMsg   string
 	}
 
@@ -1032,7 +1032,7 @@ func TestExpensesService_GetExpensesByDates(t *testing.T) {
 			},
 			want: want{
 				statusCode: http.StatusOK,
-				expenses: []httpModels.Expense{
+				expenses: []models.Expense{
 					houseRentExpenseHTTPModel,
 					restaurantExpenseHTTPModel,
 				},
@@ -1091,14 +1091,14 @@ func TestExpensesService_GetExpensesByDates(t *testing.T) {
 
 			switch w.Code {
 			case http.StatusOK:
-				var r []httpModels.Expense
+				var r []models.Expense
 				err = json.NewDecoder(w.Body).Decode(&r)
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
 				}
 				assert.Equal(t, tt.want.expenses, r)
 			case http.StatusBadRequest:
-				var r httpModels.ErrorResponse
+				var r models.ErrorResponse
 				err = json.NewDecoder(w.Body).Decode(&r)
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
@@ -1109,15 +1109,15 @@ func TestExpensesService_GetExpensesByDates(t *testing.T) {
 	}
 }
 
-func TestExpensesService_DeleteExpense(t *testing.T) {
+func TestExpenses_DeleteExpense(t *testing.T) {
 
-	expenses := []rdsModels.ExpenseTable{
+	expenses := []dbModels.ExpenseTable{
 		houseRentExpenseTable,
 		restaurantExpenseTable,
 	}
 	expensesCache := cache.NewExpense(expenses, cardsCache, categoriesCache, subCategoriesCache)
 
-	expensesController, err := NewExpensesService(&expensesCache, &subCategoriesCache, &cardsCache)
+	expensesController, err := NewExpenses(&expensesCache, &subCategoriesCache, &cardsCache)
 	if err != nil {
 		t.Fatalf("error creating expenses service: %v\n", err)
 	}
@@ -1201,7 +1201,7 @@ func TestExpensesService_DeleteExpense(t *testing.T) {
 			switch w.Code {
 			case http.StatusNoContent:
 			case http.StatusBadRequest:
-				var r httpModels.ErrorResponse
+				var r models.ErrorResponse
 				err = json.NewDecoder(w.Body).Decode(&r)
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
