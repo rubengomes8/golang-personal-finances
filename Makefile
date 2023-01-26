@@ -1,12 +1,16 @@
 GO_MODULE=github.com/rubengomes8/golang-personal-finances
-BIN_DIR=bin
 
 # DOCKER #
-up:
-	docker-compose up -d --build
+docker-up:
+	docker-compose -f docker-compose.yaml up --build
 
-down:
-	docker-compose down
+docker-down: ## Stop docker containers and clear artefacts.
+	docker-compose -f docker-compose.yaml down
+	docker system prune
+
+docker-image-prune: ## remove all images
+	docker image prune -a --force
+
 
 # PROTO GEN #
 cards:
@@ -23,13 +27,6 @@ expenses:
 
 all: cards expense_categories expense_subcategories expenses
 
-
-# BUILD GO #
-build-expenses:
-	go build -o ${BIN_DIR}/grpc_server ./cmd/grpc/main.go
-	go build -o ${BIN_DIR}/http_server ./cmd/http/main.go
-
-build: build-expenses
 
 # LINT #
 lint:

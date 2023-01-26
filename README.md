@@ -13,37 +13,18 @@ This repo builds a service whose goal is to manage personal finances. It creates
 Here is a simple diagram that describes the project:
 ![Project Diagram](resources/images/golang-personal-finances-backend-diagram.png)
 
+## Technologies used
+- Protobuf 3
+- gRPC
+- Golang (using gin http framework)
+- Postgres
+- Docker
+
 ## How to run locally
 
-To run locally you need to:
-1. set up the docker environment with a postgres image database
-2. build the gRPC and HTTP Server binaries, and run one/both of them
-3. you can test the HTTP Server using postman (**TODO**: add postman collection here)
-4. you can test the gRPC Server using this client https://github.com/rubengomes8/golang-personal-finances-client -(**TODO**: need to update it)
-
-### 1. Set up docker environment
-Open the Docker Desktop and run on the project root folder:
-
-```make up```
-
-### 2. Build server binaries
-On the project root folder run:
-```make build```
-
-It will create the binaries on the `bin/` folder. You can execute them by running:
-
-```
-./bin/grpc_server
-./bin/http_server
-``` 
-
-### 3. Test the HTTP Server
-You can test the HTTP Server using this postman collection (**TODO**)
-
-### 4. Test the gRPC Server
-You can test the gRPC Server using this gRPC client (**TODO**) or creating your own.
-
-
+1. On the project root folder run `make docker-up` - It builds the database and the gRPC / HTTP apps
+2. After the environment is set up, you can test the HTTP Server using postman (**TODO**: add postman collection here)
+3. You can also test the gRPC Server using this client https://github.com/rubengomes8/golang-personal-finances-client / or create your own - (**TODO**: need to update it)
 
 
 
