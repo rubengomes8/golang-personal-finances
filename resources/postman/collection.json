@@ -1,0 +1,257 @@
+{
+	"info": {
+		"_postman_id": "3e010a1a-d7fa-4a42-a48f-09e79b5bf543",
+		"name": "Finances",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Expenses",
+			"item": [
+				{
+					"name": "Create Expense",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJleHAiOjE2NzQ0OTI0OTIsInVzZXJfaWQiOjB9.BZb9ucnMyp0923NyRTd9bdqImTPXMJvBTgAj3d67fLI",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"value\": 25,\n    \"date\": \"2023-01-19\",\n    \"sub_category\": \"Restaurants\",\n    \"card\": \"Food allowance\",\n    \"description\": \"testing on postman\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}/v1/expense",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"v1",
+								"expense"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Expense",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"value\": 250,\n    \"date\": \"2023-01-20\",\n    \"sub_category\": \"Rent\",\n    \"card\": \"CGD\",\n    \"description\": \"testing on postman\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}/v1/expense/1",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"v1",
+								"expense",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Expense",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/v1/expense/1",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"v1",
+								"expense",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Expense by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/v1/expense/1",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"v1",
+								"expense",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Expenses by Category",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/v1/expenses/category/House",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"v1",
+								"expenses",
+								"category",
+								"House"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Expenses by SubCategory",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/v1/expenses/subcategory/Restaurants",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"v1",
+								"expenses",
+								"subcategory",
+								"Restaurants"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Expenses by Card",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/v1/expenses/card/CGD",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"v1",
+								"expenses",
+								"card",
+								"CGD"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Expenses by Dates",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/v1/expenses/dates/2001-01-01/2030-02-02",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"v1",
+								"expenses",
+								"dates",
+								"2001-01-01",
+								"2030-02-02"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"rubendsgomes8\",\n    \"password\": \"123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}/auth/register",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"rubendsgomes8\",\n    \"password\": \"123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}/auth/login",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
