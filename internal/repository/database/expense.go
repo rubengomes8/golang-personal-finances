@@ -38,7 +38,7 @@ func NewExpensesRepo(
 	}
 }
 
-// InsertExpense inserts an expense on the expenses rds table
+// InsertExpense inserts an expense on the expenses db table
 func (e *ExpensesRepo) InsertExpense(ctx context.Context, exp models.ExpenseTable) (int64, error) {
 
 	insertStmt := fmt.Sprintf(`INSERT INTO %s 
@@ -63,7 +63,7 @@ func (e *ExpensesRepo) InsertExpense(ctx context.Context, exp models.ExpenseTabl
 	return id, nil
 }
 
-// UpdateExpense updates an expense on the expenses rds table
+// UpdateExpense updates an expense on the expenses db table
 func (e *ExpensesRepo) UpdateExpense(ctx context.Context, exp models.ExpenseTable) (int64, error) {
 
 	updateStmt := fmt.Sprintf(`UPDATE %s SET 
@@ -95,7 +95,7 @@ func (e *ExpensesRepo) UpdateExpense(ctx context.Context, exp models.ExpenseTabl
 	return exp.ID, nil
 }
 
-// GetExpenseByID gets an expense from the expenses rds table by id
+// GetExpenseByID gets an expense from the expenses db table by id
 func (e *ExpensesRepo) GetExpenseByID(ctx context.Context, id int64) (models.ExpenseView, error) {
 
 	selectStmt := fmt.Sprintf(`SELECT 
@@ -129,7 +129,7 @@ func (e *ExpensesRepo) GetExpenseByID(ctx context.Context, id int64) (models.Exp
 	return exp, nil
 }
 
-// GetExpensesByDates gets expenses from the expenses rds table that matches the dates' range provided
+// GetExpensesByDates gets expenses from the expenses db table that matches the dates' range provided
 func (e *ExpensesRepo) GetExpensesByDates(
 	ctx context.Context,
 	minDate time.Time,
@@ -179,7 +179,7 @@ func (e *ExpensesRepo) GetExpensesByDates(
 	return expenses, nil
 }
 
-// GetExpensesByCategory gets expenses from the expenses rds table that matches the category provided
+// GetExpensesByCategory gets expenses from the expenses db table that matches the category provided
 func (e *ExpensesRepo) GetExpensesByCategory(ctx context.Context, category string) ([]models.ExpenseView, error) {
 
 	selectStmt := fmt.Sprintf(`SELECT 
@@ -225,7 +225,7 @@ func (e *ExpensesRepo) GetExpensesByCategory(ctx context.Context, category strin
 	return expenses, nil
 }
 
-// GetExpensesBySubCategory gets expenses from the expenses rds table that matches the subcategory provided
+// GetExpensesBySubCategory gets expenses from the expenses db table that matches the subcategory provided
 func (e *ExpensesRepo) GetExpensesBySubCategory(ctx context.Context, subCategory string) ([]models.ExpenseView, error) {
 
 	selectStmt := fmt.Sprintf(`SELECT 
@@ -271,7 +271,7 @@ func (e *ExpensesRepo) GetExpensesBySubCategory(ctx context.Context, subCategory
 	return expenses, nil
 }
 
-// GetExpensesByCard gets expenses from the expenses rds table that matches the card provided
+// GetExpensesByCard gets expenses from the expenses db table that matches the card provided
 func (e *ExpensesRepo) GetExpensesByCard(ctx context.Context, card string) ([]models.ExpenseView, error) {
 
 	selectStmt := fmt.Sprintf(`SELECT 
@@ -316,7 +316,7 @@ func (e *ExpensesRepo) GetExpensesByCard(ctx context.Context, card string) ([]mo
 	return expenses, nil
 }
 
-// DeleteExpense deletes an expense from the expenses rds table
+// DeleteExpense deletes an expense from the expenses db table
 func (e *ExpensesRepo) DeleteExpense(ctx context.Context, id int64) error {
 
 	deleteStmt := fmt.Sprintf(`DELETE FROM %s 
@@ -337,12 +337,4 @@ func (e *ExpensesRepo) DeleteExpense(ctx context.Context, id int64) error {
 	}
 
 	return nil
-}
-
-func ToTime(unixTime int64) time.Time {
-	return time.Unix(unixTime, 0)
-}
-
-func ToUnix(time time.Time) int64 {
-	return time.Unix()
 }
