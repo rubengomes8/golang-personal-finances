@@ -1,4 +1,4 @@
-package rds
+package models
 
 // CardTable is the rds card model
 type CardTable struct {

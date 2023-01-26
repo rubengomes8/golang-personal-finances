@@ -1,4 +1,4 @@
-package http
+package models
 
 // Expense is the http expense model
 type Expense struct {

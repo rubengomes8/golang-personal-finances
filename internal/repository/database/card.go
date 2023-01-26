@@ -1,4 +1,4 @@
-package card
+package database
 
 import (
 	"context"
@@ -6,27 +6,27 @@ import (
 	"fmt"
 
 	"github.com/rubengomes8/golang-personal-finances/internal/enums"
-	models "github.com/rubengomes8/golang-personal-finances/internal/models/rds"
+	"github.com/rubengomes8/golang-personal-finances/internal/repository/models"
 )
 
 const (
 	tableName = "cards"
 )
 
-// CardRDS implements the card repository methods
-type CardRDS struct {
+// CardRepo implements the card repository methods
+type CardRepo struct {
 	database *sql.DB
 }
 
-// NewCardRDS creates a new CardRDS
-func NewCardRDS(database *sql.DB) CardRDS {
-	return CardRDS{
+// NewCardRepo creates a new CardRepo
+func NewCardRepo(database *sql.DB) CardRepo {
+	return CardRepo{
 		database: database,
 	}
 }
 
-// InsertCard inserts a card on the cards' rds table
-func (c *CardRDS) InsertCard(ctx context.Context, card models.CardTable) (int64, error) {
+// InsertCardRepo inserts a card on the cards' db table
+func (c *CardRepo) InsertCard(ctx context.Context, card models.CardTable) (int64, error) {
 
 	insertStmt := fmt.Sprintf("INSERT INTO %s (name) VALUES ($1) RETURNING id", tableName)
 
@@ -40,8 +40,8 @@ func (c *CardRDS) InsertCard(ctx context.Context, card models.CardTable) (int64,
 	return id, nil
 }
 
-// UpdateCard updates a card on the cards' rds table
-func (c *CardRDS) UpdateCard(ctx context.Context, card models.CardTable) (int64, error) {
+// UpdateCardRepo updates a card on the cards' db table
+func (c *CardRepo) UpdateCard(ctx context.Context, card models.CardTable) (int64, error) {
 	updateStmt := fmt.Sprintf("UPDATE %s SET name = $1 WHERE id = $2", tableName)
 
 	_, err := c.database.ExecContext(ctx, updateStmt, card.Name, card.ID)
@@ -52,8 +52,8 @@ func (c *CardRDS) UpdateCard(ctx context.Context, card models.CardTable) (int64,
 	return card.ID, nil
 }
 
-// GetCardByID gets a card from the cards' rds table by id
-func (c *CardRDS) GetCardByID(ctx context.Context, id int64) (models.CardTable, error) {
+// GetCardByID gets a card from the cards' db table by id
+func (c *CardRepo) GetCardByID(ctx context.Context, id int64) (models.CardTable, error) {
 
 	selectStmt := fmt.Sprintf("SELECT * FROM %s WHERE id = $1", tableName)
 
@@ -69,8 +69,8 @@ func (c *CardRDS) GetCardByID(ctx context.Context, id int64) (models.CardTable, 
 	return card, nil
 }
 
-// GetCardByName gets a card from the cards' rds table by name
-func (c *CardRDS) GetCardByName(ctx context.Context, name string) (models.CardTable, error) {
+// GetCardByName gets a card from the cards' db table by name
+func (c *CardRepo) GetCardByName(ctx context.Context, name string) (models.CardTable, error) {
 
 	selectStmt := fmt.Sprintf("SELECT * FROM %s WHERE name = $1", tableName)
 
@@ -85,8 +85,8 @@ func (c *CardRDS) GetCardByName(ctx context.Context, name string) (models.CardTa
 	return card, nil
 }
 
-// DeleteCard deletes a card from the cards' rds table
-func (c *CardRDS) DeleteCard(ctx context.Context, id int64) error {
+// DeleteCardRepo deletes a card from the cards' db table
+func (c *CardRepo) DeleteCard(ctx context.Context, id int64) error {
 	deleteStmt := fmt.Sprintf("DELETE FROM %s WHERE id = $1", tableName)
 
 	result, err := c.database.ExecContext(ctx, deleteStmt, id)

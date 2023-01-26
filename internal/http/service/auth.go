@@ -5,9 +5,9 @@ import (
 	"net/http"
 
 	"github.com/rubengomes8/golang-personal-finances/internal/http/auth"
-	httpModels "github.com/rubengomes8/golang-personal-finances/internal/models/http"
-	rdsModels "github.com/rubengomes8/golang-personal-finances/internal/models/rds"
+	"github.com/rubengomes8/golang-personal-finances/internal/http/models"
 	"github.com/rubengomes8/golang-personal-finances/internal/repository"
+	dbModels "github.com/rubengomes8/golang-personal-finances/internal/repository/models"
 
 	"github.com/gin-gonic/gin"
 )
@@ -27,10 +27,10 @@ func NewAuthService(userRepo repository.UserRepo) (AuthService, error) {
 // Register registers a user on the database
 func (a *AuthService) Register(ctx *gin.Context) {
 
-	var input httpModels.RegisterInput
+	var input models.RegisterInput
 
 	if err := ctx.ShouldBindJSON(&input); err != nil {
-		ctx.JSON(http.StatusBadRequest, httpModels.ErrorResponse{
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
 			ErrorMsg: fmt.Sprintf("wrong body format or incomplete data: %v", err),
 		})
 		return
@@ -38,13 +38,13 @@ func (a *AuthService) Register(ctx *gin.Context) {
 
 	hashedPwd, err := auth.EncryptPassword(input.Username, input.Password)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, httpModels.ErrorResponse{
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
 			ErrorMsg: fmt.Sprintf("could not encrypt user password: %v", err),
 		})
 		return
 	}
 
-	user := rdsModels.UserTable{
+	user := dbModels.UserTable{
 		Username: input.Username,
 		Passhash: hashedPwd,
 		Salt:     "",
@@ -52,7 +52,7 @@ func (a *AuthService) Register(ctx *gin.Context) {
 
 	_, err = a.UserRepo.InsertUser(ctx, user)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, httpModels.ErrorResponse{
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
 			ErrorMsg: fmt.Sprintf("could not insert user: %v", err),
 		})
 		return
@@ -65,10 +65,10 @@ func (a *AuthService) Register(ctx *gin.Context) {
 // Login logs in a user
 func (a *AuthService) Login(ctx *gin.Context) {
 
-	var input httpModels.LoginInput
+	var input models.LoginInput
 
 	if err := ctx.ShouldBindJSON(&input); err != nil {
-		ctx.JSON(http.StatusBadRequest, httpModels.ErrorResponse{
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
 			ErrorMsg: fmt.Sprintf("wrong body format or incomplete data: %v", err),
 		})
 		return
@@ -76,7 +76,7 @@ func (a *AuthService) Login(ctx *gin.Context) {
 
 	userTable, err := a.UserRepo.GetUserByUsername(ctx, input.Username)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, httpModels.ErrorResponse{
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
 			ErrorMsg: fmt.Sprintf("error getting user by username: %v", err),
 		})
 		return
@@ -84,13 +84,13 @@ func (a *AuthService) Login(ctx *gin.Context) {
 
 	token, err := auth.LoginCheck(ctx, input.Username, input.Password, userTable)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, httpModels.ErrorResponse{
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
 			ErrorMsg: fmt.Sprintf("error checking user login: %v", err),
 		})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, httpModels.TokenResponse{
+	ctx.JSON(http.StatusOK, models.TokenResponse{
 		Token: token,
 	})
 	ctx.Writer.Flush()

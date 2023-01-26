@@ -1,4 +1,4 @@
-package expense
+package database
 
 import (
 	"context"
@@ -6,27 +6,27 @@ import (
 	"fmt"
 
 	"github.com/rubengomes8/golang-personal-finances/internal/enums"
-	models "github.com/rubengomes8/golang-personal-finances/internal/models/rds"
+	"github.com/rubengomes8/golang-personal-finances/internal/repository/models"
 )
 
 const (
 	tableNameSubCategories = "expense_subcategories"
 )
 
-// SubCategoryRDS implements the expense subcategory repository methods
-type SubCategoryRDS struct {
+// ExpenseSubCategoryRepo implements the expense subcategory repository methods
+type ExpenseSubCategoryRepo struct {
 	database *sql.DB
 }
 
-// NewSubCategoryRDS creates a new SubCategoryRDS
-func NewSubCategoryRDS(database *sql.DB) SubCategoryRDS {
-	return SubCategoryRDS{
+// NewExpenseSubCategoryRepo creates a new ExpenseSubCategoryRepo
+func NewExpenseSubCategoryRepo(database *sql.DB) ExpenseSubCategoryRepo {
+	return ExpenseSubCategoryRepo{
 		database: database,
 	}
 }
 
-// InsertExpenseSubCategory inserts an expense subcategory on the expense subcategories rds table
-func (es *SubCategoryRDS) InsertExpenseSubCategory(
+// InsertExpenseSubCategory inserts an expense subcategory on the expense subcategories db table
+func (es *ExpenseSubCategoryRepo) InsertExpenseSubCategory(
 	ctx context.Context,
 	expenseSubCategory models.ExpenseSubCategoryTable,
 ) (int64, error) {
@@ -42,8 +42,8 @@ func (es *SubCategoryRDS) InsertExpenseSubCategory(
 	return id, nil
 }
 
-// UpdateExpenseSubCategory updates an expense subcategory on the expense subcategories rds table
-func (es *SubCategoryRDS) UpdateExpenseSubCategory(
+// UpdateExpenseSubCategory updates an expense subcategory on the expense subcategories db table
+func (es *ExpenseSubCategoryRepo) UpdateExpenseSubCategory(
 	ctx context.Context,
 	expenseSubCategory models.ExpenseSubCategoryTable,
 ) (int64, error) {
@@ -58,8 +58,8 @@ func (es *SubCategoryRDS) UpdateExpenseSubCategory(
 	return expenseSubCategory.ID, nil
 }
 
-// GetExpenseSubCategoryByID gets an expense subcategory from the expense categories rds table by id
-func (es *SubCategoryRDS) GetExpenseSubCategoryByID(
+// GetExpenseSubCategoryByID gets an expense subcategory from the expense categories db table by id
+func (es *ExpenseSubCategoryRepo) GetExpenseSubCategoryByID(
 	ctx context.Context,
 	id int64,
 ) (models.ExpenseSubCategoryTable, error) {
@@ -77,8 +77,8 @@ func (es *SubCategoryRDS) GetExpenseSubCategoryByID(
 	return expenseSubCategory, nil
 }
 
-// GetExpenseSubCategoryByName gets an expense subcategory from the expense categories rds table by name
-func (es *SubCategoryRDS) GetExpenseSubCategoryByName(
+// GetExpenseSubCategoryByName gets an expense subcategory from the expense categories db table by name
+func (es *ExpenseSubCategoryRepo) GetExpenseSubCategoryByName(
 	ctx context.Context,
 	name string,
 ) (models.ExpenseSubCategoryTable, error) {
@@ -96,8 +96,8 @@ func (es *SubCategoryRDS) GetExpenseSubCategoryByName(
 	return expenseSubCategory, nil
 }
 
-// DeleteExpenseSubCategory deletes an expense category from the expense subcategories rds table
-func (es *SubCategoryRDS) DeleteExpenseSubCategory(ctx context.Context, id int64) error {
+// DeleteExpenseSubCategory deletes an expense category from the expense subcategories db table
+func (es *ExpenseSubCategoryRepo) DeleteExpenseSubCategory(ctx context.Context, id int64) error {
 
 	deleteStmt := fmt.Sprintf("DELETE FROM %s WHERE id = $1", tableNameSubCategories)
 

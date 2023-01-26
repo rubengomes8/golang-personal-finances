@@ -1,4 +1,4 @@
-package grpc
+package service
 
 import (
 	"context"
@@ -6,26 +6,26 @@ import (
 	"log"
 	"time"
 
-	models "github.com/rubengomes8/golang-personal-finances/internal/models/rds"
 	"github.com/rubengomes8/golang-personal-finances/internal/pb/expenses"
 	"github.com/rubengomes8/golang-personal-finances/internal/repository"
+	"github.com/rubengomes8/golang-personal-finances/internal/repository/models"
 )
 
-// ExpensesService implements ExpensesServiceServer methods
-type ExpensesService struct {
+// Expenses implements ExpensesServiceServer methods
+type Expenses struct {
 	expenses.ExpensesServiceServer
 	ExpensesRepository            repository.ExpenseRepo
 	ExpensesSubCategoryRepository repository.ExpenseSubCategoryRepo
 	CardRepository                repository.CardRepo
 }
 
-// NewExpensesService creates a new ExpensesService
-func NewExpensesService(
+// NewExpenses creates a new ExpensesService
+func NewExpenses(
 	expRepo repository.ExpenseRepo,
 	expSubCatRepo repository.ExpenseSubCategoryRepo,
 	cardRepo repository.CardRepo,
-) (ExpensesService, error) {
-	return ExpensesService{
+) (Expenses, error) {
+	return Expenses{
 		ExpensesRepository:            expRepo,
 		ExpensesSubCategoryRepository: expSubCatRepo,
 		CardRepository:                cardRepo,
@@ -33,7 +33,7 @@ func NewExpensesService(
 }
 
 // CreateExpense creates an expense on the database
-func (s *ExpensesService) CreateExpense(
+func (s *Expenses) CreateExpense(
 	ctx context.Context,
 	req *expenses.ExpenseCreateRequest,
 ) (*expenses.ExpenseCreateResponse, error) {
@@ -62,7 +62,7 @@ func (s *ExpensesService) CreateExpense(
 }
 
 // UpdateExpense updates an expense on the database
-func (s *ExpensesService) UpdateExpense(
+func (s *Expenses) UpdateExpense(
 	ctx context.Context,
 	req *expenses.ExpenseUpdateRequest,
 ) (*expenses.ExpenseUpdateResponse, error) {
@@ -92,7 +92,7 @@ func (s *ExpensesService) UpdateExpense(
 }
 
 // CreateExpenses creates a bulk of expenses on the database
-func (s *ExpensesService) CreateExpenses(
+func (s *Expenses) CreateExpenses(
 	ctx context.Context,
 	req *expenses.ExpensesCreateRequest,
 ) (*expenses.ExpensesCreateResponse, error) {
@@ -104,7 +104,7 @@ func (s *ExpensesService) CreateExpenses(
 }
 
 // GetExpensesByDate gets the expenses from the database that are in the provided dates interval
-func (s *ExpensesService) GetExpensesByDate(
+func (s *Expenses) GetExpensesByDate(
 	ctx context.Context,
 	req *expenses.ExpensesGetRequestByDate,
 ) (*expenses.ExpensesGetResponse, error) {
@@ -127,7 +127,7 @@ func (s *ExpensesService) GetExpensesByDate(
 }
 
 // GetExpensesByCategory gets the expenses from the database that match the category provided
-func (s *ExpensesService) GetExpensesByCategory(
+func (s *Expenses) GetExpensesByCategory(
 	ctx context.Context,
 	req *expenses.ExpensesGetRequestByCategory,
 ) (*expenses.ExpensesGetResponse, error) {
@@ -146,7 +146,7 @@ func (s *ExpensesService) GetExpensesByCategory(
 }
 
 // GetExpensesBySubCategory gets the expenses from the database that match the subcategory provided
-func (s *ExpensesService) GetExpensesBySubCategory(
+func (s *Expenses) GetExpensesBySubCategory(
 	ctx context.Context,
 	req *expenses.ExpensesGetRequestBySubCategory,
 ) (*expenses.ExpensesGetResponse, error) {
@@ -166,7 +166,7 @@ func (s *ExpensesService) GetExpensesBySubCategory(
 }
 
 // GetExpensesByCard gets the expenses from the database that match the card provided
-func (s *ExpensesService) GetExpensesByCard(
+func (s *Expenses) GetExpensesByCard(
 	ctx context.Context,
 	req *expenses.ExpensesGetRequestByCard,
 ) (*expenses.ExpensesGetResponse, error) {
@@ -193,7 +193,7 @@ func timeToUnix(date time.Time) int64 {
 	return date.UTC().Unix()
 }
 
-func (s *ExpensesService) getExpenseSubcategoryAndCardIDByNames(
+func (s *Expenses) getExpenseSubcategoryAndCardIDByNames(
 	ctx context.Context,
 	subCategory, card string,
 ) (models.ExpenseSubCategoryTable, models.CardTable, error) {

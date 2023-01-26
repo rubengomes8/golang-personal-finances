@@ -1,4 +1,4 @@
-package grpc
+package service
 
 import (
 	"context"
@@ -6,10 +6,10 @@ import (
 	"testing"
 	"time"
 
-	rdsModels "github.com/rubengomes8/golang-personal-finances/internal/models/rds"
 	grpc "github.com/rubengomes8/golang-personal-finances/internal/pb/expenses"
 	"github.com/rubengomes8/golang-personal-finances/internal/repository"
 	"github.com/rubengomes8/golang-personal-finances/internal/repository/cache"
+	"github.com/rubengomes8/golang-personal-finances/internal/repository/models"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -30,7 +30,7 @@ var (
 		Id: 1,
 	}
 
-	houseRentExpenseTable = rdsModels.ExpenseTable{
+	houseRentExpenseTable = models.ExpenseTable{
 		ID:            1,
 		Value:         10.0,
 		Date:          firstFebruary2020ZeroHoursUTCTime,
@@ -39,7 +39,7 @@ var (
 		Description:   "Test",
 	}
 
-	restaurantExpenseTable = rdsModels.ExpenseTable{
+	restaurantExpenseTable = models.ExpenseTable{
 		ID:            2,
 		Value:         20.0,
 		Date:          firstFebruary2020ZeroHoursUTCTime,
@@ -51,19 +51,19 @@ var (
 
 // REPO
 var (
-	cards = []rdsModels.CardTable{
+	cards = []models.CardTable{
 		{ID: 1, Name: "CGD"},
 		{ID: 2, Name: "Food allowance"},
 	}
 	cardsCache = cache.NewCard(cards)
 
-	categories = []rdsModels.ExpenseCategoryTable{
+	categories = []models.ExpenseCategoryTable{
 		{ID: 1, Name: "House"},
 		{ID: 2, Name: "Leisure"},
 	}
 	categoriesCache = cache.NewExpenseCategory(categories)
 
-	subCategories = []rdsModels.ExpenseSubCategoryTable{
+	subCategories = []models.ExpenseSubCategoryTable{
 		{ID: 1, Name: "Rent", CategoryID: 1},
 		{ID: 2, Name: "Restaurants", CategoryID: 2},
 	}
@@ -122,9 +122,9 @@ func Test_unixToTime(t *testing.T) {
 	}
 }
 
-func TestExpensesService_CreateExpense(t *testing.T) {
+func TestExpenses_CreateExpense(t *testing.T) {
 
-	expenses := []rdsModels.ExpenseTable{
+	expenses := []models.ExpenseTable{
 		houseRentExpenseTable,
 		restaurantExpenseTable,
 	}
@@ -196,7 +196,7 @@ func TestExpensesService_CreateExpense(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			s := &ExpensesService{
+			s := &Expenses{
 				ExpensesRepository:            tt.fields.ExpensesRepository,
 				ExpensesSubCategoryRepository: tt.fields.ExpensesSubCategoryRepository,
 				CardRepository:                tt.fields.CardRepository,
@@ -204,14 +204,14 @@ func TestExpensesService_CreateExpense(t *testing.T) {
 
 			got, err := s.CreateExpense(tt.args.ctx, tt.args.req)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("ExpensesService.CreateExpense() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Expenses.CreateExpense() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 
 			switch {
 			case !tt.wantErr:
 				if !reflect.DeepEqual(got, tt.want.response) {
-					t.Errorf("ExpensesService.CreateExpense() = %v, want %v", got, tt.want.response)
+					t.Errorf("Expenses.CreateExpense() = %v, want %v", got, tt.want.response)
 				}
 			case tt.wantErr:
 				assert.Contains(t, err.Error(), tt.want.errorMsg)
@@ -221,9 +221,9 @@ func TestExpensesService_CreateExpense(t *testing.T) {
 	}
 }
 
-func TestExpensesService_UpdateExpense(t *testing.T) {
+func TestExpenses_UpdateExpense(t *testing.T) {
 
-	expenses := []rdsModels.ExpenseTable{
+	expenses := []models.ExpenseTable{
 		houseRentExpenseTable,
 		restaurantExpenseTable,
 	}
@@ -305,7 +305,7 @@ func TestExpensesService_UpdateExpense(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			s := &ExpensesService{
+			s := &Expenses{
 				ExpensesRepository:            tt.fields.ExpensesRepository,
 				ExpensesSubCategoryRepository: tt.fields.ExpensesSubCategoryRepository,
 				CardRepository:                tt.fields.CardRepository,
@@ -313,14 +313,14 @@ func TestExpensesService_UpdateExpense(t *testing.T) {
 
 			got, err := s.UpdateExpense(tt.args.ctx, tt.args.req)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("ExpensesService.UpdateExpense() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Expenses.UpdateExpense() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 
 			switch {
 			case !tt.wantErr:
 				if !reflect.DeepEqual(got, tt.want.response) {
-					t.Errorf("ExpensesService.UpdateExpense() = %v, want %v", got, tt.want.response)
+					t.Errorf("Expenses.UpdateExpense() = %v, want %v", got, tt.want.response)
 				}
 			case tt.wantErr:
 				assert.Contains(t, err.Error(), tt.want.errorMsg)
@@ -329,9 +329,9 @@ func TestExpensesService_UpdateExpense(t *testing.T) {
 	}
 }
 
-func TestExpensesService_GetExpensesByDate(t *testing.T) {
+func TestExpenses_GetExpensesByDate(t *testing.T) {
 
-	expenses := []rdsModels.ExpenseTable{
+	expenses := []models.ExpenseTable{
 		houseRentExpenseTable,
 		restaurantExpenseTable,
 	}
@@ -405,7 +405,7 @@ func TestExpensesService_GetExpensesByDate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			s := &ExpensesService{
+			s := &Expenses{
 				ExpensesRepository:            tt.fields.ExpensesRepository,
 				ExpensesSubCategoryRepository: tt.fields.ExpensesSubCategoryRepository,
 				CardRepository:                tt.fields.CardRepository,
@@ -413,14 +413,14 @@ func TestExpensesService_GetExpensesByDate(t *testing.T) {
 
 			got, err := s.GetExpensesByDate(tt.args.ctx, tt.args.req)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("ExpensesService.GetExpensesByDate() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Expenses.GetExpensesByDate() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 
 			switch {
 			case !tt.wantErr:
 				if !reflect.DeepEqual(got, tt.want.response) {
-					t.Errorf("ExpensesService.GetExpensesByDate() = %v, want %v", got, tt.want.response)
+					t.Errorf("Expenses.GetExpensesByDate() = %v, want %v", got, tt.want.response)
 				}
 			case tt.wantErr:
 				assert.Contains(t, err.Error(), tt.want.errorMsg)
@@ -429,9 +429,9 @@ func TestExpensesService_GetExpensesByDate(t *testing.T) {
 	}
 }
 
-func TestExpensesService_GetExpensesByCategory(t *testing.T) {
+func TestExpenses_GetExpensesByCategory(t *testing.T) {
 
-	expenses := []rdsModels.ExpenseTable{
+	expenses := []models.ExpenseTable{
 		houseRentExpenseTable,
 		restaurantExpenseTable,
 		{
@@ -530,7 +530,7 @@ func TestExpensesService_GetExpensesByCategory(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			s := &ExpensesService{
+			s := &Expenses{
 				ExpensesRepository:            tt.fields.ExpensesRepository,
 				ExpensesSubCategoryRepository: tt.fields.ExpensesSubCategoryRepository,
 				CardRepository:                tt.fields.CardRepository,
@@ -538,14 +538,14 @@ func TestExpensesService_GetExpensesByCategory(t *testing.T) {
 
 			got, err := s.GetExpensesByCategory(tt.args.ctx, tt.args.req)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("ExpensesService.GetExpensesByCategory() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Expenses.GetExpensesByCategory() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 
 			switch {
 			case !tt.wantErr:
 				if !reflect.DeepEqual(got, tt.want.response) {
-					t.Errorf("ExpensesService.GetExpensesByCategory() = %v, want %v", got, tt.want.response)
+					t.Errorf("Expenses.GetExpensesByCategory() = %v, want %v", got, tt.want.response)
 				}
 			case tt.wantErr:
 				assert.Contains(t, err.Error(), tt.want.errorMsg)
@@ -554,9 +554,9 @@ func TestExpensesService_GetExpensesByCategory(t *testing.T) {
 	}
 }
 
-func TestExpensesService_GetExpensesBySubCategory(t *testing.T) {
+func TestExpenses_GetExpensesBySubCategory(t *testing.T) {
 
-	expenses := []rdsModels.ExpenseTable{
+	expenses := []models.ExpenseTable{
 		houseRentExpenseTable,
 		restaurantExpenseTable,
 		{
@@ -655,7 +655,7 @@ func TestExpensesService_GetExpensesBySubCategory(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			s := &ExpensesService{
+			s := &Expenses{
 				ExpensesRepository:            tt.fields.ExpensesRepository,
 				ExpensesSubCategoryRepository: tt.fields.ExpensesSubCategoryRepository,
 				CardRepository:                tt.fields.CardRepository,
@@ -663,14 +663,14 @@ func TestExpensesService_GetExpensesBySubCategory(t *testing.T) {
 
 			got, err := s.GetExpensesBySubCategory(tt.args.ctx, tt.args.req)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("ExpensesService.GetExpensesBySubCategory() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Expenses.GetExpensesBySubCategory() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 
 			switch {
 			case !tt.wantErr:
 				if !reflect.DeepEqual(got, tt.want.response) {
-					t.Errorf("ExpensesService.GetExpensesBySubCategory() = %v, want %v", got, tt.want.response)
+					t.Errorf("Expenses.GetExpensesBySubCategory() = %v, want %v", got, tt.want.response)
 				}
 			case tt.wantErr:
 				assert.Contains(t, err.Error(), tt.want.errorMsg)
@@ -679,9 +679,9 @@ func TestExpensesService_GetExpensesBySubCategory(t *testing.T) {
 	}
 }
 
-func TestExpensesService_GetExpensesByCard(t *testing.T) {
+func TestExpenses_GetExpensesByCard(t *testing.T) {
 
-	expenses := []rdsModels.ExpenseTable{
+	expenses := []models.ExpenseTable{
 		houseRentExpenseTable,
 		restaurantExpenseTable,
 		{
@@ -780,7 +780,7 @@ func TestExpensesService_GetExpensesByCard(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			s := &ExpensesService{
+			s := &Expenses{
 				ExpensesRepository:            tt.fields.ExpensesRepository,
 				ExpensesSubCategoryRepository: tt.fields.ExpensesSubCategoryRepository,
 				CardRepository:                tt.fields.CardRepository,
@@ -788,14 +788,14 @@ func TestExpensesService_GetExpensesByCard(t *testing.T) {
 
 			got, err := s.GetExpensesByCard(tt.args.ctx, tt.args.req)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("ExpensesService.GetExpensesByCard() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Expenses.GetExpensesByCard() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 
 			switch {
 			case !tt.wantErr:
 				if !reflect.DeepEqual(got, tt.want.response) {
-					t.Errorf("ExpensesService.GetExpensesByCard() = %v, want %v", got, tt.want.response)
+					t.Errorf("Expenses.GetExpensesByCard() = %v, want %v", got, tt.want.response)
 				}
 			case tt.wantErr:
 				assert.Contains(t, err.Error(), tt.want.errorMsg)

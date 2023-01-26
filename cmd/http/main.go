@@ -7,16 +7,14 @@ import (
 	"github.com/rubengomes8/golang-personal-finances/internal/http/routes"
 	"github.com/rubengomes8/golang-personal-finances/internal/http/service"
 	"github.com/rubengomes8/golang-personal-finances/internal/repository/cache"
-	"github.com/rubengomes8/golang-personal-finances/internal/repository/rds"
-	"github.com/rubengomes8/golang-personal-finances/internal/repository/rds/card"
-	"github.com/rubengomes8/golang-personal-finances/internal/repository/rds/expense"
+	"github.com/rubengomes8/golang-personal-finances/internal/repository/database"
 
 	_ "github.com/lib/pq"
 )
 
 func main() {
 
-	database, err := rds.NewDB(
+	db, err := database.New(
 		enums.DatabaseHost,
 		enums.DatabaseUser,
 		enums.DatabasePwd,
@@ -27,12 +25,12 @@ func main() {
 		log.Fatalf("Failed to connect to database: %v\n", err)
 	}
 
-	cardRepo := card.NewCardRDS(database)
-	expCategoryRepo := expense.NewCategoryRDS(database)
-	expSubCategoryRepo := expense.NewSubCategoryRDS(database)
-	expensesRepository := expense.NewRepo(database, cardRepo, expCategoryRepo, expSubCategoryRepo)
+	cardRepo := database.NewCardRepo(db)
+	expCategoryRepo := database.NewExpenseCategoryRepo(db)
+	expSubCategoryRepo := database.NewExpenseSubCategoryRepo(db)
+	expensesRepository := database.NewExpensesRepo(db, cardRepo, expCategoryRepo, expSubCategoryRepo)
 
-	expensesService, err := service.NewExpensesService(&expensesRepository, &expSubCategoryRepo, &cardRepo)
+	expensesService, err := service.NewExpenses(&expensesRepository, &expSubCategoryRepo, &cardRepo)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -1,4 +1,4 @@
-package expense
+package database
 
 import (
 	"context"
@@ -6,27 +6,27 @@ import (
 	"fmt"
 
 	"github.com/rubengomes8/golang-personal-finances/internal/enums"
-	models "github.com/rubengomes8/golang-personal-finances/internal/models/rds"
+	"github.com/rubengomes8/golang-personal-finances/internal/repository/models"
 )
 
 const (
 	tableNameCategories = "expense_categories"
 )
 
-// CategoryRDS implements the expense category repository methods
-type CategoryRDS struct {
+// ExpenseCategoryRepo implements the expense category repository methods
+type ExpenseCategoryRepo struct {
 	database *sql.DB
 }
 
-// NewCategoryRDS creates a new CategoryRDS
-func NewCategoryRDS(database *sql.DB) CategoryRDS {
-	return CategoryRDS{
+// NewExpenseCategoryRepo creates a new Category
+func NewExpenseCategoryRepo(database *sql.DB) ExpenseCategoryRepo {
+	return ExpenseCategoryRepo{
 		database: database,
 	}
 }
 
-// InsertExpenseCategory inserts an expense category on the expense categories rds table
-func (ec *CategoryRDS) InsertExpenseCategory(
+// InsertExpenseExpenseCategoryRepo inserts an expense category on the expense categories rds table
+func (ec *ExpenseCategoryRepo) InsertExpenseCategory(
 	ctx context.Context,
 	expenseCategory models.ExpenseCategoryTable,
 ) (int64, error) {
@@ -43,8 +43,8 @@ func (ec *CategoryRDS) InsertExpenseCategory(
 	return id, nil
 }
 
-// UpdateExpenseCategory updates an expense category on the expense categories rds table
-func (ec *CategoryRDS) UpdateExpenseCategory(
+// UpdateExpenseExpenseCategoryRepo updates an expense category on the expense categories rds table
+func (ec *ExpenseCategoryRepo) UpdateExpenseCategory(
 	ctx context.Context,
 	expenseCategory models.ExpenseCategoryTable,
 ) (int64, error) {
@@ -60,7 +60,7 @@ func (ec *CategoryRDS) UpdateExpenseCategory(
 }
 
 // GetExpenseCategoryByID gets an expense category from the expense categories rds table by id
-func (ec *CategoryRDS) GetExpenseCategoryByID(
+func (ec *ExpenseCategoryRepo) GetExpenseCategoryByID(
 	ctx context.Context,
 	id int64,
 ) (models.ExpenseCategoryTable, error) {
@@ -80,7 +80,7 @@ func (ec *CategoryRDS) GetExpenseCategoryByID(
 }
 
 // GetExpenseCategoryByName gets an expense category from the expense categories rds table by name
-func (ec *CategoryRDS) GetExpenseCategoryByName(
+func (ec *ExpenseCategoryRepo) GetExpenseCategoryByName(
 	ctx context.Context,
 	name string,
 ) (models.ExpenseCategoryTable, error) {
@@ -98,8 +98,8 @@ func (ec *CategoryRDS) GetExpenseCategoryByName(
 	return expenseCategory, nil
 }
 
-// DeleteExpenseCategory deletes an expense category from the expense categories rds table
-func (ec *CategoryRDS) DeleteExpenseCategory(
+// DeleteExpenseExpenseCategoryRepo deletes an expense category from the expense categories rds table
+func (ec *ExpenseCategoryRepo) DeleteExpenseCategory(
 	ctx context.Context,
 	id int64,
 ) error {

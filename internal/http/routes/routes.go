@@ -7,7 +7,7 @@ import (
 )
 
 // SetupRouter sets up the http routes
-func SetupRouter(expensesService service.ExpensesService, authService service.AuthService) *gin.Engine {
+func SetupRouter(expensesService service.Expenses, authService service.AuthService) *gin.Engine {
 	r := gin.Default()
 
 	authentication := r.Group("/auth")

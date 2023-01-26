@@ -1,4 +1,4 @@
-package rds
+package models
 
 // UserTable is the rds user model
 type UserTable struct {

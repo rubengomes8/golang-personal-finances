@@ -3,7 +3,7 @@ package cache
 import (
 	"context"
 
-	models "github.com/rubengomes8/golang-personal-finances/internal/models/rds"
+	"github.com/rubengomes8/golang-personal-finances/internal/repository/models"
 )
 
 // ExpenseCategory implements the expense category repository methods

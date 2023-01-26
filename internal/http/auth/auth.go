@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	rdsModels "github.com/rubengomes8/golang-personal-finances/internal/models/rds"
+	"github.com/rubengomes8/golang-personal-finances/internal/repository/models"
 
 	jwt "github.com/golang-jwt/jwt"
 	"golang.org/x/crypto/bcrypt"
@@ -28,7 +28,7 @@ func EncryptPassword(username, password string) (string, error) {
 	return string(hash), nil
 }
 
-func LoginCheck(ctx context.Context, username, password string, user rdsModels.UserTable) (string, error) {
+func LoginCheck(ctx context.Context, username, password string, user models.UserTable) (string, error) {
 
 	err := verifyPassword(password, user.Passhash)
 	if err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
