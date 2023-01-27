@@ -17,9 +17,9 @@ import (
 
 // Expenses handles the expenses http requests
 type Expenses struct {
-	ExpensesRepository            repository.ExpenseRepo
-	ExpensesSubCategoryRepository repository.ExpenseSubCategoryRepo
-	CardRepository                repository.CardRepo
+	Repository            repository.ExpenseRepo
+	SubCategoryRepository repository.ExpenseSubCategoryRepo
+	CardRepository        repository.CardRepo
 }
 
 // NewExpenses creates a new Expenses service
@@ -29,9 +29,9 @@ func NewExpenses(
 	cardRepo repository.CardRepo,
 ) (Expenses, error) {
 	return Expenses{
-		ExpensesRepository:            expRepo,
-		ExpensesSubCategoryRepository: expSubCatRepo,
-		CardRepository:                cardRepo,
+		Repository:            expRepo,
+		SubCategoryRepository: expSubCatRepo,
+		CardRepository:        cardRepo,
 	}, nil
 }
 
@@ -74,7 +74,7 @@ func (e *Expenses) CreateExpense(ctx *gin.Context) {
 		Description:   expense.Description,
 	}
 
-	id, err := e.ExpensesRepository.InsertExpense(ctx, expenseRecord)
+	id, err := e.Repository.InsertExpense(ctx, expenseRecord)
 	if err != nil {
 		log.Printf("could not insert expense: %v", err)
 		ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
@@ -137,7 +137,7 @@ func (e *Expenses) UpdateExpense(ctx *gin.Context) {
 		Description:   expense.Description,
 	}
 
-	_, err = e.ExpensesRepository.UpdateExpense(ctx, expenseRecord)
+	_, err = e.Repository.UpdateExpense(ctx, expenseRecord)
 	if err != nil {
 		log.Printf("could not update expense with param id = %v: %v", paramID, err)
 		ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
@@ -164,7 +164,7 @@ func (e *Expenses) GetExpenseByID(ctx *gin.Context) {
 		return
 	}
 
-	expenseViewRecord, err := e.ExpensesRepository.GetExpenseByID(ctx, int64(expenseID))
+	expenseViewRecord, err := e.Repository.GetExpenseByID(ctx, int64(expenseID))
 	if err != nil {
 		log.Printf("could not get expense by id - param id is %v - %v", paramID, err)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
@@ -184,7 +184,7 @@ func (e *Expenses) GetExpensesByCategory(ctx *gin.Context) {
 
 	paramCategory := ctx.Param("category")
 
-	expenseViewRecords, err := e.ExpensesRepository.GetExpensesByCategory(ctx, paramCategory)
+	expenseViewRecords, err := e.Repository.GetExpensesByCategory(ctx, paramCategory)
 	if err != nil {
 		log.Printf("could not get expenses by category - category is %v - %v", paramCategory, err)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
@@ -204,7 +204,7 @@ func (e *Expenses) GetExpensesBySubCategory(ctx *gin.Context) {
 
 	paramSubCategory := ctx.Param("sub_category")
 
-	expenseViewRecords, err := e.ExpensesRepository.GetExpensesBySubCategory(ctx, paramSubCategory)
+	expenseViewRecords, err := e.Repository.GetExpensesBySubCategory(ctx, paramSubCategory)
 	if err != nil {
 		log.Printf("could not get expenses by subcategory - category is %v - %v", paramSubCategory, err)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
@@ -224,7 +224,7 @@ func (e *Expenses) GetExpensesByCard(ctx *gin.Context) {
 
 	paramCard := ctx.Param("card")
 
-	expenseViewRecords, err := e.ExpensesRepository.GetExpensesByCard(ctx, paramCard)
+	expenseViewRecords, err := e.Repository.GetExpensesByCard(ctx, paramCard)
 	if err != nil {
 		log.Printf("could not get expenses by card - card is %v - %v", paramCard, err)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
@@ -263,7 +263,7 @@ func (e *Expenses) GetExpensesByDates(ctx *gin.Context) {
 		return
 	}
 
-	expenseViewRecords, err := e.ExpensesRepository.GetExpensesByDates(ctx, minDate, maxDate)
+	expenseViewRecords, err := e.Repository.GetExpensesByDates(ctx, minDate, maxDate)
 	if err != nil {
 		log.Printf("could not get expenses by dates - min_date is %v | max_date is %v - err: %v", paramMinDate, paramMaxDate, err)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
@@ -292,7 +292,7 @@ func (e *Expenses) DeleteExpense(ctx *gin.Context) {
 		return
 	}
 
-	err = e.ExpensesRepository.DeleteExpense(ctx, int64(expenseID))
+	err = e.Repository.DeleteExpense(ctx, int64(expenseID))
 	if err != nil {
 		log.Printf("could not delete expense with this id - param id is %v - %v", paramID, err)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
@@ -309,7 +309,7 @@ func (e *Expenses) getExpenseSubcategoryAndCardIDByNames(
 	ctx context.Context,
 	subCategory, card string,
 ) (dbModels.ExpenseSubCategoryTable, dbModels.CardTable, error) {
-	subCategoryModel, err := e.ExpensesSubCategoryRepository.GetExpenseSubCategoryByName(ctx, subCategory)
+	subCategoryModel, err := e.SubCategoryRepository.GetExpenseSubCategoryByName(ctx, subCategory)
 	if err != nil {
 		return dbModels.ExpenseSubCategoryTable{}, dbModels.CardTable{}, fmt.Errorf("could not get expense sub category by name: %v", err)
 	}
