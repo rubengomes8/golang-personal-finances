@@ -33,6 +33,7 @@ func SetupRouter(
 		v1.DELETE("expense/:id", expensesService.DeleteExpense)
 
 		v1.POST("income", incomesService.CreateIncome)
+		v1.PUT("income/:id", incomesService.UpdateIncome)
 	}
 
 	return r

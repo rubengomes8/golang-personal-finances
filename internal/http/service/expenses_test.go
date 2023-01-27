@@ -350,7 +350,7 @@ func TestExpenses_CreateExpense(t *testing.T) {
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
 				}
-				assert.Equal(t, r.ErrorMsg, tt.want.errorMsg)
+				assert.Equal(t, tt.want.errorMsg, r.ErrorMsg)
 			}
 		})
 	}
@@ -507,7 +507,7 @@ func TestExpenses_UpdateExpense(t *testing.T) {
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
 				}
-				assert.Equal(t, r.ErrorMsg, tt.want.errorMsg)
+				assert.Equal(t, tt.want.errorMsg, r.ErrorMsg)
 			}
 		})
 	}
@@ -629,7 +629,7 @@ func TestExpenses_GetExpenseByID(t *testing.T) {
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
 				}
-				assert.Equal(t, r.ErrorMsg, tt.want.errorMsg)
+				assert.Equal(t, tt.want.errorMsg, r.ErrorMsg)
 			}
 		})
 	}
@@ -748,7 +748,7 @@ func TestExpenses_GetExpensesByCategory(t *testing.T) {
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
 				}
-				assert.Equal(t, r.ErrorMsg, tt.want.errorMsg)
+				assert.Equal(t, tt.want.errorMsg, r.ErrorMsg)
 			}
 		})
 	}
@@ -867,7 +867,7 @@ func TestExpenses_GetExpensesBySubCategory(t *testing.T) {
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
 				}
-				assert.Equal(t, r.ErrorMsg, tt.want.errorMsg)
+				assert.Equal(t, tt.want.errorMsg, r.ErrorMsg)
 			}
 		})
 	}
@@ -986,7 +986,7 @@ func TestExpenses_GetExpensesByCard(t *testing.T) {
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
 				}
-				assert.Equal(t, r.ErrorMsg, tt.want.errorMsg)
+				assert.Equal(t, tt.want.errorMsg, r.ErrorMsg)
 			}
 		})
 	}
@@ -1103,7 +1103,7 @@ func TestExpenses_GetExpensesByDates(t *testing.T) {
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
 				}
-				assert.Equal(t, r.ErrorMsg, tt.want.errorMsg)
+				assert.Equal(t, tt.want.errorMsg, r.ErrorMsg)
 			}
 		})
 	}
@@ -1206,7 +1206,7 @@ func TestExpenses_DeleteExpense(t *testing.T) {
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
 				}
-				assert.Equal(t, r.ErrorMsg, tt.want.errorMsg)
+				assert.Equal(t, tt.want.errorMsg, r.ErrorMsg)
 			}
 		})
 	}

@@ -54,8 +54,8 @@ func (i Income) InsertIncome(ctx context.Context, income models.IncomeTable) (in
 // InsertIncome mocks an income update
 func (i Income) UpdateIncome(ctx context.Context, income models.IncomeTable) (int64, error) {
 
-	switch income {
-	case IncomeSalary:
+	switch income.ID {
+	case 1:
 		return 1, nil
 	default:
 		return 0, errors.New("could not update income")
