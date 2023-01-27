@@ -22,9 +22,9 @@ var (
 	cardRepo     = mock.NewCard()
 )
 
-// http body requests
+// http
 var (
-	salaryIncomeCreateRequest = models.IncomeCreateRequest{
+	salaryIncomeCreateRequest = models.Income{
 		Value:       mock.IncomeSalary.Value,
 		Date:        mock.IncomeSalary.Date.Format("2006-01-02"),
 		Category:    mock.IncomeSalaryCategory.Name,
@@ -41,7 +41,7 @@ func TestIncomes_CreateIncome(t *testing.T) {
 
 	incomesService, err := NewIncomes(incomeRepo, categoryRepo, cardRepo)
 	if err != nil {
-		t.Fatalf("error creating expenses service: %v\n", err)
+		t.Fatalf("error creating incomes service: %v\n", err)
 	}
 
 	gin.SetMode(gin.TestMode)
@@ -61,7 +61,7 @@ func TestIncomes_CreateIncome(t *testing.T) {
 	tests := []struct {
 		name   string
 		fields fields
-		income models.IncomeCreateRequest
+		income models.Income
 		want   want
 	}{
 		{
@@ -84,7 +84,7 @@ func TestIncomes_CreateIncome(t *testing.T) {
 				CardRepository:     &cardRepo,
 				CategoryRepository: &categoryRepo,
 			},
-			income: models.IncomeCreateRequest{
+			income: models.Income{
 				Card: "Unknown",
 			},
 			want: want{
@@ -99,7 +99,7 @@ func TestIncomes_CreateIncome(t *testing.T) {
 				CardRepository:     &cardRepo,
 				CategoryRepository: &categoryRepo,
 			},
-			income: models.IncomeCreateRequest{
+			income: models.Income{
 				Card:     salaryIncomeCreateRequest.Card,
 				Category: "Unknown",
 			},
@@ -115,7 +115,7 @@ func TestIncomes_CreateIncome(t *testing.T) {
 				CardRepository:     &cardRepo,
 				CategoryRepository: &categoryRepo,
 			},
-			income: models.IncomeCreateRequest{
+			income: models.Income{
 				Card:     salaryIncomeCreateRequest.Card,
 				Category: salaryIncomeCreateRequest.Category,
 				Date:     "WrongFormat",
@@ -132,7 +132,7 @@ func TestIncomes_CreateIncome(t *testing.T) {
 				CardRepository:     &cardRepo,
 				CategoryRepository: &categoryRepo,
 			},
-			income: models.IncomeCreateRequest{
+			income: models.Income{
 				Card:        mock.IncomeSalaryCard.Name,
 				Category:    mock.IncomeSalaryCategory.Name,
 				Date:        salaryIncomeCreateRequest.Date,
@@ -190,7 +190,7 @@ func TestIncomes_UpdateIncome(t *testing.T) {
 
 	incomesService, err := NewIncomes(incomeRepo, categoryRepo, cardRepo)
 	if err != nil {
-		t.Fatalf("error creating expenses service: %v\n", err)
+		t.Fatalf("error creating incomes service: %v\n", err)
 	}
 
 	gin.SetMode(gin.TestMode)
@@ -209,7 +209,7 @@ func TestIncomes_UpdateIncome(t *testing.T) {
 	tests := []struct {
 		name   string
 		fields fields
-		income models.IncomeCreateRequest
+		income models.Income
 		want   want
 		params map[string]string
 	}{
@@ -233,7 +233,7 @@ func TestIncomes_UpdateIncome(t *testing.T) {
 				CardRepository:     &cardRepo,
 				CategoryRepository: &categoryRepo,
 			},
-			income: models.IncomeCreateRequest{
+			income: models.Income{
 				Card: "Unknown",
 			},
 			params: map[string]string{"id": "1"},
@@ -249,7 +249,7 @@ func TestIncomes_UpdateIncome(t *testing.T) {
 				CardRepository:     &cardRepo,
 				CategoryRepository: &categoryRepo,
 			},
-			income: models.IncomeCreateRequest{
+			income: models.Income{
 				Card:     salaryIncomeCreateRequest.Card,
 				Category: "Unknown",
 			},
@@ -266,7 +266,7 @@ func TestIncomes_UpdateIncome(t *testing.T) {
 				CardRepository:     &cardRepo,
 				CategoryRepository: &categoryRepo,
 			},
-			income: models.IncomeCreateRequest{
+			income: models.Income{
 				Card:     salaryIncomeCreateRequest.Card,
 				Category: salaryIncomeCreateRequest.Category,
 				Date:     "WrongFormat",
@@ -284,7 +284,7 @@ func TestIncomes_UpdateIncome(t *testing.T) {
 				CardRepository:     &cardRepo,
 				CategoryRepository: &categoryRepo,
 			},
-			income: models.IncomeCreateRequest{
+			income: models.Income{
 				Card:        mock.IncomeSalaryCard.Name,
 				Category:    mock.IncomeSalaryCategory.Name,
 				Date:        salaryIncomeCreateRequest.Date,
@@ -303,7 +303,7 @@ func TestIncomes_UpdateIncome(t *testing.T) {
 				CardRepository:     &cardRepo,
 				CategoryRepository: &categoryRepo,
 			},
-			income: models.IncomeCreateRequest{
+			income: models.Income{
 				Card:        mock.IncomeSalaryCard.Name,
 				Category:    mock.IncomeSalaryCategory.Name,
 				Date:        salaryIncomeCreateRequest.Date,
@@ -345,6 +345,88 @@ func TestIncomes_UpdateIncome(t *testing.T) {
 			switch w.Code {
 			case http.StatusNoContent:
 			case http.StatusBadRequest, http.StatusInternalServerError:
+				var r models.ErrorResponse
+				err = json.NewDecoder(w.Body).Decode(&r)
+				if err != nil {
+					t.Fatalf("error decoding response: %v\n", err)
+				}
+				assert.Equal(t, tt.want.errorMsg, r.ErrorMsg)
+			}
+		})
+	}
+}
+
+func TestIncomes_GetIncomeByID(t *testing.T) {
+
+	incomesService, err := NewIncomes(incomeRepo, categoryRepo, cardRepo)
+	if err != nil {
+		t.Fatalf("error creating incomes service: %v\n", err)
+	}
+
+	gin.SetMode(gin.TestMode)
+
+	type fields struct {
+		Repository         repository.IncomeRepo
+		CategoryRepository repository.IncomeCategoryRepo
+		CardRepository     repository.CardRepo
+	}
+
+	type want struct {
+		statusCode int
+		income     models.Income
+		errorMsg   string
+	}
+
+	tests := []struct {
+		name   string
+		fields fields
+		want   want
+		params map[string]string
+	}{
+		// TODO:
+		/*{
+			name: "Success",
+			fields: fields{
+				Repository:         &incomeRepo,
+				CardRepository:     &cardRepo,
+				CategoryRepository: &categoryRepo,
+			},
+			want: want{
+				statusCode: http.StatusOK,
+				income:     mock.IncomeSalary,
+			},
+			params: map[string]string{"id": "1"},
+		},*/
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			// GIVEN
+			w := httptest.NewRecorder()
+			ginCtx, _ := gin.CreateTestContext(w)
+			ginCtx.Request = &http.Request{
+				Method: http.MethodGet,
+			}
+
+			for k, v := range tt.params {
+				ginCtx.Params = append(ginCtx.Params, gin.Param{Key: k, Value: v})
+			}
+
+			// WHEN
+			incomesService.GetIncomeByID(ginCtx)
+
+			// THEN
+			assert.EqualValues(t, tt.want.statusCode, w.Code)
+
+			switch w.Code {
+			case http.StatusOK:
+				var r models.Income
+				err = json.NewDecoder(w.Body).Decode(&r)
+				if err != nil {
+					t.Fatalf("error decoding response: %v\n", err)
+				}
+				assert.Equal(t, tt.want.income, r)
+			case http.StatusBadRequest:
 				var r models.ErrorResponse
 				err = json.NewDecoder(w.Body).Decode(&r)
 				if err != nil {

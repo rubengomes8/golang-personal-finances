@@ -44,7 +44,7 @@ var (
 		Description:   "Test",
 	}
 
-	houseRentExpenseHTTPModel = models.ExpenseCreateRequest{
+	houseRentExpenseHTTPModel = models.Expense{
 		ID:          1,
 		Value:       10.0,
 		Date:        firstFebruary2020String,
@@ -75,7 +75,7 @@ var (
 		Description:   "Test",
 	}
 
-	restaurantExpenseHTTPModel = models.ExpenseCreateRequest{
+	restaurantExpenseHTTPModel = models.Expense{
 		ID:          2,
 		Value:       20.0,
 		Date:        firstFebruary2020String,
@@ -159,7 +159,7 @@ func Test_expenseViewToExpenseGetResponse(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want models.ExpenseCreateRequest
+		want models.Expense
 	}{
 		{
 			name: "Success",
@@ -185,7 +185,7 @@ func Test_expensesViewToExpensesGetResponse(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want []models.ExpenseCreateRequest
+		want []models.Expense
 	}{
 		{
 			name: "Success",
@@ -194,7 +194,7 @@ func Test_expensesViewToExpensesGetResponse(t *testing.T) {
 					houseRentExpenseView, restaurantExpenseView,
 				},
 			},
-			want: []models.ExpenseCreateRequest{
+			want: []models.Expense{
 				houseRentExpenseHTTPModel, restaurantExpenseHTTPModel,
 			},
 		},
@@ -257,7 +257,7 @@ func TestExpenses_CreateExpense(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		expense models.ExpenseCreateRequest
+		expense models.Expense
 		fields  fields
 		want    want
 	}{
@@ -281,7 +281,7 @@ func TestExpenses_CreateExpense(t *testing.T) {
 				CardRepository:                &cardsCache,
 				ExpensesSubCategoryRepository: &subCategoriesCache,
 			},
-			expense: models.ExpenseCreateRequest{
+			expense: models.Expense{
 				Value:       200.0,
 				Date:        "2020-02-01",
 				SubCategory: "Rent",
@@ -300,7 +300,7 @@ func TestExpenses_CreateExpense(t *testing.T) {
 				CardRepository:                &cardsCache,
 				ExpensesSubCategoryRepository: &subCategoriesCache,
 			},
-			expense: models.ExpenseCreateRequest{
+			expense: models.Expense{
 				Value:       200.0,
 				Date:        "01-Feb-2020",
 				SubCategory: "Rent",
@@ -385,7 +385,7 @@ func TestExpenses_UpdateExpense(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		expense models.ExpenseCreateRequest
+		expense models.Expense
 		fields  fields
 		want    want
 		params  map[string]string
@@ -397,7 +397,7 @@ func TestExpenses_UpdateExpense(t *testing.T) {
 				CardRepository:                &cardsCache,
 				ExpensesSubCategoryRepository: &subCategoriesCache,
 			},
-			expense: models.ExpenseCreateRequest{
+			expense: models.Expense{
 				ID:          1,
 				Value:       250.0,
 				Date:        firstFebruary2020String,
@@ -418,7 +418,7 @@ func TestExpenses_UpdateExpense(t *testing.T) {
 				CardRepository:                &cardsCache,
 				ExpensesSubCategoryRepository: &subCategoriesCache,
 			},
-			expense: models.ExpenseCreateRequest{
+			expense: models.Expense{
 				ID:          1,
 				Value:       250.0,
 				Date:        "2020-02-01",
@@ -438,7 +438,7 @@ func TestExpenses_UpdateExpense(t *testing.T) {
 				CardRepository:                &cardsCache,
 				ExpensesSubCategoryRepository: &subCategoriesCache,
 			},
-			expense: models.ExpenseCreateRequest{
+			expense: models.Expense{
 				ID:          1,
 				Value:       200.0,
 				Date:        "2020-02-01",
@@ -458,7 +458,7 @@ func TestExpenses_UpdateExpense(t *testing.T) {
 				CardRepository:                &cardsCache,
 				ExpensesSubCategoryRepository: &subCategoriesCache,
 			},
-			expense: models.ExpenseCreateRequest{
+			expense: models.Expense{
 				ID:          1,
 				Value:       200.0,
 				Date:        "01-Feb-2020",
@@ -542,7 +542,7 @@ func TestExpenses_GetExpenseByID(t *testing.T) {
 
 	type want struct {
 		statusCode int
-		expense    models.ExpenseCreateRequest
+		expense    models.Expense
 		errorMsg   string
 	}
 
@@ -617,7 +617,7 @@ func TestExpenses_GetExpenseByID(t *testing.T) {
 
 			switch w.Code {
 			case http.StatusOK:
-				var r models.ExpenseCreateRequest
+				var r models.Expense
 				err = json.NewDecoder(w.Body).Decode(&r)
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
@@ -664,7 +664,7 @@ func TestExpenses_GetExpensesByCategory(t *testing.T) {
 
 	type want struct {
 		statusCode int
-		expenses   []models.ExpenseCreateRequest
+		expenses   []models.Expense
 		errorMsg   string
 	}
 
@@ -683,7 +683,7 @@ func TestExpenses_GetExpensesByCategory(t *testing.T) {
 			},
 			want: want{
 				statusCode: http.StatusOK,
-				expenses: []models.ExpenseCreateRequest{
+				expenses: []models.Expense{
 					houseRentExpenseHTTPModel,
 					{
 						ID:          3,
@@ -736,7 +736,7 @@ func TestExpenses_GetExpensesByCategory(t *testing.T) {
 
 			switch w.Code {
 			case http.StatusOK:
-				var r []models.ExpenseCreateRequest
+				var r []models.Expense
 				err = json.NewDecoder(w.Body).Decode(&r)
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
@@ -783,7 +783,7 @@ func TestExpenses_GetExpensesBySubCategory(t *testing.T) {
 
 	type want struct {
 		statusCode int
-		expenses   []models.ExpenseCreateRequest
+		expenses   []models.Expense
 		errorMsg   string
 	}
 
@@ -802,7 +802,7 @@ func TestExpenses_GetExpensesBySubCategory(t *testing.T) {
 			},
 			want: want{
 				statusCode: http.StatusOK,
-				expenses: []models.ExpenseCreateRequest{
+				expenses: []models.Expense{
 					houseRentExpenseHTTPModel,
 					{
 						ID:          3,
@@ -855,7 +855,7 @@ func TestExpenses_GetExpensesBySubCategory(t *testing.T) {
 
 			switch w.Code {
 			case http.StatusOK:
-				var r []models.ExpenseCreateRequest
+				var r []models.Expense
 				err = json.NewDecoder(w.Body).Decode(&r)
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
@@ -902,7 +902,7 @@ func TestExpenses_GetExpensesByCard(t *testing.T) {
 
 	type want struct {
 		statusCode int
-		expenses   []models.ExpenseCreateRequest
+		expenses   []models.Expense
 		errorMsg   string
 	}
 
@@ -921,7 +921,7 @@ func TestExpenses_GetExpensesByCard(t *testing.T) {
 			},
 			want: want{
 				statusCode: http.StatusOK,
-				expenses: []models.ExpenseCreateRequest{
+				expenses: []models.Expense{
 					houseRentExpenseHTTPModel,
 					{
 						ID:          3,
@@ -974,7 +974,7 @@ func TestExpenses_GetExpensesByCard(t *testing.T) {
 
 			switch w.Code {
 			case http.StatusOK:
-				var r []models.ExpenseCreateRequest
+				var r []models.Expense
 				err = json.NewDecoder(w.Body).Decode(&r)
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
@@ -1013,7 +1013,7 @@ func TestExpenses_GetExpensesByDates(t *testing.T) {
 
 	type want struct {
 		statusCode int
-		expenses   []models.ExpenseCreateRequest
+		expenses   []models.Expense
 		errorMsg   string
 	}
 
@@ -1032,7 +1032,7 @@ func TestExpenses_GetExpensesByDates(t *testing.T) {
 			},
 			want: want{
 				statusCode: http.StatusOK,
-				expenses: []models.ExpenseCreateRequest{
+				expenses: []models.Expense{
 					houseRentExpenseHTTPModel,
 					restaurantExpenseHTTPModel,
 				},
@@ -1091,7 +1091,7 @@ func TestExpenses_GetExpensesByDates(t *testing.T) {
 
 			switch w.Code {
 			case http.StatusOK:
-				var r []models.ExpenseCreateRequest
+				var r []models.Expense
 				err = json.NewDecoder(w.Body).Decode(&r)
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
