@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -40,24 +41,27 @@ func (e *Expenses) CreateExpense(ctx *gin.Context) {
 	var expense models.ExpenseCreateRequest
 	err := json.NewDecoder(ctx.Request.Body).Decode(&expense)
 	if err != nil {
+		log.Printf("could not decode create expense body: %v", err)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
-			ErrorMsg: fmt.Sprintf("could not decode expense: %v", err),
+			ErrorMsg: "could not decode expense",
 		})
 		return
 	}
 
 	expSubCategory, card, err := e.getExpenseSubcategoryAndCardIDByNames(ctx, expense.SubCategory, expense.Card)
 	if err != nil {
+		log.Printf("could not get expense subcategory and card ids by names: %v", err)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
-			ErrorMsg: fmt.Sprintf("unknown subcategory or card: %v", err),
+			ErrorMsg: "subcategory or card does not exist",
 		})
 		return
 	}
 
 	date, err := dateStringToTime(expense.Date)
 	if err != nil {
+		log.Printf("error converting date string to time - %v: %v", expense.Date, err)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
-			ErrorMsg: fmt.Sprintf("could not parse date (should use YYYY-MM-DD format): %v", err),
+			ErrorMsg: "could not parse date - must use YYYY-MM-DD date format",
 		})
 		return
 	}
@@ -72,8 +76,9 @@ func (e *Expenses) CreateExpense(ctx *gin.Context) {
 
 	id, err := e.ExpensesRepository.InsertExpense(ctx, expenseRecord)
 	if err != nil {
+		log.Printf("could not insert expense: %v", err)
 		ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
-			ErrorMsg: fmt.Sprintf("could not insert expense: %v", err),
+			ErrorMsg: "could not create expense",
 		})
 		return
 	}
@@ -88,24 +93,26 @@ func (e *Expenses) UpdateExpense(ctx *gin.Context) {
 	var expense models.ExpenseCreateRequest
 	err := json.NewDecoder(ctx.Request.Body).Decode(&expense)
 	if err != nil {
+		log.Printf("could not decode update expense body: %v", err)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
-			ErrorMsg: fmt.Sprintf("could not decode expense: %v", err),
+			ErrorMsg: "could not decode expense",
 		})
 		return
 	}
 
 	expSubCategory, card, err := e.getExpenseSubcategoryAndCardIDByNames(ctx, expense.SubCategory, expense.Card)
 	if err != nil {
+		log.Printf("could not get expense subcategory and card ids by names: %v", err)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
-			ErrorMsg: fmt.Sprintf("unknown subcategory or card: %v", err),
+			ErrorMsg: "subcategory or card does not exist",
 		})
-		return
 	}
 
 	date, err := dateStringToTime(expense.Date)
 	if err != nil {
+		log.Printf("error converting date string to time - %v: %v", expense.Date, err)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
-			ErrorMsg: fmt.Sprintf("could not parse date (should use YYYY-MM-DD format): %v", err),
+			ErrorMsg: "could not parse date - must use YYYY-MM-DD date format",
 		})
 		return
 	}
@@ -114,8 +121,9 @@ func (e *Expenses) UpdateExpense(ctx *gin.Context) {
 
 	expenseID, err := strconv.Atoi(paramID)
 	if err != nil {
+		log.Printf("error converting expense id to int - param id is %v - %v", paramID, err)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
-			ErrorMsg: fmt.Sprintf("id parameter must be an integer: %v", err),
+			ErrorMsg: "id parameter must be an integer",
 		})
 		return
 	}
@@ -131,8 +139,9 @@ func (e *Expenses) UpdateExpense(ctx *gin.Context) {
 
 	_, err = e.ExpensesRepository.UpdateExpense(ctx, expenseRecord)
 	if err != nil {
+		log.Printf("could not update expense with param id = %v: %v", paramID, err)
 		ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
-			ErrorMsg: fmt.Sprintf("could not update expense: %v", err),
+			ErrorMsg: "expense with this id does not exist",
 		})
 		return
 	}
@@ -148,16 +157,18 @@ func (e *Expenses) GetExpenseByID(ctx *gin.Context) {
 
 	expenseID, err := strconv.Atoi(paramID)
 	if err != nil {
+		log.Printf("error converting expense id to int - param id is %v - %v", paramID, err)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
-			ErrorMsg: fmt.Sprintf("id parameter must be an integer: %v", err),
+			ErrorMsg: "id parameter must be an integer",
 		})
 		return
 	}
 
 	expenseViewRecord, err := e.ExpensesRepository.GetExpenseByID(ctx, int64(expenseID))
 	if err != nil {
+		log.Printf("could not get expense by id - param id is %v - %v", paramID, err)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
-			ErrorMsg: fmt.Sprintf("could not get expense by id: %v", err),
+			ErrorMsg: "expense with this id does not exist",
 		})
 		return
 	}
@@ -175,8 +186,9 @@ func (e *Expenses) GetExpensesByCategory(ctx *gin.Context) {
 
 	expenseViewRecords, err := e.ExpensesRepository.GetExpensesByCategory(ctx, paramCategory)
 	if err != nil {
+		log.Printf("could not get expenses by category - category is %v - %v", paramCategory, err)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
-			ErrorMsg: fmt.Sprintf("could not get expenses by category: %v", err),
+			ErrorMsg: "expense category does not exist",
 		})
 		return
 	}
@@ -194,8 +206,9 @@ func (e *Expenses) GetExpensesBySubCategory(ctx *gin.Context) {
 
 	expenseViewRecords, err := e.ExpensesRepository.GetExpensesBySubCategory(ctx, paramSubCategory)
 	if err != nil {
+		log.Printf("could not get expenses by subcategory - category is %v - %v", paramSubCategory, err)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
-			ErrorMsg: fmt.Sprintf("could not get expenses by subcategory: %v", err),
+			ErrorMsg: "expense subcategory does not exist",
 		})
 		return
 	}
@@ -213,8 +226,9 @@ func (e *Expenses) GetExpensesByCard(ctx *gin.Context) {
 
 	expenseViewRecords, err := e.ExpensesRepository.GetExpensesByCard(ctx, paramCard)
 	if err != nil {
+		log.Printf("could not get expenses by card - card is %v - %v", paramCard, err)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
-			ErrorMsg: fmt.Sprintf("could not get expenses by card: %v", err),
+			ErrorMsg: "expense card does not exist",
 		})
 		return
 	}
@@ -233,24 +247,27 @@ func (e *Expenses) GetExpensesByDates(ctx *gin.Context) {
 
 	minDate, err := dateStringToTime(paramMinDate)
 	if err != nil {
+		log.Printf("could not convert min date string to time - min date is %v - %v", paramMinDate, err)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
-			ErrorMsg: fmt.Sprintf("could not parse min_date (should use YYYY-MM-DD format): %v", err),
+			ErrorMsg: "could not parse min date - must use YYYY-MM-DD date format",
 		})
 		return
 	}
 
 	maxDate, err := dateStringToTime(paramMaxDate)
 	if err != nil {
+		log.Printf("could not convert max date string to time - max date is %v - %v", paramMaxDate, err)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
-			ErrorMsg: fmt.Sprintf("could not parse max_date (should use YYYY-MM-DD format): %v", err),
+			ErrorMsg: "could not parse max date - must use YYYY-MM-DD date format",
 		})
 		return
 	}
 
 	expenseViewRecords, err := e.ExpensesRepository.GetExpensesByDates(ctx, minDate, maxDate)
 	if err != nil {
+		log.Printf("could not get expenses by dates - min_date is %v | max_date is %v - err: %v", paramMinDate, paramMaxDate, err)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
-			ErrorMsg: fmt.Sprintf("could not get expenses by dates: %v", err),
+			ErrorMsg: "could not get expenses by dates",
 		})
 		return
 	}
@@ -268,16 +285,18 @@ func (e *Expenses) DeleteExpense(ctx *gin.Context) {
 
 	expenseID, err := strconv.Atoi(paramID)
 	if err != nil {
+		log.Printf("error converting expense id to int - param id is %v - %v", paramID, err)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
-			ErrorMsg: fmt.Sprintf("id parameter must be an integer: %v", err),
+			ErrorMsg: "id parameter must be an integer",
 		})
 		return
 	}
 
 	err = e.ExpensesRepository.DeleteExpense(ctx, int64(expenseID))
 	if err != nil {
+		log.Printf("could not delete expense with this id - param id is %v - %v", paramID, err)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
-			ErrorMsg: fmt.Sprintf("could not delete expense: %v", err),
+			ErrorMsg: "expense with this id does not exist",
 		})
 		return
 	}

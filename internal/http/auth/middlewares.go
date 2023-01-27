@@ -10,7 +10,7 @@ import (
 
 func JwtAuthMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		err := ValidateToken(ctx)
+		err := validateToken(ctx)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
 				ErrorMsg: "Unauthorized",

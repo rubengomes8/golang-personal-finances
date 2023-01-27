@@ -81,7 +81,7 @@ func (a *AuthService) Login(ctx *gin.Context) {
 	if err != nil {
 		log.Printf("error getting user by username: %v", err)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
-			ErrorMsg: "could not get user. Maybe he does not exist",
+			ErrorMsg: "users does not exist",
 		})
 		return
 	}
