@@ -290,7 +290,7 @@ func TestExpenses_CreateExpense(t *testing.T) {
 			},
 			want: want{
 				statusCode: http.StatusBadRequest,
-				errorMsg:   "unknown subcategory or card:",
+				errorMsg:   "subcategory or card does not exist",
 			},
 		},
 		{
@@ -309,7 +309,7 @@ func TestExpenses_CreateExpense(t *testing.T) {
 			},
 			want: want{
 				statusCode: http.StatusBadRequest,
-				errorMsg:   "could not parse date (should use YYYY-MM-DD format):",
+				errorMsg:   "could not parse date - must use YYYY-MM-DD date format",
 			},
 		},
 	}
@@ -350,7 +350,7 @@ func TestExpenses_CreateExpense(t *testing.T) {
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
 				}
-				assert.Contains(t, r.ErrorMsg, tt.want.errorMsg)
+				assert.Equal(t, r.ErrorMsg, tt.want.errorMsg)
 			}
 		})
 	}
@@ -428,7 +428,7 @@ func TestExpenses_UpdateExpense(t *testing.T) {
 			},
 			want: want{
 				statusCode: http.StatusBadRequest,
-				errorMsg:   "id parameter must be an integer:",
+				errorMsg:   "id parameter must be an integer",
 			},
 		},
 		{
@@ -448,7 +448,7 @@ func TestExpenses_UpdateExpense(t *testing.T) {
 			},
 			want: want{
 				statusCode: http.StatusBadRequest,
-				errorMsg:   "unknown subcategory or card:",
+				errorMsg:   "subcategory or card does not exist",
 			},
 		},
 		{
@@ -468,7 +468,7 @@ func TestExpenses_UpdateExpense(t *testing.T) {
 			},
 			want: want{
 				statusCode: http.StatusBadRequest,
-				errorMsg:   "could not parse date (should use YYYY-MM-DD format):",
+				errorMsg:   "could not parse date - must use YYYY-MM-DD date format",
 			},
 		},
 	}
@@ -507,7 +507,7 @@ func TestExpenses_UpdateExpense(t *testing.T) {
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
 				}
-				assert.Contains(t, r.ErrorMsg, tt.want.errorMsg)
+				assert.Equal(t, r.ErrorMsg, tt.want.errorMsg)
 			}
 		})
 	}
@@ -566,7 +566,7 @@ func TestExpenses_GetExpenseByID(t *testing.T) {
 			params: map[string]string{"id": "1"},
 		},
 		{
-			name: "ErrorUnknownCard",
+			name: "ErrorUnknownExpense",
 			fields: fields{
 				ExpensesRepository:            &expensesCache,
 				CardRepository:                &cardsCache,
@@ -574,9 +574,9 @@ func TestExpenses_GetExpenseByID(t *testing.T) {
 			},
 			want: want{
 				statusCode: http.StatusBadRequest,
-				errorMsg:   "could not get expense by id:",
+				errorMsg:   "expense with this id does not exist",
 			},
-			params: map[string]string{"id": "3"},
+			params: map[string]string{"id": "99"},
 		},
 		{
 			name: "ErrorParameterIDNotInteger",
@@ -587,7 +587,7 @@ func TestExpenses_GetExpenseByID(t *testing.T) {
 			},
 			want: want{
 				statusCode: http.StatusBadRequest,
-				errorMsg:   "id parameter must be an integer:",
+				errorMsg:   "id parameter must be an integer",
 			},
 			params: map[string]string{"id": "abc"},
 		},
@@ -629,7 +629,7 @@ func TestExpenses_GetExpenseByID(t *testing.T) {
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
 				}
-				assert.Contains(t, r.ErrorMsg, tt.want.errorMsg)
+				assert.Equal(t, r.ErrorMsg, tt.want.errorMsg)
 			}
 		})
 	}
@@ -706,7 +706,7 @@ func TestExpenses_GetExpensesByCategory(t *testing.T) {
 			},
 			want: want{
 				statusCode: http.StatusBadRequest,
-				errorMsg:   "could not get expenses by category:",
+				errorMsg:   "expense category does not exist",
 			},
 			params: map[string]string{"category": "Unknown"},
 		},
@@ -748,7 +748,7 @@ func TestExpenses_GetExpensesByCategory(t *testing.T) {
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
 				}
-				assert.Contains(t, r.ErrorMsg, tt.want.errorMsg)
+				assert.Equal(t, r.ErrorMsg, tt.want.errorMsg)
 			}
 		})
 	}
@@ -825,7 +825,7 @@ func TestExpenses_GetExpensesBySubCategory(t *testing.T) {
 			},
 			want: want{
 				statusCode: http.StatusBadRequest,
-				errorMsg:   "could not get expenses by subcategory:",
+				errorMsg:   "expense subcategory does not exist",
 			},
 			params: map[string]string{"sub_category": "Unknown"},
 		},
@@ -867,7 +867,7 @@ func TestExpenses_GetExpensesBySubCategory(t *testing.T) {
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
 				}
-				assert.Contains(t, r.ErrorMsg, tt.want.errorMsg)
+				assert.Equal(t, r.ErrorMsg, tt.want.errorMsg)
 			}
 		})
 	}
@@ -944,7 +944,7 @@ func TestExpenses_GetExpensesByCard(t *testing.T) {
 			},
 			want: want{
 				statusCode: http.StatusBadRequest,
-				errorMsg:   "could not get expenses by card:",
+				errorMsg:   "expense card does not exist",
 			},
 			params: map[string]string{"card": "Unknown"},
 		},
@@ -986,7 +986,7 @@ func TestExpenses_GetExpensesByCard(t *testing.T) {
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
 				}
-				assert.Contains(t, r.ErrorMsg, tt.want.errorMsg)
+				assert.Equal(t, r.ErrorMsg, tt.want.errorMsg)
 			}
 		})
 	}
@@ -1048,7 +1048,7 @@ func TestExpenses_GetExpensesByDates(t *testing.T) {
 			},
 			want: want{
 				statusCode: http.StatusBadRequest,
-				errorMsg:   "could not parse min_date (should use YYYY-MM-DD format):",
+				errorMsg:   "could not parse min date - must use YYYY-MM-DD date format",
 			},
 			params: map[string]string{"min_date": "2020-Jan-31", "max_date": "2020-Feb-02"},
 		},
@@ -1061,7 +1061,7 @@ func TestExpenses_GetExpensesByDates(t *testing.T) {
 			},
 			want: want{
 				statusCode: http.StatusBadRequest,
-				errorMsg:   "could not parse max_date (should use YYYY-MM-DD format):",
+				errorMsg:   "could not parse max date - must use YYYY-MM-DD date format",
 			},
 			params: map[string]string{"min_date": "2020-01-31", "max_date": "2020-Feb-02"},
 		},
@@ -1103,7 +1103,7 @@ func TestExpenses_GetExpensesByDates(t *testing.T) {
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
 				}
-				assert.Contains(t, r.ErrorMsg, tt.want.errorMsg)
+				assert.Equal(t, r.ErrorMsg, tt.want.errorMsg)
 			}
 		})
 	}
@@ -1160,7 +1160,7 @@ func TestExpenses_DeleteExpense(t *testing.T) {
 			},
 			want: want{
 				statusCode: http.StatusBadRequest,
-				errorMsg:   "could not delete expense:",
+				errorMsg:   "expense with this id does not exist",
 			},
 			params: map[string]string{"id": "5"},
 		},
@@ -1173,9 +1173,9 @@ func TestExpenses_DeleteExpense(t *testing.T) {
 			},
 			want: want{
 				statusCode: http.StatusBadRequest,
-				errorMsg:   "could not delete expense:",
+				errorMsg:   "id parameter must be an integer",
 			},
-			params: map[string]string{"id": "5"},
+			params: map[string]string{"id": "abc"},
 		},
 	}
 	for _, tt := range tests {
@@ -1206,7 +1206,7 @@ func TestExpenses_DeleteExpense(t *testing.T) {
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
 				}
-				assert.Contains(t, r.ErrorMsg, tt.want.errorMsg)
+				assert.Equal(t, r.ErrorMsg, tt.want.errorMsg)
 			}
 		})
 	}

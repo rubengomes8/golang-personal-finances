@@ -31,18 +31,18 @@ func main() {
 
 	expensesService, err := service.NewExpenses(&expensesRepository, &expSubCategoryRepo, &cardRepo)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Could not create expenses http service: %v\n", err)
 	}
 
 	userRepo := database.NewUserRepo(db)
 	authService, err := service.NewAuthService(&userRepo)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Could not create auth http service: %v\n", err)
 	}
 
 	r := routes.SetupRouter(expensesService, authService)
 	err = r.Run()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Could not run http router: %v\n", err)
 	}
 }

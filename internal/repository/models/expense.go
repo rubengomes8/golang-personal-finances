@@ -2,7 +2,7 @@ package models
 
 import "time"
 
-// ExpenseView is the rds expense view model
+// ExpenseView is the db expense view model
 type ExpenseView struct {
 	ID            int64     `json:"id,omitempty"`
 	Value         float64   `json:"value,omitempty"`
@@ -16,7 +16,7 @@ type ExpenseView struct {
 	Description   string    `json:"description,omitempty"`
 }
 
-// ExpenseTable is the rds expense table model
+// ExpenseTable is the db expense table model
 type ExpenseTable struct {
 	ID            int64     `json:"id,omitempty"`
 	Value         float64   `json:"value,omitempty"`
@@ -26,13 +26,13 @@ type ExpenseTable struct {
 	Description   string    `json:"description,omitempty"`
 }
 
-// ExpenseCategoryTable is the rds expense category table model
+// ExpenseCategoryTable is the db expense category table model
 type ExpenseCategoryTable struct {
 	ID   int64  `json:"id,omitempty"`
 	Name string `json:"name,omitempty"`
 }
 
-// ExpenseSubCategoryTable is the rds expense subcategory table model
+// ExpenseSubCategoryTable is the db expense subcategory table model
 type ExpenseSubCategoryTable struct {
 	ID         int64  `json:"id,omitempty"`
 	Name       string `json:"name,omitempty"`

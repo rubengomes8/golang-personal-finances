@@ -3,7 +3,6 @@ package auth
 import (
 	"context"
 	"fmt"
-	"strconv"
 	"strings"
 	"time"
 
@@ -61,9 +60,9 @@ func generateToken(userID uint) (string, error) {
 
 }
 
-func ValidateToken(ctx *gin.Context) error {
+func validateToken(ctx *gin.Context) error {
 
-	tokenString := ExtractToken(ctx)
+	tokenString := extractToken(ctx)
 	_, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
@@ -74,7 +73,7 @@ func ValidateToken(ctx *gin.Context) error {
 	return err
 }
 
-func ExtractToken(ctx *gin.Context) string {
+func extractToken(ctx *gin.Context) string {
 
 	token := ctx.Query("token")
 	if token != "" {
@@ -87,29 +86,4 @@ func ExtractToken(ctx *gin.Context) string {
 	}
 
 	return ""
-}
-
-func ExtractTokenID(c *gin.Context) (uint, error) {
-
-	tokenString := ExtractToken(c)
-
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
-		}
-		return apiSecret, nil
-	})
-	if err != nil {
-		return 0, err
-	}
-
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if ok && token.Valid {
-		uid, err := strconv.ParseUint(fmt.Sprintf("%.0f", claims["user_id"]), 10, 32)
-		if err != nil {
-			return 0, err
-		}
-		return uint(uid), nil
-	}
-	return 0, nil
 }
