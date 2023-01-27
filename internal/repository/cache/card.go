@@ -19,7 +19,7 @@ func NewCard(repository []models.CardTable) Card {
 }
 
 // InsertCard inserts a card on the cache if card does not exist
-func (c *Card) InsertCard(ctx context.Context, card models.CardTable) (int64, error) {
+func (c Card) InsertCard(ctx context.Context, card models.CardTable) (int64, error) {
 
 	existingCard, err := c.GetCardByID(ctx, card.ID)
 	if err == nil {
@@ -34,7 +34,7 @@ func (c *Card) InsertCard(ctx context.Context, card models.CardTable) (int64, er
 }
 
 // UpdateCard updates a card on the cache if card exists
-func (c *Card) UpdateCard(ctx context.Context, updatedCard models.CardTable) (int64, error) {
+func (c Card) UpdateCard(ctx context.Context, updatedCard models.CardTable) (int64, error) {
 
 	for idx, card := range c.repository {
 		if card.ID == updatedCard.ID {
@@ -49,7 +49,7 @@ func (c *Card) UpdateCard(ctx context.Context, updatedCard models.CardTable) (in
 }
 
 // GetCardByID returns the card from the cache if card with that id exists
-func (c *Card) GetCardByID(ctx context.Context, id int64) (models.CardTable, error) {
+func (c Card) GetCardByID(ctx context.Context, id int64) (models.CardTable, error) {
 
 	for _, card := range c.repository {
 		if card.ID == id {
@@ -63,7 +63,7 @@ func (c *Card) GetCardByID(ctx context.Context, id int64) (models.CardTable, err
 }
 
 // GetCardByName returns the card from the cache if card with that name exists
-func (c *Card) GetCardByName(ctx context.Context, name string) (models.CardTable, error) {
+func (c Card) GetCardByName(ctx context.Context, name string) (models.CardTable, error) {
 	for _, card := range c.repository {
 		if card.Name == name {
 			return card, nil
@@ -76,7 +76,7 @@ func (c *Card) GetCardByName(ctx context.Context, name string) (models.CardTable
 }
 
 // DeleteCard deletes the card from cache if it exists
-func (c *Card) DeleteCard(ctx context.Context, id int64) error {
+func (c Card) DeleteCard(ctx context.Context, id int64) error {
 
 	for idx, card := range c.repository {
 		if card.ID == id {

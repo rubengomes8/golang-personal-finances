@@ -9,11 +9,6 @@ import (
 )
 
 var (
-	IncomeSalaryCard = models.CardTable{
-		ID:   1,
-		Name: "CGD",
-	}
-
 	IncomeSalaryDate = time.Now().UTC()
 	IncomeSalary     = models.IncomeTable{
 		ID:          1,
@@ -28,9 +23,9 @@ var (
 		ID:          IncomeSalary.ID,
 		Value:       IncomeSalary.Value,
 		Date:        IncomeSalary.Date,
-		Category:    IncomeCategorySalary.Name,
+		Category:    IncomeSalaryCategory.Name,
 		Card:        IncomeSalaryCard.Name,
-		CategoryID:  IncomeCategorySalary.ID,
+		CategoryID:  IncomeSalaryCategory.ID,
 		CardID:      IncomeSalaryCard.ID,
 		Description: IncomeSalary.Description,
 	}
@@ -47,8 +42,9 @@ func NewIncome() Income {
 
 // InsertIncome mocks an income insert
 func (i Income) InsertIncome(ctx context.Context, income models.IncomeTable) (int64, error) {
-	switch income {
-	case IncomeSalary:
+
+	switch income.Description {
+	case "Mock":
 		return 1, nil
 	default:
 		return 0, errors.New("could not insert income")
@@ -57,6 +53,7 @@ func (i Income) InsertIncome(ctx context.Context, income models.IncomeTable) (in
 
 // InsertIncome mocks an income update
 func (i Income) UpdateIncome(ctx context.Context, income models.IncomeTable) (int64, error) {
+
 	switch income {
 	case IncomeSalary:
 		return 1, nil
@@ -67,6 +64,7 @@ func (i Income) UpdateIncome(ctx context.Context, income models.IncomeTable) (in
 
 // InsertIncome mocks an income get by id
 func (i Income) GetIncomeByID(ctx context.Context, id int64) (models.IncomeView, error) {
+
 	switch id {
 	case IncomeSalary.ID:
 		return IncomeSalaryView, nil
@@ -75,21 +73,40 @@ func (i Income) GetIncomeByID(ctx context.Context, id int64) (models.IncomeView,
 	}
 }
 
-// GetIncomesByDates - TODO
-func (i Income) GetIncomesByDates(context.Context, time.Time, time.Time) ([]models.IncomeView, error) {
+// GetIncomesByDates mocks an income get by dates
+func (i Income) GetIncomesByDates(ctx context.Context, min time.Time, max time.Time) ([]models.IncomeView, error) {
+
+	if min.Before(IncomeSalaryDate) && max.After(IncomeSalaryDate) {
+		return []models.IncomeView{
+			IncomeSalaryView,
+		}, nil
+	}
+
 	return []models.IncomeView{}, nil
 }
 
-// GetIncomesByCategory - TODO
-func (i Income) GetIncomesByCategory(context.Context, string) ([]models.IncomeView, error) {
-	return []models.IncomeView{}, nil
+// GetIncomesByCategory mocks an income get by category
+func (i Income) GetIncomesByCategory(ctx context.Context, category string) ([]models.IncomeView, error) {
 
+	if category == IncomeSalaryCategory.Name {
+		return []models.IncomeView{
+			IncomeSalaryView,
+		}, nil
+	}
+
+	return []models.IncomeView{}, nil
 }
 
-// GetIncomesByCard - TODO
-func (i Income) GetIncomesByCard(context.Context, string) ([]models.IncomeView, error) {
-	return []models.IncomeView{}, nil
+// GetIncomesByCard mocks an income get by card
+func (i Income) GetIncomesByCard(ctx context.Context, card string) ([]models.IncomeView, error) {
 
+	if card == IncomeSalaryCard.Name {
+		return []models.IncomeView{
+			IncomeSalaryView,
+		}, nil
+	}
+
+	return []models.IncomeView{}, nil
 }
 
 // DeleteIncome mocks an income delete

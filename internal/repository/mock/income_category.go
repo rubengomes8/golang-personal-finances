@@ -8,13 +8,13 @@ import (
 )
 
 const (
-	IncomeCatagorySalaryName = "salary"
+	IncomeSalaryCategoryName = "salary"
 )
 
 var (
-	IncomeCategorySalary = models.IncomeCategoryTable{
+	IncomeSalaryCategory = models.IncomeCategoryTable{
 		ID:   1,
-		Name: IncomeCatagorySalaryName,
+		Name: IncomeSalaryCategoryName,
 	}
 )
 
@@ -31,8 +31,8 @@ func NewIncomeCategory() IncomeCategory {
 func (ic IncomeCategory) InsertIncomeCategory(ctx context.Context, income models.IncomeCategoryTable) (int64, error) {
 
 	switch income.Name {
-	case IncomeCatagorySalaryName:
-		return IncomeCategorySalary.ID, nil
+	case IncomeSalaryCategoryName:
+		return IncomeSalaryCategory.ID, nil
 	default:
 		return 0, errors.New("could not insert income category")
 	}
@@ -42,8 +42,8 @@ func (ic IncomeCategory) InsertIncomeCategory(ctx context.Context, income models
 func (ic IncomeCategory) UpdateIncomeCategory(ctx context.Context, income models.IncomeCategoryTable) (int64, error) {
 
 	switch income.Name {
-	case IncomeCatagorySalaryName:
-		return IncomeCategorySalary.ID, nil
+	case IncomeSalaryCategoryName:
+		return IncomeSalaryCategory.ID, nil
 	default:
 		return 0, errors.New("income category with this name does not exist")
 	}
@@ -53,8 +53,8 @@ func (ic IncomeCategory) UpdateIncomeCategory(ctx context.Context, income models
 func (ic IncomeCategory) GetIncomeCategoryByID(ctx context.Context, id int64) (models.IncomeCategoryTable, error) {
 
 	switch id {
-	case IncomeCategorySalary.ID:
-		return IncomeCategorySalary, nil
+	case IncomeSalaryCategory.ID:
+		return IncomeSalaryCategory, nil
 	default:
 		return models.IncomeCategoryTable{}, errors.New("income category with this id does not exist")
 	}
@@ -63,8 +63,8 @@ func (ic IncomeCategory) GetIncomeCategoryByID(ctx context.Context, id int64) (m
 // UpdateIncomeCategory mocks a get income category by name
 func (ic IncomeCategory) GetIncomeCategoryByName(ctx context.Context, name string) (models.IncomeCategoryTable, error) {
 	switch name {
-	case IncomeCatagorySalaryName:
-		return IncomeCategorySalary, nil
+	case IncomeSalaryCategoryName:
+		return IncomeSalaryCategory, nil
 	default:
 		return models.IncomeCategoryTable{}, errors.New("income category with this name does not exist")
 	}
@@ -73,7 +73,7 @@ func (ic IncomeCategory) GetIncomeCategoryByName(ctx context.Context, name strin
 // DeleteIncomeCategory mocks a delete income
 func (ic IncomeCategory) DeleteIncomeCategory(ctx context.Context, id int64) error {
 	switch id {
-	case IncomeCategorySalary.ID:
+	case IncomeSalaryCategory.ID:
 		return nil
 	default:
 		return errors.New("income category with this id does not exist")
