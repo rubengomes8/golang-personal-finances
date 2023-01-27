@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
@@ -31,16 +30,18 @@ func (a *AuthService) Register(ctx *gin.Context) {
 	var input models.RegisterInput
 
 	if err := ctx.ShouldBindJSON(&input); err != nil {
+		log.Printf("could not bind register json: %v", err)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
-			ErrorMsg: fmt.Sprintf("wrong body format or incomplete data: %v", err),
+			ErrorMsg: "wrong body format or incomplete data",
 		})
 		return
 	}
 
 	hashedPwd, err := auth.EncryptPassword(input.Username, input.Password)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
-			ErrorMsg: fmt.Sprintf("could not encrypt user password: %v", err),
+		log.Printf("could not encrypt user password: %v", err)
+		ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			ErrorMsg: "could not encrypt user password",
 		})
 		return
 	}
@@ -52,9 +53,9 @@ func (a *AuthService) Register(ctx *gin.Context) {
 
 	_, err = a.UserRepo.InsertUser(ctx, user)
 	if err != nil {
-		log.Printf("user: %+v", user)
+		log.Printf("could not insert user: %v", user)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
-			ErrorMsg: fmt.Sprintf("could not insert user: %v", err),
+			ErrorMsg: "could not create user",
 		})
 		return
 	}
@@ -69,24 +70,27 @@ func (a *AuthService) Login(ctx *gin.Context) {
 	var input models.LoginInput
 
 	if err := ctx.ShouldBindJSON(&input); err != nil {
+		log.Printf("could not bind login json: %v", err)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
-			ErrorMsg: fmt.Sprintf("wrong body format or incomplete data: %v", err),
+			ErrorMsg: "wrong body format or incomplete data",
 		})
 		return
 	}
 
 	userTable, err := a.UserRepo.GetUserByUsername(ctx, input.Username)
 	if err != nil {
+		log.Printf("error getting user by username: %v", err)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
-			ErrorMsg: fmt.Sprintf("error getting user by username: %v", err),
+			ErrorMsg: "could not get user. Maybe he does not exist",
 		})
 		return
 	}
 
 	token, err := auth.LoginCheck(ctx, input.Username, input.Password, userTable)
 	if err != nil {
+		log.Printf("error validating login credentials: %v", err)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
-			ErrorMsg: fmt.Sprintf("error checking user login: %v", err),
+			ErrorMsg: "could not login user",
 		})
 		return
 	}
