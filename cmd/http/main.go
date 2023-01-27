@@ -25,13 +25,22 @@ func main() {
 	}
 
 	cardRepo := database.NewCardRepo(db)
+
 	expCategoryRepo := database.NewExpenseCategoryRepo(db)
 	expSubCategoryRepo := database.NewExpenseSubCategoryRepo(db)
-	expensesRepository := database.NewExpensesRepo(db, cardRepo, expCategoryRepo, expSubCategoryRepo)
+	expensesRepo := database.NewExpensesRepo(db, cardRepo, expCategoryRepo, expSubCategoryRepo)
 
-	expensesService, err := service.NewExpenses(&expensesRepository, &expSubCategoryRepo, &cardRepo)
+	incCategoryRepo := database.NewIncomeCategoryRepo(db)
+	incomesRepo := database.NewIncomesRepo(db, cardRepo, incCategoryRepo)
+
+	expensesService, err := service.NewExpenses(&expensesRepo, &expSubCategoryRepo, &cardRepo)
 	if err != nil {
 		log.Fatalf("Could not create expenses http service: %v\n", err)
+	}
+
+	incomesService, err := service.NewIncomes(&incomesRepo, &incCategoryRepo, &cardRepo)
+	if err != nil {
+		log.Fatalf("Could not create incomes http service: %v\n", err)
 	}
 
 	userRepo := database.NewUserRepo(db)
@@ -40,7 +49,7 @@ func main() {
 		log.Fatalf("Could not create auth http service: %v\n", err)
 	}
 
-	r := routes.SetupRouter(expensesService, authService)
+	r := routes.SetupRouter(expensesService, incomesService, authService)
 	err = r.Run()
 	if err != nil {
 		log.Fatalf("Could not run http router: %v\n", err)

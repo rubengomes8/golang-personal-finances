@@ -10,7 +10,7 @@ import (
 type IncomeCategoryRepo interface {
 	InsertIncomeCategory(context.Context, models.IncomeCategoryTable) (int64, error)
 	UpdateIncomeCategory(context.Context, models.IncomeCategoryTable) (int64, error)
-	GetIncomeCategoryByID(context.Context, int64) (models.ExpenseCategoryTable, error)
-	GetIncomeCategoryByName(context.Context, string) (models.ExpenseCategoryTable, error)
+	GetIncomeCategoryByID(context.Context, int64) (models.IncomeCategoryTable, error)
+	GetIncomeCategoryByName(context.Context, string) (models.IncomeCategoryTable, error)
 	DeleteIncomeCategory(context.Context, int64) error
 }
