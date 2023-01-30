@@ -26,7 +26,13 @@ expense_subcategories:
 expenses:
 	protoc --proto_path=./proto --go_out=. --go_opt=module=${GO_MODULE} --go-grpc_out=. --go-grpc_opt=module=${GO_MODULE} expenses.proto
 
-all: cards expense_categories expense_subcategories expenses
+income_categories:
+	protoc --proto_path=./proto --go_out=. --go_opt=module=${GO_MODULE} --go-grpc_out=. --go-grpc_opt=module=${GO_MODULE} income_categories.proto
+
+incomes:
+	protoc --proto_path=./proto --go_out=. --go_opt=module=${GO_MODULE} --go-grpc_out=. --go-grpc_opt=module=${GO_MODULE} incomes.proto
+
+all: cards expense_categories expense_subcategories expenses income_categories incomes
 
 
 # BUILD #
