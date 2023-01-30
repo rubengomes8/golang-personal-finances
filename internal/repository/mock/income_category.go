@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	IncomeSalaryCategoryName = "salary"
+	IncomeSalaryCategoryName = "Salary"
 )
 
 var (

@@ -1,7 +1,7 @@
 package models
 
-// IncomeCreateRequest is the http expense model
-type IncomeCreateRequest struct {
+// Income is the http expense model
+type Income struct {
 	ID          int     `json:"id,omitempty"`
 	Value       float64 `json:"value,omitempty"`
 	Date        string  `json:"date,omitempty"` // Should be on this format YYYY-MM-DD
