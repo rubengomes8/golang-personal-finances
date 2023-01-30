@@ -157,7 +157,7 @@ func (i *Incomes) UpdateIncome(ctx *gin.Context) {
 	if err != nil {
 		log.Printf("could not update income with param id = %v: %v", paramID, err)
 		ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
-			ErrorMsg: "incomes with this id does not exist",
+			ErrorMsg: "incomes with this id do not exist",
 		})
 		return
 	}
@@ -195,6 +195,33 @@ func (i *Incomes) GetIncomeByID(ctx *gin.Context) {
 	ctx.Writer.Flush()
 }
 
+// DeleteIncome deletes an income from the database that match the id provided
+func (i *Incomes) DeleteIncome(ctx *gin.Context) {
+
+	paramID := ctx.Param("id")
+
+	incomeID, err := strconv.Atoi(paramID)
+	if err != nil {
+		log.Printf("error converting income id to int - param id is %v - %v", paramID, err)
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
+			ErrorMsg: "id parameter must be an integer",
+		})
+		return
+	}
+
+	err = i.Repository.DeleteIncome(ctx, int64(incomeID))
+	if err != nil {
+		log.Printf("could not delete income with this id - param id is %v - %v", paramID, err)
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
+			ErrorMsg: "income with this id does not exist",
+		})
+		return
+	}
+
+	ctx.Writer.WriteHeader(http.StatusNoContent)
+	ctx.Writer.Flush()
+}
+
 func incomeViewToIncomeGetResponse(incomeView dbModels.IncomeView) models.Income {
 	return models.Income{
 		ID:          int(incomeView.ID),
@@ -206,7 +233,86 @@ func incomeViewToIncomeGetResponse(incomeView dbModels.IncomeView) models.Income
 	}
 }
 
-func incomeViewsToIncomesetResponse(incomeViewRecords []dbModels.IncomeView) []models.Income {
+// GetIncomesByCategory gets a list of incomes from the database that match the category provided
+func (i *Incomes) GetIncomesByCategory(ctx *gin.Context) {
+
+	paramCategory := ctx.Param("category")
+
+	incomeViewRecords, err := i.Repository.GetIncomesByCategory(ctx, paramCategory)
+	if err != nil {
+		log.Printf("could not get incomes by category - category is %v - %v", paramCategory, err)
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
+			ErrorMsg: "income category does not exist",
+		})
+		return
+	}
+
+	responseIncomes := incomeViewsToIncomesGetResponse(incomeViewRecords)
+
+	ctx.JSON(http.StatusOK, responseIncomes)
+	ctx.Writer.Flush()
+}
+
+// GetIncomesByCard gets a list of incomes from the database that match the card provided
+func (i *Incomes) GetIncomesByCard(ctx *gin.Context) {
+
+	paramCard := ctx.Param("card")
+
+	incomeViewRecords, err := i.Repository.GetIncomesByCard(ctx, paramCard)
+	if err != nil {
+		log.Printf("could not get incomes by card - card is %v - %v", paramCard, err)
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
+			ErrorMsg: "income card does not exist",
+		})
+		return
+	}
+
+	responseIncomes := incomeViewsToIncomesGetResponse(incomeViewRecords)
+
+	ctx.JSON(http.StatusOK, responseIncomes)
+	ctx.Writer.Flush()
+}
+
+// GetIncomesByDates gets a list of incomes from the database that match the dates' range provided
+func (i *Incomes) GetIncomesByDates(ctx *gin.Context) {
+
+	paramMinDate := ctx.Param("min_date")
+	paramMaxDate := ctx.Param("max_date")
+
+	minDate, err := dateStringToTime(paramMinDate)
+	if err != nil {
+		log.Printf("could not convert min date string to time - min date is %v - %v", paramMinDate, err)
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
+			ErrorMsg: "could not parse min date - must use YYYY-MM-DD date format",
+		})
+		return
+	}
+
+	maxDate, err := dateStringToTime(paramMaxDate)
+	if err != nil {
+		log.Printf("could not convert max date string to time - max date is %v - %v", paramMaxDate, err)
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
+			ErrorMsg: "could not parse max date - must use YYYY-MM-DD date format",
+		})
+		return
+	}
+
+	incomeViewRecords, err := i.Repository.GetIncomesByDates(ctx, minDate, maxDate)
+	if err != nil {
+		log.Printf("could not get incomes by dates - min_date is %v | max_date is %v - err: %v", paramMinDate, paramMaxDate, err)
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
+			ErrorMsg: "could not get incomes by dates",
+		})
+		return
+	}
+
+	responseIncomes := incomeViewsToIncomesGetResponse(incomeViewRecords)
+
+	ctx.JSON(http.StatusOK, responseIncomes)
+	ctx.Writer.Flush()
+}
+
+func incomeViewsToIncomesGetResponse(incomeViewRecords []dbModels.IncomeView) []models.Income {
 	var responseIncomes []models.Income
 	for _, inc := range incomeViewRecords {
 		responseIncomes = append(responseIncomes, incomeViewToIncomeGetResponse(inc))

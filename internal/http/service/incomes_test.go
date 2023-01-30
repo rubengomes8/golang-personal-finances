@@ -35,6 +35,15 @@ var (
 	salaryIncomeCreateResponse = models.IncomeCreateResponse{
 		ID: int(mock.IncomeSalary.ID),
 	}
+
+	salaryIncomeGetByIDResponse = models.Income{
+		ID:          1,
+		Value:       mock.IncomeSalary.Value,
+		Date:        mock.IncomeSalary.Date.Format("2006-01-02"),
+		Category:    mock.IncomeSalaryCategory.Name,
+		Card:        mock.IncomeSalaryCard.Name,
+		Description: mock.IncomeSalary.Description,
+	}
 )
 
 func TestIncomes_CreateIncome(t *testing.T) {
@@ -174,7 +183,7 @@ func TestIncomes_CreateIncome(t *testing.T) {
 					t.Fatalf("error decoding response: %v\n", err)
 				}
 				assert.Equal(t, tt.want.response, r)
-			case http.StatusBadRequest, http.StatusInternalServerError:
+			default:
 				var r models.ErrorResponse
 				err = json.NewDecoder(w.Body).Decode(&r)
 				if err != nil {
@@ -312,7 +321,7 @@ func TestIncomes_UpdateIncome(t *testing.T) {
 			params: map[string]string{"id": "2"},
 			want: want{
 				statusCode: http.StatusInternalServerError,
-				errorMsg:   "incomes with this id does not exist",
+				errorMsg:   "incomes with this id do not exist",
 			},
 		},
 	}
@@ -344,7 +353,7 @@ func TestIncomes_UpdateIncome(t *testing.T) {
 
 			switch w.Code {
 			case http.StatusNoContent:
-			case http.StatusBadRequest, http.StatusInternalServerError:
+			default:
 				var r models.ErrorResponse
 				err = json.NewDecoder(w.Body).Decode(&r)
 				if err != nil {
@@ -383,8 +392,7 @@ func TestIncomes_GetIncomeByID(t *testing.T) {
 		want   want
 		params map[string]string
 	}{
-		// TODO:
-		/*{
+		{
 			name: "Success",
 			fields: fields{
 				Repository:         &incomeRepo,
@@ -393,10 +401,36 @@ func TestIncomes_GetIncomeByID(t *testing.T) {
 			},
 			want: want{
 				statusCode: http.StatusOK,
-				income:     mock.IncomeSalary,
+				income:     salaryIncomeGetByIDResponse,
 			},
 			params: map[string]string{"id": "1"},
-		},*/
+		},
+		{
+			name: "ErrorParamIDNotInt",
+			fields: fields{
+				Repository:         &incomeRepo,
+				CardRepository:     &cardRepo,
+				CategoryRepository: &categoryRepo,
+			},
+			params: map[string]string{"id": "abc"},
+			want: want{
+				statusCode: http.StatusBadRequest,
+				errorMsg:   "id parameter must be an integer",
+			},
+		},
+		{
+			name: "ErrorIncomeDoesNotExist",
+			fields: fields{
+				Repository:         &incomeRepo,
+				CardRepository:     &cardRepo,
+				CategoryRepository: &categoryRepo,
+			},
+			params: map[string]string{"id": "999"},
+			want: want{
+				statusCode: http.StatusBadRequest,
+				errorMsg:   "income with this id does not exist",
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -426,7 +460,7 @@ func TestIncomes_GetIncomeByID(t *testing.T) {
 					t.Fatalf("error decoding response: %v\n", err)
 				}
 				assert.Equal(t, tt.want.income, r)
-			case http.StatusBadRequest:
+			default:
 				var r models.ErrorResponse
 				err = json.NewDecoder(w.Body).Decode(&r)
 				if err != nil {
@@ -435,5 +469,392 @@ func TestIncomes_GetIncomeByID(t *testing.T) {
 				assert.Equal(t, tt.want.errorMsg, r.ErrorMsg)
 			}
 		})
+	}
+}
+
+func TestIncomes_DeleteIncome(t *testing.T) {
+
+	incomesService, err := NewIncomes(incomeRepo, categoryRepo, cardRepo)
+	if err != nil {
+		t.Fatalf("error creating incomes service: %v\n", err)
+	}
+
+	gin.SetMode(gin.TestMode)
+
+	type fields struct {
+		Repository         repository.IncomeRepo
+		CategoryRepository repository.IncomeCategoryRepo
+		CardRepository     repository.CardRepo
+	}
+
+	type want struct {
+		statusCode int
+		errorMsg   string
+	}
+
+	tests := []struct {
+		name   string
+		fields fields
+		want   want
+		params map[string]string
+	}{
+		{
+			name: "Success",
+			fields: fields{
+				Repository:         &incomeRepo,
+				CardRepository:     &cardRepo,
+				CategoryRepository: &categoryRepo,
+			},
+			want: want{
+				statusCode: http.StatusNoContent,
+			},
+			params: map[string]string{"id": "1"},
+		},
+		{
+			name: "ErrorParamIDNotInt",
+			fields: fields{
+				Repository:         &incomeRepo,
+				CardRepository:     &cardRepo,
+				CategoryRepository: &categoryRepo,
+			},
+			params: map[string]string{"id": "abc"},
+			want: want{
+				statusCode: http.StatusBadRequest,
+				errorMsg:   "id parameter must be an integer",
+			},
+		},
+		{
+			name: "ErrorIncomeDoesNotExist",
+			fields: fields{
+				Repository:         &incomeRepo,
+				CardRepository:     &cardRepo,
+				CategoryRepository: &categoryRepo,
+			},
+			params: map[string]string{"id": "999"},
+			want: want{
+				statusCode: http.StatusBadRequest,
+				errorMsg:   "income with this id does not exist",
+			},
+		},
+	}
+	for _, tt := range tests {
+
+		// GIVEN
+		w := httptest.NewRecorder()
+		ginCtx, _ := gin.CreateTestContext(w)
+		ginCtx.Request = &http.Request{
+			Method: http.MethodDelete,
+		}
+
+		for k, v := range tt.params {
+			ginCtx.Params = append(ginCtx.Params, gin.Param{Key: k, Value: v})
+		}
+
+		// WHEN
+		incomesService.DeleteIncome(ginCtx)
+
+		// THEN
+		assert.EqualValues(t, tt.want.statusCode, w.Code)
+
+		switch w.Code {
+		case http.StatusNoContent:
+		default:
+			var r models.ErrorResponse
+			err = json.NewDecoder(w.Body).Decode(&r)
+			if err != nil {
+				t.Fatalf("error decoding response: %v\n", err)
+			}
+			assert.Equal(t, tt.want.errorMsg, r.ErrorMsg)
+		}
+	}
+}
+
+func TestIncomes_GetIncomesByCategory(t *testing.T) {
+
+	incomesService, err := NewIncomes(incomeRepo, categoryRepo, cardRepo)
+	if err != nil {
+		t.Fatalf("error creating incomes service: %v\n", err)
+	}
+
+	gin.SetMode(gin.TestMode)
+
+	type fields struct {
+		Repository         repository.IncomeRepo
+		CategoryRepository repository.IncomeCategoryRepo
+		CardRepository     repository.CardRepo
+	}
+
+	type want struct {
+		statusCode int
+		incomes    []models.Income
+		errorMsg   string
+	}
+
+	tests := []struct {
+		name   string
+		fields fields
+		want   want
+		params map[string]string
+	}{
+		{
+			name: "Success",
+			fields: fields{
+				Repository:         &incomeRepo,
+				CardRepository:     &cardRepo,
+				CategoryRepository: &categoryRepo,
+			},
+			want: want{
+				incomes: []models.Income{
+					salaryIncomeGetByIDResponse,
+				},
+				statusCode: http.StatusOK,
+			},
+			params: map[string]string{"category": mock.IncomeSalaryCategory.Name},
+		},
+		{
+			name: "ErrorCategoryDoesNotExist",
+			fields: fields{
+				Repository:         &incomeRepo,
+				CardRepository:     &cardRepo,
+				CategoryRepository: &categoryRepo,
+			},
+			params: map[string]string{"category": "Unknown"},
+			want: want{
+				statusCode: http.StatusBadRequest,
+				errorMsg:   "income category does not exist",
+			},
+		},
+	}
+	for _, tt := range tests {
+
+		// GIVEN
+		w := httptest.NewRecorder()
+		ginCtx, _ := gin.CreateTestContext(w)
+		ginCtx.Request = &http.Request{
+			Method: http.MethodGet,
+		}
+
+		for k, v := range tt.params {
+			ginCtx.Params = append(ginCtx.Params, gin.Param{Key: k, Value: v})
+		}
+
+		// WHEN
+		incomesService.GetIncomesByCategory(ginCtx)
+
+		// THEN
+		assert.EqualValues(t, tt.want.statusCode, w.Code)
+
+		switch w.Code {
+		case http.StatusOK:
+		default:
+			var r models.ErrorResponse
+			err = json.NewDecoder(w.Body).Decode(&r)
+			if err != nil {
+				t.Fatalf("error decoding response: %v\n", err)
+			}
+			assert.Equal(t, tt.want.errorMsg, r.ErrorMsg)
+		}
+	}
+}
+
+func TestIncomes_GetIncomesByCard(t *testing.T) {
+
+	incomesService, err := NewIncomes(incomeRepo, categoryRepo, cardRepo)
+	if err != nil {
+		t.Fatalf("error creating incomes service: %v\n", err)
+	}
+
+	gin.SetMode(gin.TestMode)
+
+	type fields struct {
+		Repository         repository.IncomeRepo
+		CategoryRepository repository.IncomeCategoryRepo
+		CardRepository     repository.CardRepo
+	}
+
+	type want struct {
+		statusCode int
+		incomes    []models.Income
+		errorMsg   string
+	}
+
+	tests := []struct {
+		name   string
+		fields fields
+		want   want
+		params map[string]string
+	}{
+		{
+			name: "Success",
+			fields: fields{
+				Repository:         &incomeRepo,
+				CardRepository:     &cardRepo,
+				CategoryRepository: &categoryRepo,
+			},
+			want: want{
+				incomes: []models.Income{
+					salaryIncomeGetByIDResponse,
+				},
+				statusCode: http.StatusOK,
+			},
+			params: map[string]string{"card": mock.IncomeSalaryCard.Name},
+		},
+		{
+			name: "ErrorCardDoesNotExist",
+			fields: fields{
+				Repository:         &incomeRepo,
+				CardRepository:     &cardRepo,
+				CategoryRepository: &categoryRepo,
+			},
+			params: map[string]string{"card": "Unknown"},
+			want: want{
+				statusCode: http.StatusBadRequest,
+				errorMsg:   "income card does not exist",
+			},
+		},
+	}
+	for _, tt := range tests {
+
+		// GIVEN
+		w := httptest.NewRecorder()
+		ginCtx, _ := gin.CreateTestContext(w)
+		ginCtx.Request = &http.Request{
+			Method: http.MethodGet,
+		}
+
+		for k, v := range tt.params {
+			ginCtx.Params = append(ginCtx.Params, gin.Param{Key: k, Value: v})
+		}
+
+		// WHEN
+		incomesService.GetIncomesByCard(ginCtx)
+
+		// THEN
+		assert.EqualValues(t, tt.want.statusCode, w.Code)
+
+		switch w.Code {
+		case http.StatusOK:
+		default:
+			var r models.ErrorResponse
+			err = json.NewDecoder(w.Body).Decode(&r)
+			if err != nil {
+				t.Fatalf("error decoding response: %v\n", err)
+			}
+			assert.Equal(t, tt.want.errorMsg, r.ErrorMsg)
+		}
+	}
+}
+
+func TestIncomes_GetIncomesByDates(t *testing.T) {
+
+	incomesService, err := NewIncomes(incomeRepo, categoryRepo, cardRepo)
+	if err != nil {
+		t.Fatalf("error creating incomes service: %v\n", err)
+	}
+
+	gin.SetMode(gin.TestMode)
+
+	type fields struct {
+		Repository         repository.IncomeRepo
+		CategoryRepository repository.IncomeCategoryRepo
+		CardRepository     repository.CardRepo
+	}
+
+	type want struct {
+		statusCode int
+		incomes    []models.Income
+		errorMsg   string
+	}
+
+	tests := []struct {
+		name   string
+		fields fields
+		want   want
+		params map[string]string
+	}{
+		{
+			name: "Success",
+			fields: fields{
+				Repository:         &incomeRepo,
+				CardRepository:     &cardRepo,
+				CategoryRepository: &categoryRepo,
+			},
+			want: want{
+				statusCode: http.StatusOK,
+				incomes: []models.Income{
+					salaryIncomeGetByIDResponse,
+				},
+			},
+			params: map[string]string{"min_date": "2020-01-31", "max_date": "2060-02-02"},
+		},
+		{
+			name: "ErrorWrongMinDateFormat",
+			fields: fields{
+				Repository:         &incomeRepo,
+				CardRepository:     &cardRepo,
+				CategoryRepository: &categoryRepo,
+			},
+			want: want{
+				statusCode: http.StatusBadRequest,
+				errorMsg:   "could not parse min date - must use YYYY-MM-DD date format",
+			},
+			params: map[string]string{"min_date": "2020-Jan-31", "max_date": "2020-Feb-02"},
+		},
+		{
+			name: "ErrorWrongMaxDateFormat",
+			fields: fields{
+				Repository:         &incomeRepo,
+				CardRepository:     &cardRepo,
+				CategoryRepository: &categoryRepo,
+			},
+			want: want{
+				statusCode: http.StatusBadRequest,
+				errorMsg:   "could not parse max date - must use YYYY-MM-DD date format",
+			},
+			params: map[string]string{"min_date": "2020-01-31", "max_date": "2020-Feb-02"},
+		},
+		{
+			name: "ErrorNoIncomesInDatesRange",
+			fields: fields{
+				Repository:         &incomeRepo,
+				CardRepository:     &cardRepo,
+				CategoryRepository: &categoryRepo,
+			},
+			want: want{
+				statusCode: http.StatusBadRequest,
+				errorMsg:   "could not get incomes by dates",
+			},
+			params: map[string]string{"min_date": "2060-01-31", "max_date": "2061-02-02"},
+		},
+	}
+	for _, tt := range tests {
+
+		// GIVEN
+		w := httptest.NewRecorder()
+		ginCtx, _ := gin.CreateTestContext(w)
+		ginCtx.Request = &http.Request{
+			Method: http.MethodGet,
+		}
+
+		for k, v := range tt.params {
+			ginCtx.Params = append(ginCtx.Params, gin.Param{Key: k, Value: v})
+		}
+
+		// WHEN
+		incomesService.GetIncomesByDates(ginCtx)
+
+		// THEN
+		assert.EqualValues(t, tt.want.statusCode, w.Code)
+
+		switch w.Code {
+		case http.StatusOK:
+		default:
+			var r models.ErrorResponse
+			err = json.NewDecoder(w.Body).Decode(&r)
+			if err != nil {
+				t.Fatalf("error decoding response: %v\n", err)
+			}
+			assert.Equal(t, tt.want.errorMsg, r.ErrorMsg)
+		}
 	}
 }

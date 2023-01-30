@@ -23,18 +23,23 @@ func SetupRouter(
 	v1 := r.Group("/v1")
 	{
 		v1.Use(auth.JwtAuthMiddleware())
+
 		v1.GET("expense/:id", expensesService.GetExpenseByID)
+		v1.POST("expense", expensesService.CreateExpense)
+		v1.PUT("expense/:id", expensesService.UpdateExpense)
+		v1.DELETE("expense/:id", expensesService.DeleteExpense)
 		v1.GET("expenses/dates/:min_date/:max_date", expensesService.GetExpensesByDates)
 		v1.GET("expenses/category/:category", expensesService.GetExpensesByCategory)
 		v1.GET("expenses/subcategory/:sub_category", expensesService.GetExpensesBySubCategory)
 		v1.GET("expenses/card/:card", expensesService.GetExpensesByCard)
-		v1.POST("expense", expensesService.CreateExpense)
-		v1.PUT("expense/:id", expensesService.UpdateExpense)
-		v1.DELETE("expense/:id", expensesService.DeleteExpense)
 
 		v1.GET("income/:id", incomesService.GetIncomeByID)
 		v1.POST("income", incomesService.CreateIncome)
 		v1.PUT("income/:id", incomesService.UpdateIncome)
+		v1.DELETE("income/:id", incomesService.DeleteIncome)
+		v1.GET("incomes/category/:category", incomesService.GetIncomesByCategory)
+		v1.GET("incomes/card/:card", incomesService.GetIncomesByCard)
+		v1.GET("incomes/dates/:min_date/:max_date", incomesService.GetIncomesByDates)
 	}
 
 	return r

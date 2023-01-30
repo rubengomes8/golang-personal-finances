@@ -38,7 +38,7 @@ func NewExpenses(
 // CreateExpense creates an expense on the database
 func (e *Expenses) CreateExpense(ctx *gin.Context) {
 
-	var expense models.Expense
+	var expense models.ExpenseCreateRequest
 	err := json.NewDecoder(ctx.Request.Body).Decode(&expense)
 	if err != nil {
 		log.Printf("could not decode create expense body: %v", err)
@@ -90,7 +90,7 @@ func (e *Expenses) CreateExpense(ctx *gin.Context) {
 // UpdateExpense updates an expense on the database
 func (e *Expenses) UpdateExpense(ctx *gin.Context) {
 
-	var expense models.Expense
+	var expense models.ExpenseCreateRequest
 	err := json.NewDecoder(ctx.Request.Body).Decode(&expense)
 	if err != nil {
 		log.Printf("could not decode update expense body: %v", err)
@@ -330,8 +330,8 @@ func timeToStringDate(t time.Time) string {
 	return t.Format("2006-01-02")
 }
 
-func expenseViewToExpenseGetResponse(expenseView dbModels.ExpenseView) models.Expense {
-	return models.Expense{
+func expenseViewToExpenseGetResponse(expenseView dbModels.ExpenseView) models.ExpenseCreateRequest {
+	return models.ExpenseCreateRequest{
 		ID:          int(expenseView.ID),
 		Value:       expenseView.Value,
 		Date:        timeToStringDate(expenseView.Date),
@@ -341,8 +341,8 @@ func expenseViewToExpenseGetResponse(expenseView dbModels.ExpenseView) models.Ex
 	}
 }
 
-func expensesViewToExpensesGetResponse(expenseViewRecords []dbModels.ExpenseView) []models.Expense {
-	var responseExpenses []models.Expense
+func expensesViewToExpensesGetResponse(expenseViewRecords []dbModels.ExpenseView) []models.ExpenseCreateRequest {
+	var responseExpenses []models.ExpenseCreateRequest
 	for _, exp := range expenseViewRecords {
 		responseExpenses = append(responseExpenses, expenseViewToExpenseGetResponse(exp))
 	}

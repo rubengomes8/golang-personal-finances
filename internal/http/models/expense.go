@@ -1,7 +1,7 @@
 package models
 
-// Expense is the http expense model
-type Expense struct {
+// ExpenseCreateRequest is the http expense model
+type ExpenseCreateRequest struct {
 	ID          int     `json:"id,omitempty"`
 	Value       float64 `json:"value,omitempty"`
 	Date        string  `json:"date,omitempty"` // Should be on this format YYYY-MM-DD

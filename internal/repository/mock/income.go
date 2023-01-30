@@ -82,7 +82,7 @@ func (i Income) GetIncomesByDates(ctx context.Context, min time.Time, max time.T
 		}, nil
 	}
 
-	return []models.IncomeView{}, nil
+	return []models.IncomeView{}, errors.New("could not get income view by dates")
 }
 
 // GetIncomesByCategory mocks an income get by category
@@ -94,7 +94,7 @@ func (i Income) GetIncomesByCategory(ctx context.Context, category string) ([]mo
 		}, nil
 	}
 
-	return []models.IncomeView{}, nil
+	return []models.IncomeView{}, errors.New("could not get income view by category")
 }
 
 // GetIncomesByCard mocks an income get by card
@@ -106,7 +106,7 @@ func (i Income) GetIncomesByCard(ctx context.Context, card string) ([]models.Inc
 		}, nil
 	}
 
-	return []models.IncomeView{}, nil
+	return []models.IncomeView{}, errors.New("could not get income view by card")
 }
 
 // DeleteIncome mocks an income delete
