@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package income_categories;
+
+option go_package = "github.com/rubengomes8/golang-personal-finances/internal/pb/incomes/categories";
+
+/* CREATE INCOME CATEGORY */
+message CreateRequest {
+    string name = 1;
+}
+
+message CreateResponse {
+    int64 id = 1;
+}
+
+/* GET INCOME CATEGORY */
+message GetRequestByName {
+    string name = 1;
+}
+
+message GetResponse {
+    int64 id = 1;
+    string name = 2;
+}
+
+/* INCOME CATEGORY SERVICE */
+service Service {
+    rpc Create(CreateRequest) returns(CreateResponse);
+    rpc GetByName(GetRequestByName) returns(GetResponse);
+}

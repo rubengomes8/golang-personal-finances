@@ -1,0 +1,87 @@
+syntax = "proto3";
+
+package incomes;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/rubengomes8/golang-personal-finances/internal/pb/incomes";
+
+/* CREATE INCOMES */
+message CreateRequest {
+    double value = 1;
+    google.protobuf.Timestamp date = 2;
+    string category = 3;
+    string card = 5;
+    string description = 6;
+}
+
+message CreateResponse {
+    int64 id = 1;
+}
+
+message CreateSeveralRequest {
+    repeated CreateRequest incomes = 1;
+}
+
+message CreateSeveralResponse {
+    repeated CreateResponse ids = 1;
+}
+
+/* GET INCOMES */
+message GetResponse {
+    int64 id = 1;
+    double value = 2;
+    google.protobuf.Timestamp date = 3;
+    string category = 4;
+    string card = 6;
+    string description = 7;
+}
+
+message GetSeveralResponse {
+    repeated GetResponse incomes = 1;
+}
+
+message GetRequestByDate {
+    google.protobuf.Timestamp min_date = 1;
+    google.protobuf.Timestamp max_date = 2;
+}
+
+message GetRequestByCategory {
+    string category = 1;
+}
+
+message GetRequestByCard {
+    string card = 1;
+}
+
+/* UPDATE EXPENSES */
+message UpdateRequest {
+    int64 id = 1;
+    double value = 2;
+    google.protobuf.Timestamp date = 3;
+    string category = 4;
+    string card = 6;
+    string description = 7;
+}
+
+message UpdateResponse {
+    int64 id = 1;
+}
+
+message UpdateSeveralRequest {
+    repeated UpdateRequest expenses = 1;
+}
+
+message UpdateSeveralResponse {
+    repeated UpdateResponse ids = 1;
+}
+
+/* INCOMES SERVICE */
+service Service {
+    rpc Create(CreateRequest) returns(CreateResponse);
+    rpc CreateSeveral(CreateSeveralRequest) returns(CreateSeveralResponse); // TO IMPLEMENT
+    rpc Update(UpdateRequest) returns(UpdateResponse);
+    rpc GetByDate(GetRequestByDate) returns(GetSeveralResponse);
+    rpc GetByCategory(GetRequestByCategory) returns(GetSeveralResponse);
+    rpc GetByCard(GetRequestByCard) returns(GetSeveralResponse);
+}
