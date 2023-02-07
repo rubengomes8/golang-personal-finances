@@ -1,4 +1,4 @@
-package service
+package handlers
 
 import (
 	"encoding/json"
@@ -8,32 +8,27 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/rubengomes8/golang-personal-finances/internal/http/models"
-	"github.com/rubengomes8/golang-personal-finances/internal/repository"
+	"github.com/rubengomes8/golang-personal-finances/internal/services/incomes"
+
 	dbModels "github.com/rubengomes8/golang-personal-finances/internal/repository/models"
 )
 
 // Incomes handles the incomes http requests
 type Incomes struct {
-	Repository         repository.IncomeRepo
-	CategoryRepository repository.IncomeCategoryRepo
-	CardRepository     repository.CardRepo
+	service incomes.Incomes
 }
 
 // NewIncomes creates a new Incomes service
 func NewIncomes(
-	repo repository.IncomeRepo,
-	categoryRepo repository.IncomeCategoryRepo,
-	cardRepo repository.CardRepo,
+	service incomes.Incomes,
 ) (Incomes, error) {
 	return Incomes{
-		Repository:         repo,
-		CategoryRepository: categoryRepo,
-		CardRepository:     cardRepo,
+		service: service,
 	}, nil
 }
 
-// CreateIncome creates an income on the database
-func (i *Incomes) CreateIncome(ctx *gin.Context) {
+// HandleCreateIncome handles an income create request
+func (i *Incomes) HandleCreateIncome(ctx *gin.Context) {
 
 	var income models.Income
 	err := json.NewDecoder(ctx.Request.Body).Decode(&income)
@@ -45,46 +40,11 @@ func (i *Incomes) CreateIncome(ctx *gin.Context) {
 		return
 	}
 
-	card, err := i.CardRepository.GetCardByName(ctx, income.Card)
+	id, err := i.service.Add(ctx, income)
 	if err != nil {
-		log.Printf("could not get card by name: %v", err)
+		log.Printf("could not add income: %v", err)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
-			ErrorMsg: "card does not exist",
-		})
-		return
-	}
-
-	category, err := i.CategoryRepository.GetIncomeCategoryByName(ctx, income.Category)
-	if err != nil {
-		log.Printf("could not get income category by name: %v", err)
-		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
-			ErrorMsg: "income category does not exist",
-		})
-		return
-	}
-
-	date, err := dateStringToTime(income.Date)
-	if err != nil {
-		log.Printf("error converting income date string to time - %v: %v", income.Date, err)
-		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
-			ErrorMsg: "could not parse date - must use YYYY-MM-DD date format",
-		})
-		return
-	}
-
-	incomeRecord := dbModels.IncomeTable{
-		Value:       income.Value,
-		Date:        date,
-		CategoryID:  category.ID,
-		CardID:      card.ID,
-		Description: income.Description,
-	}
-
-	id, err := i.Repository.InsertIncome(ctx, incomeRecord)
-	if err != nil {
-		log.Printf("could not insert income: %v", err)
-		ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
-			ErrorMsg: "could not create income",
+			ErrorMsg: "could not add income",
 		})
 		return
 	}
@@ -93,8 +53,8 @@ func (i *Incomes) CreateIncome(ctx *gin.Context) {
 	ctx.Writer.Flush()
 }
 
-// UpdateIncome updates an income on the database
-func (i *Incomes) UpdateIncome(ctx *gin.Context) {
+// HandleUpdateIncome handles an income update request
+func (i *Incomes) HandleUpdateIncome(ctx *gin.Context) {
 
 	var income models.Income
 	err := json.NewDecoder(ctx.Request.Body).Decode(&income)
@@ -106,33 +66,6 @@ func (i *Incomes) UpdateIncome(ctx *gin.Context) {
 		return
 	}
 
-	card, err := i.CardRepository.GetCardByName(ctx, income.Card)
-	if err != nil {
-		log.Printf("could not get card by name: %v", err)
-		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
-			ErrorMsg: "card does not exist",
-		})
-		return
-	}
-
-	category, err := i.CategoryRepository.GetIncomeCategoryByName(ctx, income.Category)
-	if err != nil {
-		log.Printf("could not get income category by name: %v", err)
-		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
-			ErrorMsg: "income category does not exist",
-		})
-		return
-	}
-
-	date, err := dateStringToTime(income.Date)
-	if err != nil {
-		log.Printf("error converting date string to time - %v: %v", income.Date, err)
-		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
-			ErrorMsg: "could not parse date - must use YYYY-MM-DD date format",
-		})
-		return
-	}
-
 	paramID := ctx.Param("id")
 
 	incomeID, err := strconv.Atoi(paramID)
@@ -144,20 +77,13 @@ func (i *Incomes) UpdateIncome(ctx *gin.Context) {
 		return
 	}
 
-	incomeRecord := dbModels.IncomeTable{
-		ID:          int64(incomeID),
-		Value:       income.Value,
-		Date:        date,
-		CategoryID:  category.ID,
-		CardID:      card.ID,
-		Description: income.Description,
-	}
+	income.ID = incomeID
 
-	_, err = i.Repository.UpdateIncome(ctx, incomeRecord)
+	err = i.service.Update(ctx, income)
 	if err != nil {
-		log.Printf("could not update income with param id = %v: %v", paramID, err)
-		ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
-			ErrorMsg: "incomes with this id do not exist",
+		log.Printf("could not update income: %v", err)
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
+			ErrorMsg: "could not update income",
 		})
 		return
 	}
@@ -166,8 +92,8 @@ func (i *Incomes) UpdateIncome(ctx *gin.Context) {
 	ctx.Writer.Flush()
 }
 
-// GetIncomeByID gets an income from the database that match the id provided
-func (i *Incomes) GetIncomeByID(ctx *gin.Context) {
+// HandleGetIncomeByID handles a get income by id request
+func (i *Incomes) HandleGetIncomeByID(ctx *gin.Context) {
 
 	paramID := ctx.Param("id")
 
@@ -180,7 +106,7 @@ func (i *Incomes) GetIncomeByID(ctx *gin.Context) {
 		return
 	}
 
-	incomeViewRecord, err := i.Repository.GetIncomeByID(ctx, int64(incomeID))
+	incomeViewRecord, err := i.service.GetByID(ctx, int64(incomeID))
 	if err != nil {
 		log.Printf("could not get income by id - param id is %v - %v", paramID, err)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
@@ -195,8 +121,8 @@ func (i *Incomes) GetIncomeByID(ctx *gin.Context) {
 	ctx.Writer.Flush()
 }
 
-// DeleteIncome deletes an income from the database that match the id provided
-func (i *Incomes) DeleteIncome(ctx *gin.Context) {
+// HandleDeleteIncome handles an income delete request
+func (i *Incomes) HandleDeleteIncome(ctx *gin.Context) {
 
 	paramID := ctx.Param("id")
 
@@ -209,7 +135,7 @@ func (i *Incomes) DeleteIncome(ctx *gin.Context) {
 		return
 	}
 
-	err = i.Repository.DeleteIncome(ctx, int64(incomeID))
+	err = i.service.Delete(ctx, int64(incomeID))
 	if err != nil {
 		log.Printf("could not delete income with this id - param id is %v - %v", paramID, err)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
@@ -222,23 +148,12 @@ func (i *Incomes) DeleteIncome(ctx *gin.Context) {
 	ctx.Writer.Flush()
 }
 
-func incomeViewToIncomeGetResponse(incomeView dbModels.IncomeView) models.Income {
-	return models.Income{
-		ID:          int(incomeView.ID),
-		Value:       incomeView.Value,
-		Date:        timeToStringDate(incomeView.Date),
-		Category:    incomeView.Category,
-		Card:        incomeView.Card,
-		Description: incomeView.Description,
-	}
-}
-
-// GetIncomesByCategory gets a list of incomes from the database that match the category provided
-func (i *Incomes) GetIncomesByCategory(ctx *gin.Context) {
+// HandleGetIncomesByCategory handles a get incomes by category request
+func (i *Incomes) HandleGetIncomesByCategory(ctx *gin.Context) {
 
 	paramCategory := ctx.Param("category")
 
-	incomeViewRecords, err := i.Repository.GetIncomesByCategory(ctx, paramCategory)
+	incomeViewRecords, err := i.service.GetByCategory(ctx, paramCategory)
 	if err != nil {
 		log.Printf("could not get incomes by category - category is %v - %v", paramCategory, err)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
@@ -253,12 +168,12 @@ func (i *Incomes) GetIncomesByCategory(ctx *gin.Context) {
 	ctx.Writer.Flush()
 }
 
-// GetIncomesByCard gets a list of incomes from the database that match the card provided
-func (i *Incomes) GetIncomesByCard(ctx *gin.Context) {
+// HandleGetIncomesByCard handles a get incomes by card request
+func (i *Incomes) HandleGetIncomesByCard(ctx *gin.Context) {
 
 	paramCard := ctx.Param("card")
 
-	incomeViewRecords, err := i.Repository.GetIncomesByCard(ctx, paramCard)
+	incomeViewRecords, err := i.service.GetByCard(ctx, paramCard)
 	if err != nil {
 		log.Printf("could not get incomes by card - card is %v - %v", paramCard, err)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
@@ -273,8 +188,8 @@ func (i *Incomes) GetIncomesByCard(ctx *gin.Context) {
 	ctx.Writer.Flush()
 }
 
-// GetIncomesByDates gets a list of incomes from the database that match the dates' range provided
-func (i *Incomes) GetIncomesByDates(ctx *gin.Context) {
+// HandleGetIncomesByDates handles a get incomes by dates request
+func (i *Incomes) HandleGetIncomesByDates(ctx *gin.Context) {
 
 	paramMinDate := ctx.Param("min_date")
 	paramMaxDate := ctx.Param("max_date")
@@ -297,7 +212,7 @@ func (i *Incomes) GetIncomesByDates(ctx *gin.Context) {
 		return
 	}
 
-	incomeViewRecords, err := i.Repository.GetIncomesByDates(ctx, minDate, maxDate)
+	incomeViewRecords, err := i.service.GetByDates(ctx, minDate, maxDate)
 	if err != nil {
 		log.Printf("could not get incomes by dates - min_date is %v | max_date is %v - err: %v", paramMinDate, paramMaxDate, err)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
@@ -318,4 +233,15 @@ func incomeViewsToIncomesGetResponse(incomeViewRecords []dbModels.IncomeView) []
 		responseIncomes = append(responseIncomes, incomeViewToIncomeGetResponse(inc))
 	}
 	return responseIncomes
+}
+
+func incomeViewToIncomeGetResponse(incomeView dbModels.IncomeView) models.Income {
+	return models.Income{
+		ID:          int(incomeView.ID),
+		Value:       incomeView.Value,
+		Date:        timeToStringDate(incomeView.Date),
+		Category:    incomeView.Category,
+		Card:        incomeView.Card,
+		Description: incomeView.Description,
+	}
 }

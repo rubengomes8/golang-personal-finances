@@ -4,9 +4,10 @@ import (
 	"log"
 
 	"github.com/rubengomes8/golang-personal-finances/internal/enums"
+	"github.com/rubengomes8/golang-personal-finances/internal/http/handlers"
 	"github.com/rubengomes8/golang-personal-finances/internal/http/routes"
-	"github.com/rubengomes8/golang-personal-finances/internal/http/service"
 	"github.com/rubengomes8/golang-personal-finances/internal/repository/database"
+	"github.com/rubengomes8/golang-personal-finances/internal/services/incomes"
 
 	_ "github.com/lib/pq"
 )
@@ -24,6 +25,7 @@ func main() {
 		log.Fatalf("Failed to connect to database: %v\n", err)
 	}
 
+	// Repos
 	cardRepo := database.NewCardRepo(db)
 
 	expCategoryRepo := database.NewExpenseCategoryRepo(db)
@@ -33,23 +35,29 @@ func main() {
 	incCategoryRepo := database.NewIncomeCategoryRepo(db)
 	incomesRepo := database.NewIncomesRepo(db, cardRepo, incCategoryRepo)
 
-	expensesService, err := service.NewExpenses(&expensesRepo, &expSubCategoryRepo, &cardRepo)
+	userRepo := database.NewUserRepo(db)
+
+	// Services
+	incomesService := incomes.New(&incomesRepo, &incCategoryRepo, &cardRepo)
+
+	// HTTP Handlers
+	expensesHandlers, err := handlers.NewExpenses(&expensesRepo, &expSubCategoryRepo, &cardRepo)
 	if err != nil {
 		log.Fatalf("Could not create expenses http service: %v\n", err)
 	}
 
-	incomesService, err := service.NewIncomes(&incomesRepo, &incCategoryRepo, &cardRepo)
+	incomesHandlers, err := handlers.NewIncomes(incomesService)
 	if err != nil {
 		log.Fatalf("Could not create incomes http service: %v\n", err)
 	}
 
-	userRepo := database.NewUserRepo(db)
-	authService, err := service.NewAuthService(&userRepo)
+	authHandlers, err := handlers.NewAuthService(&userRepo)
 	if err != nil {
 		log.Fatalf("Could not create auth http service: %v\n", err)
 	}
 
-	r := routes.SetupRouter(expensesService, incomesService, authService)
+	// HTTP Router
+	r := routes.SetupRouter(expensesHandlers, incomesHandlers, authHandlers)
 	err = r.Run()
 	if err != nil {
 		log.Fatalf("Could not run http router: %v\n", err)
