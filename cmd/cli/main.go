@@ -9,12 +9,12 @@ import (
 	"regexp"
 	"strings"
 
-	golangmigrate "github.com/golang-migrate/migrate"
-	golangmigratePostgres "github.com/golang-migrate/migrate/database/postgres"
+	"github.com/golang-migrate/migrate"
+	"github.com/golang-migrate/migrate/database/postgres"
 	_ "github.com/golang-migrate/migrate/source/file"                //no lint
 	_ "github.com/jackc/pgx/stdlib"                                  //no lint
 	_ "github.com/rubengomes8/golang-personal-finances/internal/env" //no lint
-	"github.com/rubengomes8/golang-personal-finances/internal/tools/postgres"
+	"github.com/rubengomes8/golang-personal-finances/internal/tools"
 	"github.com/urfave/cli"
 )
 
@@ -53,7 +53,7 @@ func runSQL(db *sql.DB, path string) error {
 }
 
 func extensionsDB(*cli.Context) error {
-	db, err := postgres.Init()
+	db, err := tools.InitPostgres()
 	if err != nil {
 		return err
 	}
@@ -61,13 +61,13 @@ func extensionsDB(*cli.Context) error {
 	return runSQL(db, os.Getenv("DB_EXTENSIONS_FILEPATH"))
 }
 
-func instance(pool *sql.DB, source string) (*golangmigrate.Migrate, error) {
-	driver, err := golangmigratePostgres.WithInstance(pool, &golangmigratePostgres.Config{})
+func instance(pool *sql.DB, source string) (*migrate.Migrate, error) {
+	driver, err := postgres.WithInstance(pool, &postgres.Config{})
 	if err != nil {
 		return nil, err
 	}
 
-	m, err := golangmigrate.NewWithDatabaseInstance(
+	m, err := migrate.NewWithDatabaseInstance(
 		fmt.Sprintf("file://%s", source),
 		"postgres", driver,
 	)
@@ -78,8 +78,8 @@ func instance(pool *sql.DB, source string) (*golangmigrate.Migrate, error) {
 	return m, nil
 }
 
-func buildInstance() (*golangmigrate.Migrate, error) {
-	db, err := postgres.Init()
+func buildInstance() (*migrate.Migrate, error) {
+	db, err := tools.InitPostgres()
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +93,7 @@ func migrateDB(*cli.Context) error {
 		return err
 	}
 
-	if err := m.Up(); err != nil && err != golangmigrate.ErrNoChange {
+	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
 		return err
 	}
 
@@ -106,7 +106,7 @@ func rollbackDB(*cli.Context) error {
 		return err
 	}
 
-	if err := m.Down(); err != nil && err != golangmigrate.ErrNoChange {
+	if err := m.Down(); err != nil && err != migrate.ErrNoChange {
 		return err
 	}
 
