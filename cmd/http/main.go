@@ -5,11 +5,6 @@ import (
 	"os"
 	"strconv"
 
-<<<<<<< Updated upstream
-	"github.com/rubengomes8/golang-personal-finances/internal/enums"
-=======
-	"github.com/rubengomes8/golang-personal-finances/internal/http/handlers"
->>>>>>> Stashed changes
 	"github.com/rubengomes8/golang-personal-finances/internal/http/routes"
 	"github.com/rubengomes8/golang-personal-finances/internal/http/service"
 	"github.com/rubengomes8/golang-personal-finances/internal/repository/database"
