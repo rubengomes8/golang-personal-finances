@@ -1,6 +1,19 @@
 GO_MODULE=github.com/rubengomes8/golang-personal-finances
 BIN_DIR=bin
 
+# DATABASE #
+database-extensions:
+	go run ./cmd/cli/main.go extensions
+
+database-migrate:
+	go run ./cmd/cli/main.go migrate
+
+database-rollback:
+	go run ./cmd/cli/main.go rollback
+
+database: database-extensions database-migrate
+
+
 # DOCKER #
 docker-up:
 	docker-compose -f docker-compose.yaml up --build

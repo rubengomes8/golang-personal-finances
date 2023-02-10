@@ -3,6 +3,8 @@ package main
 import (
 	"log"
 	"net"
+	"os"
+	"strconv"
 
 	"github.com/rubengomes8/golang-personal-finances/internal/enums"
 	"github.com/rubengomes8/golang-personal-finances/internal/grpc/service"
@@ -14,12 +16,19 @@ import (
 )
 
 func main() {
+
+	dbPortEnv := os.Getenv("DB_PORT")
+	dbPort, err := strconv.Atoi(dbPortEnv)
+	if err != nil {
+		log.Fatalf("Could not convert database port to interger: %v\n", err)
+	}
+
 	db, err := database.New(
-		enums.DatabaseHost,
-		enums.DatabaseUser,
-		enums.DatabasePwd,
-		enums.DatabaseName,
-		enums.DatabasePort,
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PWD"),
+		os.Getenv("DB_NAME"),
+		dbPort,
 	)
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v\n", err)

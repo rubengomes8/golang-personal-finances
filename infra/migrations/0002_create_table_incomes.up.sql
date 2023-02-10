@@ -16,3 +16,7 @@ CREATE TABLE incomes (
     CONSTRAINT fk_card FOREIGN KEY(card_id) REFERENCES cards(id)
 
 );
+
+INSERT INTO income_categories (name) values ('Salary');
+INSERT INTO income_categories (name) values ('DeGiro');
+INSERT INTO income_categories (name) values ('BetClic');
