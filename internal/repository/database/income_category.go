@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/rubengomes8/golang-personal-finances/internal/enums"
 	"github.com/rubengomes8/golang-personal-finances/internal/repository/models"
 )
 
@@ -114,7 +113,7 @@ func (ic IncomeCategoryRepo) DeleteIncomeCategory(
 	}
 
 	if numRowsAffected == 0 {
-		return enums.ErrNoRowsAffectedExpCategoryDelete
+		return ErrNoRowsAffectedExpCategoryDelete
 	}
 
 	return nil

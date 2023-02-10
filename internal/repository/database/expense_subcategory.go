@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/rubengomes8/golang-personal-finances/internal/enums"
 	"github.com/rubengomes8/golang-personal-finances/internal/repository/models"
 )
 
@@ -112,7 +111,7 @@ func (es ExpenseSubCategoryRepo) DeleteExpenseSubCategory(ctx context.Context, i
 	}
 
 	if numRowsAffected == 0 {
-		return enums.ErrNoRowsAffectedExpSubcategoryDelete
+		return ErrNoRowsAffectedExpSubcategoryDelete
 	}
 
 	return nil

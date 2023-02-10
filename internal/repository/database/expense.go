@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/rubengomes8/golang-personal-finances/internal/enums"
 	"github.com/rubengomes8/golang-personal-finances/internal/repository/models"
 )
 
@@ -89,7 +88,7 @@ func (e ExpensesRepo) UpdateExpense(ctx context.Context, exp models.ExpenseTable
 	}
 
 	if numRowsAffected == 0 {
-		return 0, enums.ErrNoRowsAffectedExpenseUpdate
+		return 0, ErrNoRowsAffectedExpenseUpdate
 	}
 
 	return exp.ID, nil
@@ -333,7 +332,7 @@ func (e ExpensesRepo) DeleteExpense(ctx context.Context, id int64) error {
 	}
 
 	if numRowsAffected == 0 {
-		return enums.ErrNoRowsAffectedExpenseDelete
+		return ErrNoRowsAffectedExpenseDelete
 	}
 
 	return nil

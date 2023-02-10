@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 	"net"
+	"os"
 
-	"github.com/rubengomes8/golang-personal-finances/internal/enums"
 	grpcHandlers "github.com/rubengomes8/golang-personal-finances/internal/grpc"
 	"github.com/rubengomes8/golang-personal-finances/internal/pb/expenses"
 	"github.com/rubengomes8/golang-personal-finances/internal/repository/database"
@@ -35,7 +35,7 @@ func main() {
 	}
 
 	// TCP LISTERNER
-	listener, err := net.Listen("tcp", enums.ListenerADDR)
+	listener, err := net.Listen("tcp", os.Getenv("GRPC_LISTENER_ADDR"))
 	if err != nil {
 		log.Fatalf("Failed to listen on: %v\n", err)
 	}
