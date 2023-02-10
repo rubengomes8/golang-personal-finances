@@ -1,4 +1,4 @@
-package service
+package handlers
 
 import (
 	"context"
@@ -7,12 +7,12 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/rubengomes8/golang-personal-finances/internal/http/models"
 	"github.com/rubengomes8/golang-personal-finances/internal/repository"
 	dbModels "github.com/rubengomes8/golang-personal-finances/internal/repository/models"
+	"github.com/rubengomes8/golang-personal-finances/internal/utils"
 )
 
 // Expenses handles the expenses http requests
@@ -27,12 +27,12 @@ func NewExpenses(
 	expRepo repository.ExpenseRepo,
 	expSubCatRepo repository.ExpenseSubCategoryRepo,
 	cardRepo repository.CardRepo,
-) (Expenses, error) {
+) Expenses {
 	return Expenses{
 		Repository:            expRepo,
 		SubCategoryRepository: expSubCatRepo,
 		CardRepository:        cardRepo,
-	}, nil
+	}
 }
 
 // CreateExpense creates an expense on the database
@@ -57,7 +57,7 @@ func (e *Expenses) CreateExpense(ctx *gin.Context) {
 		return
 	}
 
-	date, err := dateStringToTime(expense.Date)
+	date, err := utils.DateStringToTime(expense.Date)
 	if err != nil {
 		log.Printf("error converting date string to time - %v: %v", expense.Date, err)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
@@ -108,7 +108,7 @@ func (e *Expenses) UpdateExpense(ctx *gin.Context) {
 		})
 	}
 
-	date, err := dateStringToTime(expense.Date)
+	date, err := utils.DateStringToTime(expense.Date)
 	if err != nil {
 		log.Printf("error converting date string to time - %v: %v", expense.Date, err)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
@@ -245,7 +245,7 @@ func (e *Expenses) GetExpensesByDates(ctx *gin.Context) {
 	paramMinDate := ctx.Param("min_date")
 	paramMaxDate := ctx.Param("max_date")
 
-	minDate, err := dateStringToTime(paramMinDate)
+	minDate, err := utils.DateStringToTime(paramMinDate)
 	if err != nil {
 		log.Printf("could not convert min date string to time - min date is %v - %v", paramMinDate, err)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
@@ -254,7 +254,7 @@ func (e *Expenses) GetExpensesByDates(ctx *gin.Context) {
 		return
 	}
 
-	maxDate, err := dateStringToTime(paramMaxDate)
+	maxDate, err := utils.DateStringToTime(paramMaxDate)
 	if err != nil {
 		log.Printf("could not convert max date string to time - max date is %v - %v", paramMaxDate, err)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
@@ -322,19 +322,11 @@ func (e *Expenses) getExpenseSubcategoryAndCardIDByNames(
 	return subCategoryModel, cardModel, nil
 }
 
-func dateStringToTime(date string) (time.Time, error) {
-	return time.Parse("2006-01-02", date)
-}
-
-func timeToStringDate(t time.Time) string {
-	return t.Format("2006-01-02")
-}
-
 func expenseViewToExpenseGetResponse(expenseView dbModels.ExpenseView) models.ExpenseCreateRequest {
 	return models.ExpenseCreateRequest{
 		ID:          int(expenseView.ID),
 		Value:       expenseView.Value,
-		Date:        timeToStringDate(expenseView.Date),
+		Date:        utils.TimeToStringDate(expenseView.Date),
 		SubCategory: expenseView.SubCategory,
 		Card:        expenseView.Card,
 		Description: expenseView.Description,

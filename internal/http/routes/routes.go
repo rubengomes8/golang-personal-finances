@@ -3,43 +3,43 @@ package routes
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/rubengomes8/golang-personal-finances/internal/http/auth"
-	"github.com/rubengomes8/golang-personal-finances/internal/http/service"
+	"github.com/rubengomes8/golang-personal-finances/internal/http/handlers"
 )
 
 // SetupRouter sets up the http routes
 func SetupRouter(
-	expensesService service.Expenses,
-	incomesService service.Incomes,
-	authService service.AuthService,
+	expensesHandlers handlers.Expenses,
+	incomesHandlers handlers.Incomes,
+	authHandlers handlers.Auth,
 ) *gin.Engine {
 	r := gin.Default()
 
 	authentication := r.Group("/auth")
 	{
-		authentication.POST("register/", authService.Register)
-		authentication.POST("login/", authService.Login)
+		authentication.POST("register/", authHandlers.Register)
+		authentication.POST("login/", authHandlers.Login)
 	}
 
 	v1 := r.Group("/v1")
 	{
 		v1.Use(auth.JwtAuthMiddleware())
 
-		v1.GET("expense/:id", expensesService.GetExpenseByID)
-		v1.POST("expense", expensesService.CreateExpense)
-		v1.PUT("expense/:id", expensesService.UpdateExpense)
-		v1.DELETE("expense/:id", expensesService.DeleteExpense)
-		v1.GET("expenses/dates/:min_date/:max_date", expensesService.GetExpensesByDates)
-		v1.GET("expenses/category/:category", expensesService.GetExpensesByCategory)
-		v1.GET("expenses/subcategory/:sub_category", expensesService.GetExpensesBySubCategory)
-		v1.GET("expenses/card/:card", expensesService.GetExpensesByCard)
+		v1.GET("expense/:id", expensesHandlers.GetExpenseByID)
+		v1.POST("expense", expensesHandlers.CreateExpense)
+		v1.PUT("expense/:id", expensesHandlers.UpdateExpense)
+		v1.DELETE("expense/:id", expensesHandlers.DeleteExpense)
+		v1.GET("expenses/dates/:min_date/:max_date", expensesHandlers.GetExpensesByDates)
+		v1.GET("expenses/category/:category", expensesHandlers.GetExpensesByCategory)
+		v1.GET("expenses/subcategory/:sub_category", expensesHandlers.GetExpensesBySubCategory)
+		v1.GET("expenses/card/:card", expensesHandlers.GetExpensesByCard)
 
-		v1.GET("income/:id", incomesService.GetIncomeByID)
-		v1.POST("income", incomesService.CreateIncome)
-		v1.PUT("income/:id", incomesService.UpdateIncome)
-		v1.DELETE("income/:id", incomesService.DeleteIncome)
-		v1.GET("incomes/category/:category", incomesService.GetIncomesByCategory)
-		v1.GET("incomes/card/:card", incomesService.GetIncomesByCard)
-		v1.GET("incomes/dates/:min_date/:max_date", incomesService.GetIncomesByDates)
+		v1.GET("income/:id", incomesHandlers.HandleGetByID)
+		v1.POST("income", incomesHandlers.HandleCreateIncome)
+		v1.PUT("income/:id", incomesHandlers.HandleUpdateIncome)
+		v1.DELETE("income/:id", incomesHandlers.HandleDeleteIncome)
+		v1.GET("incomes/category/:category", incomesHandlers.HandleGetIncomesByCategory)
+		v1.GET("incomes/card/:card", incomesHandlers.HandleGetIncomesByCard)
+		v1.GET("incomes/dates/:min_date/:max_date", incomesHandlers.HandleGetIncomesByDates)
 	}
 
 	return r

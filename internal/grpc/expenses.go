@@ -1,4 +1,4 @@
-package service
+package grpc
 
 import (
 	"context"
@@ -33,12 +33,12 @@ func NewExpenses(
 }
 
 // CreateExpense creates an expense on the database
-func (s *Expenses) CreateExpense(
+func (e Expenses) CreateExpense(
 	ctx context.Context,
 	req *expenses.ExpenseCreateRequest,
 ) (*expenses.ExpenseCreateResponse, error) {
 
-	expSubCategory, card, err := s.getExpenseSubcategoryAndCardIDByNames(ctx, req.SubCategory, req.Card)
+	expSubCategory, card, err := e.getExpenseSubcategoryAndCardIDByNames(ctx, req.SubCategory, req.Card)
 	if err != nil {
 		return &expenses.ExpenseCreateResponse{}, fmt.Errorf("could not get expense subcategory and/or card by name: %w", err)
 	}
@@ -51,7 +51,7 @@ func (s *Expenses) CreateExpense(
 		Description:   req.Description,
 	}
 
-	id, err := s.ExpensesRepository.InsertExpense(ctx, expenseRecord)
+	id, err := e.ExpensesRepository.InsertExpense(ctx, expenseRecord)
 	if err != nil {
 		return &expenses.ExpenseCreateResponse{}, fmt.Errorf("could not insert expense: %w", err)
 	}
@@ -62,12 +62,12 @@ func (s *Expenses) CreateExpense(
 }
 
 // UpdateExpense updates an expense on the database
-func (s *Expenses) UpdateExpense(
+func (e Expenses) UpdateExpense(
 	ctx context.Context,
 	req *expenses.ExpenseUpdateRequest,
 ) (*expenses.ExpenseUpdateResponse, error) {
 
-	expSubCategory, card, err := s.getExpenseSubcategoryAndCardIDByNames(ctx, req.SubCategory, req.Card)
+	expSubCategory, card, err := e.getExpenseSubcategoryAndCardIDByNames(ctx, req.SubCategory, req.Card)
 	if err != nil {
 		return &expenses.ExpenseUpdateResponse{}, fmt.Errorf("could not get expense subcategory and/or card by name: %w", err)
 	}
@@ -81,7 +81,7 @@ func (s *Expenses) UpdateExpense(
 		Description:   req.Description,
 	}
 
-	id, err := s.ExpensesRepository.UpdateExpense(ctx, expenseRecord)
+	id, err := e.ExpensesRepository.UpdateExpense(ctx, expenseRecord)
 	if err != nil {
 		return &expenses.ExpenseUpdateResponse{}, fmt.Errorf("could not update expense: %w", err)
 	}
@@ -92,7 +92,7 @@ func (s *Expenses) UpdateExpense(
 }
 
 // CreateExpenses creates a bulk of expenses on the database
-func (s *Expenses) CreateExpenses(
+func (e Expenses) CreateExpenses(
 	ctx context.Context,
 	req *expenses.ExpensesCreateRequest,
 ) (*expenses.ExpensesCreateResponse, error) {
@@ -104,13 +104,13 @@ func (s *Expenses) CreateExpenses(
 }
 
 // GetExpensesByDate gets the expenses from the database that are in the provided dates interval
-func (s *Expenses) GetExpensesByDate(
+func (e Expenses) GetExpensesByDate(
 	ctx context.Context,
 	req *expenses.ExpensesGetRequestByDate,
 ) (*expenses.ExpensesGetResponse, error) {
 	log.Printf("GetExpenseByDate was invoked with %v\n", req)
 
-	expenseViewRecords, err := s.ExpensesRepository.GetExpensesByDates(
+	expenseViewRecords, err := e.ExpensesRepository.GetExpensesByDates(
 		ctx,
 		unixToTime(req.MinDate),
 		unixToTime(req.MaxDate),
@@ -127,13 +127,13 @@ func (s *Expenses) GetExpensesByDate(
 }
 
 // GetExpensesByCategory gets the expenses from the database that match the category provided
-func (s *Expenses) GetExpensesByCategory(
+func (e Expenses) GetExpensesByCategory(
 	ctx context.Context,
 	req *expenses.ExpensesGetRequestByCategory,
 ) (*expenses.ExpensesGetResponse, error) {
 	log.Printf("GetExpenseByCategory was invoked with %v\n", req)
 
-	expenseViewRecords, err := s.ExpensesRepository.GetExpensesByCategory(ctx, req.Category)
+	expenseViewRecords, err := e.ExpensesRepository.GetExpensesByCategory(ctx, req.Category)
 	if err != nil {
 		return &expenses.ExpensesGetResponse{}, fmt.Errorf("could not get expenses by category: %w", err)
 	}
@@ -146,14 +146,14 @@ func (s *Expenses) GetExpensesByCategory(
 }
 
 // GetExpensesBySubCategory gets the expenses from the database that match the subcategory provided
-func (s *Expenses) GetExpensesBySubCategory(
+func (e Expenses) GetExpensesBySubCategory(
 	ctx context.Context,
 	req *expenses.ExpensesGetRequestBySubCategory,
 ) (*expenses.ExpensesGetResponse, error) {
 
 	log.Printf("GetExpensesBySubCategory was invoked with %v\n", req)
 
-	expenseViewRecords, err := s.ExpensesRepository.GetExpensesBySubCategory(ctx, req.SubCategory)
+	expenseViewRecords, err := e.ExpensesRepository.GetExpensesBySubCategory(ctx, req.SubCategory)
 	if err != nil {
 		return &expenses.ExpensesGetResponse{}, fmt.Errorf("could not get expenses by subcategory: %v", err)
 	}
@@ -166,14 +166,14 @@ func (s *Expenses) GetExpensesBySubCategory(
 }
 
 // GetExpensesByCard gets the expenses from the database that match the card provided
-func (s *Expenses) GetExpensesByCard(
+func (e Expenses) GetExpensesByCard(
 	ctx context.Context,
 	req *expenses.ExpensesGetRequestByCard,
 ) (*expenses.ExpensesGetResponse, error) {
 
 	log.Printf("GetExpensesByCard was invoked with %v\n", req)
 
-	expenseViewRecords, err := s.ExpensesRepository.GetExpensesByCard(ctx, req.Card)
+	expenseViewRecords, err := e.ExpensesRepository.GetExpensesByCard(ctx, req.Card)
 	if err != nil {
 		return &expenses.ExpensesGetResponse{}, fmt.Errorf("could not get expenses by card: %v", err)
 	}
@@ -193,19 +193,19 @@ func timeToUnix(date time.Time) int64 {
 	return date.UTC().Unix()
 }
 
-func (s *Expenses) getExpenseSubcategoryAndCardIDByNames(
+func (e Expenses) getExpenseSubcategoryAndCardIDByNames(
 	ctx context.Context,
 	subCategory, card string,
 ) (models.ExpenseSubCategoryTable, models.CardTable, error) {
 
-	subCategoryModel, err := s.ExpensesSubCategoryRepository.GetExpenseSubCategoryByName(ctx, subCategory)
+	subCategoryModel, err := e.ExpensesSubCategoryRepository.GetExpenseSubCategoryByName(ctx, subCategory)
 	if err != nil {
 		return models.ExpenseSubCategoryTable{},
 			models.CardTable{},
 			fmt.Errorf("could not get expense sub category by name: %v", err)
 	}
 
-	cardModel, err := s.CardRepository.GetCardByName(ctx, card)
+	cardModel, err := e.CardRepository.GetCardByName(ctx, card)
 	if err != nil {
 		return models.ExpenseSubCategoryTable{},
 			models.CardTable{},

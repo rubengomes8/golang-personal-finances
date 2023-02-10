@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/rubengomes8/golang-personal-finances/internal/enums"
 	"github.com/rubengomes8/golang-personal-finances/internal/repository/models"
 )
 
@@ -39,7 +38,7 @@ func NewExpensesRepo(
 }
 
 // InsertExpense inserts an expense on the expenses db table
-func (e *ExpensesRepo) InsertExpense(ctx context.Context, exp models.ExpenseTable) (int64, error) {
+func (e ExpensesRepo) InsertExpense(ctx context.Context, exp models.ExpenseTable) (int64, error) {
 
 	insertStmt := fmt.Sprintf(`INSERT INTO %s 
 	(value, date, description, subcategory_id, card_id)
@@ -64,7 +63,7 @@ func (e *ExpensesRepo) InsertExpense(ctx context.Context, exp models.ExpenseTabl
 }
 
 // UpdateExpense updates an expense on the expenses db table
-func (e *ExpensesRepo) UpdateExpense(ctx context.Context, exp models.ExpenseTable) (int64, error) {
+func (e ExpensesRepo) UpdateExpense(ctx context.Context, exp models.ExpenseTable) (int64, error) {
 
 	updateStmt := fmt.Sprintf(`UPDATE %s SET 
 	(value, date, description, subcategory_id, card_id) =
@@ -89,14 +88,14 @@ func (e *ExpensesRepo) UpdateExpense(ctx context.Context, exp models.ExpenseTabl
 	}
 
 	if numRowsAffected == 0 {
-		return 0, enums.ErrNoRowsAffectedExpenseUpdate
+		return 0, ErrNoRowsAffectedExpenseUpdate
 	}
 
 	return exp.ID, nil
 }
 
 // GetExpenseByID gets an expense from the expenses db table by id
-func (e *ExpensesRepo) GetExpenseByID(ctx context.Context, id int64) (models.ExpenseView, error) {
+func (e ExpensesRepo) GetExpenseByID(ctx context.Context, id int64) (models.ExpenseView, error) {
 
 	selectStmt := fmt.Sprintf(`SELECT 
 	value, date, description, category_id, category_name, 
@@ -130,7 +129,7 @@ func (e *ExpensesRepo) GetExpenseByID(ctx context.Context, id int64) (models.Exp
 }
 
 // GetExpensesByDates gets expenses from the expenses db table that matches the dates' range provided
-func (e *ExpensesRepo) GetExpensesByDates(
+func (e ExpensesRepo) GetExpensesByDates(
 	ctx context.Context,
 	minDate time.Time,
 	maxDate time.Time,
@@ -180,7 +179,7 @@ func (e *ExpensesRepo) GetExpensesByDates(
 }
 
 // GetExpensesByCategory gets expenses from the expenses db table that matches the category provided
-func (e *ExpensesRepo) GetExpensesByCategory(ctx context.Context, category string) ([]models.ExpenseView, error) {
+func (e ExpensesRepo) GetExpensesByCategory(ctx context.Context, category string) ([]models.ExpenseView, error) {
 
 	selectStmt := fmt.Sprintf(`SELECT 
 	value, date, description, category_id, category_name, 
@@ -226,7 +225,7 @@ func (e *ExpensesRepo) GetExpensesByCategory(ctx context.Context, category strin
 }
 
 // GetExpensesBySubCategory gets expenses from the expenses db table that matches the subcategory provided
-func (e *ExpensesRepo) GetExpensesBySubCategory(ctx context.Context, subCategory string) ([]models.ExpenseView, error) {
+func (e ExpensesRepo) GetExpensesBySubCategory(ctx context.Context, subCategory string) ([]models.ExpenseView, error) {
 
 	selectStmt := fmt.Sprintf(`SELECT 
 	value, date, description, category_id, category_name, 
@@ -272,7 +271,7 @@ func (e *ExpensesRepo) GetExpensesBySubCategory(ctx context.Context, subCategory
 }
 
 // GetExpensesByCard gets expenses from the expenses db table that matches the card provided
-func (e *ExpensesRepo) GetExpensesByCard(ctx context.Context, card string) ([]models.ExpenseView, error) {
+func (e ExpensesRepo) GetExpensesByCard(ctx context.Context, card string) ([]models.ExpenseView, error) {
 
 	selectStmt := fmt.Sprintf(`SELECT 
 	value, date, description, category_id, category_name, 
@@ -317,7 +316,7 @@ func (e *ExpensesRepo) GetExpensesByCard(ctx context.Context, card string) ([]mo
 }
 
 // DeleteExpense deletes an expense from the expenses db table
-func (e *ExpensesRepo) DeleteExpense(ctx context.Context, id int64) error {
+func (e ExpensesRepo) DeleteExpense(ctx context.Context, id int64) error {
 
 	deleteStmt := fmt.Sprintf(`DELETE FROM %s 
 	WHERE id = $1`, expensesTable)
@@ -333,7 +332,7 @@ func (e *ExpensesRepo) DeleteExpense(ctx context.Context, id int64) error {
 	}
 
 	if numRowsAffected == 0 {
-		return enums.ErrNoRowsAffectedExpenseDelete
+		return ErrNoRowsAffectedExpenseDelete
 	}
 
 	return nil

@@ -1,4 +1,4 @@
-package service
+package handlers
 
 import (
 	"bytes"
@@ -85,73 +85,6 @@ var (
 	}
 )
 
-func Test_timeToStringDate(t *testing.T) {
-	type args struct {
-		t time.Time
-	}
-
-	tests := []struct {
-		name string
-		args args
-		want string
-	}{
-		{
-			name: "Successful",
-			args: args{
-				t: firstFebruary2020ZeroHoursUTCTime,
-			},
-			want: firstFebruary2020String,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := timeToStringDate(tt.args.t); got != tt.want {
-				t.Errorf("timeToStringDate() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func Test_dateStringToTime(t *testing.T) {
-	type args struct {
-		date string
-	}
-	tests := []struct {
-		name    string
-		args    args
-		want    time.Time
-		wantErr bool
-	}{
-		{
-			name: "Success",
-			args: args{
-				date: firstFebruary2020String,
-			},
-			want:    firstFebruary2020ZeroHoursUTCTime,
-			wantErr: false,
-		},
-		{
-			name: "ErrorWrongDateLayout",
-			args: args{
-				date: "2020-Feb-01",
-			},
-			wantErr: true,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := dateStringToTime(tt.args.date)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("dateStringToTime() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("dateStringToTime() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
 func Test_expenseViewToExpenseGetResponse(t *testing.T) {
 	type args struct {
 		expenseView dbModels.ExpenseView
@@ -236,10 +169,7 @@ func TestExpenses_CreateExpense(t *testing.T) {
 	}
 	expensesCache := cache.NewExpense(expenses, cardsCache, categoriesCache, subCategoriesCache)
 
-	expensesController, err := NewExpenses(&expensesCache, &subCategoriesCache, &cardsCache)
-	if err != nil {
-		t.Fatalf("error creating expenses service: %v\n", err)
-	}
+	expensesHandlers := NewExpenses(&expensesCache, &subCategoriesCache, &cardsCache)
 
 	gin.SetMode(gin.TestMode)
 
@@ -331,7 +261,7 @@ func TestExpenses_CreateExpense(t *testing.T) {
 			}
 
 			// WHEN
-			expensesController.CreateExpense(ginCtx)
+			expensesHandlers.CreateExpense(ginCtx)
 
 			// THEN
 			assert.EqualValues(t, tt.want.statusCode, w.Code)
@@ -364,10 +294,7 @@ func TestExpenses_UpdateExpense(t *testing.T) {
 	}
 	expensesCache := cache.NewExpense(expenses, cardsCache, categoriesCache, subCategoriesCache)
 
-	expensesController, err := NewExpenses(&expensesCache, &subCategoriesCache, &cardsCache)
-	if err != nil {
-		t.Fatalf("error creating expenses service: %v\n", err)
-	}
+	expensesHandlers := NewExpenses(&expensesCache, &subCategoriesCache, &cardsCache)
 
 	gin.SetMode(gin.TestMode)
 
@@ -494,7 +421,7 @@ func TestExpenses_UpdateExpense(t *testing.T) {
 			}
 
 			// WHEN
-			expensesController.UpdateExpense(ginCtx)
+			expensesHandlers.UpdateExpense(ginCtx)
 
 			// THEN
 			assert.EqualValues(t, tt.want.statusCode, w.Code)
@@ -529,10 +456,7 @@ func TestExpenses_GetExpenseByID(t *testing.T) {
 	}
 	expensesCache := cache.NewExpense(expenses, cardsCache, categoriesCache, subCategoriesCache)
 
-	expensesController, err := NewExpenses(&expensesCache, &subCategoriesCache, &cardsCache)
-	if err != nil {
-		t.Fatalf("error creating expenses service: %v\n", err)
-	}
+	expensesHandlers := NewExpenses(&expensesCache, &subCategoriesCache, &cardsCache)
 
 	type fields struct {
 		ExpensesRepository            repository.ExpenseRepo
@@ -610,7 +534,7 @@ func TestExpenses_GetExpenseByID(t *testing.T) {
 			}
 
 			// WHEN
-			expensesController.GetExpenseByID(ginCtx)
+			expensesHandlers.GetExpenseByID(ginCtx)
 
 			// THEN
 			assert.EqualValues(t, tt.want.statusCode, w.Code)
@@ -618,14 +542,14 @@ func TestExpenses_GetExpenseByID(t *testing.T) {
 			switch w.Code {
 			case http.StatusOK:
 				var r models.ExpenseCreateRequest
-				err = json.NewDecoder(w.Body).Decode(&r)
+				err := json.NewDecoder(w.Body).Decode(&r)
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
 				}
 				assert.Equal(t, tt.want.expense, r)
 			case http.StatusBadRequest:
 				var r models.ErrorResponse
-				err = json.NewDecoder(w.Body).Decode(&r)
+				err := json.NewDecoder(w.Body).Decode(&r)
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
 				}
@@ -651,10 +575,7 @@ func TestExpenses_GetExpensesByCategory(t *testing.T) {
 	}
 	expensesCache := cache.NewExpense(expenses, cardsCache, categoriesCache, subCategoriesCache)
 
-	expensesController, err := NewExpenses(&expensesCache, &subCategoriesCache, &cardsCache)
-	if err != nil {
-		t.Fatalf("error creating expenses service: %v\n", err)
-	}
+	expensesHandlers := NewExpenses(&expensesCache, &subCategoriesCache, &cardsCache)
 
 	type fields struct {
 		ExpensesRepository            repository.ExpenseRepo
@@ -729,7 +650,7 @@ func TestExpenses_GetExpensesByCategory(t *testing.T) {
 			}
 
 			// WHEN
-			expensesController.GetExpensesByCategory(ginCtx)
+			expensesHandlers.GetExpensesByCategory(ginCtx)
 
 			// THEN
 			assert.EqualValues(t, tt.want.statusCode, w.Code)
@@ -737,14 +658,14 @@ func TestExpenses_GetExpensesByCategory(t *testing.T) {
 			switch w.Code {
 			case http.StatusOK:
 				var r []models.ExpenseCreateRequest
-				err = json.NewDecoder(w.Body).Decode(&r)
+				err := json.NewDecoder(w.Body).Decode(&r)
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
 				}
 				assert.Equal(t, tt.want.expenses, r)
 			case http.StatusBadRequest:
 				var r models.ErrorResponse
-				err = json.NewDecoder(w.Body).Decode(&r)
+				err := json.NewDecoder(w.Body).Decode(&r)
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
 				}
@@ -770,10 +691,7 @@ func TestExpenses_GetExpensesBySubCategory(t *testing.T) {
 	}
 	expensesCache := cache.NewExpense(expenses, cardsCache, categoriesCache, subCategoriesCache)
 
-	expensesController, err := NewExpenses(&expensesCache, &subCategoriesCache, &cardsCache)
-	if err != nil {
-		t.Fatalf("error creating expenses service: %v\n", err)
-	}
+	expensesHandlers := NewExpenses(&expensesCache, &subCategoriesCache, &cardsCache)
 
 	type fields struct {
 		ExpensesRepository            repository.ExpenseRepo
@@ -848,7 +766,7 @@ func TestExpenses_GetExpensesBySubCategory(t *testing.T) {
 			}
 
 			// WHEN
-			expensesController.GetExpensesBySubCategory(ginCtx)
+			expensesHandlers.GetExpensesBySubCategory(ginCtx)
 
 			// THEN
 			assert.EqualValues(t, tt.want.statusCode, w.Code)
@@ -856,14 +774,14 @@ func TestExpenses_GetExpensesBySubCategory(t *testing.T) {
 			switch w.Code {
 			case http.StatusOK:
 				var r []models.ExpenseCreateRequest
-				err = json.NewDecoder(w.Body).Decode(&r)
+				err := json.NewDecoder(w.Body).Decode(&r)
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
 				}
 				assert.Equal(t, tt.want.expenses, r)
 			case http.StatusBadRequest:
 				var r models.ErrorResponse
-				err = json.NewDecoder(w.Body).Decode(&r)
+				err := json.NewDecoder(w.Body).Decode(&r)
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
 				}
@@ -889,10 +807,7 @@ func TestExpenses_GetExpensesByCard(t *testing.T) {
 	}
 	expensesCache := cache.NewExpense(expenses, cardsCache, categoriesCache, subCategoriesCache)
 
-	expensesController, err := NewExpenses(&expensesCache, &subCategoriesCache, &cardsCache)
-	if err != nil {
-		t.Fatalf("error creating expenses service: %v\n", err)
-	}
+	expensesHandlers := NewExpenses(&expensesCache, &subCategoriesCache, &cardsCache)
 
 	type fields struct {
 		ExpensesRepository            repository.ExpenseRepo
@@ -967,7 +882,7 @@ func TestExpenses_GetExpensesByCard(t *testing.T) {
 			}
 
 			// WHEN
-			expensesController.GetExpensesByCard(ginCtx)
+			expensesHandlers.GetExpensesByCard(ginCtx)
 
 			// THEN
 			assert.EqualValues(t, tt.want.statusCode, w.Code)
@@ -975,14 +890,14 @@ func TestExpenses_GetExpensesByCard(t *testing.T) {
 			switch w.Code {
 			case http.StatusOK:
 				var r []models.ExpenseCreateRequest
-				err = json.NewDecoder(w.Body).Decode(&r)
+				err := json.NewDecoder(w.Body).Decode(&r)
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
 				}
 				assert.Equal(t, tt.want.expenses, r)
 			case http.StatusBadRequest:
 				var r models.ErrorResponse
-				err = json.NewDecoder(w.Body).Decode(&r)
+				err := json.NewDecoder(w.Body).Decode(&r)
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
 				}
@@ -1000,10 +915,7 @@ func TestExpenses_GetExpensesByDates(t *testing.T) {
 	}
 	expensesCache := cache.NewExpense(expenses, cardsCache, categoriesCache, subCategoriesCache)
 
-	expensesController, err := NewExpenses(&expensesCache, &subCategoriesCache, &cardsCache)
-	if err != nil {
-		t.Fatalf("error creating expenses service: %v\n", err)
-	}
+	expensesHandlers := NewExpenses(&expensesCache, &subCategoriesCache, &cardsCache)
 
 	type fields struct {
 		ExpensesRepository            repository.ExpenseRepo
@@ -1084,7 +996,7 @@ func TestExpenses_GetExpensesByDates(t *testing.T) {
 			}
 
 			// WHEN
-			expensesController.GetExpensesByDates(ginCtx)
+			expensesHandlers.GetExpensesByDates(ginCtx)
 
 			// THEN
 			assert.EqualValues(t, tt.want.statusCode, w.Code)
@@ -1092,14 +1004,14 @@ func TestExpenses_GetExpensesByDates(t *testing.T) {
 			switch w.Code {
 			case http.StatusOK:
 				var r []models.ExpenseCreateRequest
-				err = json.NewDecoder(w.Body).Decode(&r)
+				err := json.NewDecoder(w.Body).Decode(&r)
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
 				}
 				assert.Equal(t, tt.want.expenses, r)
 			case http.StatusBadRequest:
 				var r models.ErrorResponse
-				err = json.NewDecoder(w.Body).Decode(&r)
+				err := json.NewDecoder(w.Body).Decode(&r)
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
 				}
@@ -1117,10 +1029,7 @@ func TestExpenses_DeleteExpense(t *testing.T) {
 	}
 	expensesCache := cache.NewExpense(expenses, cardsCache, categoriesCache, subCategoriesCache)
 
-	expensesController, err := NewExpenses(&expensesCache, &subCategoriesCache, &cardsCache)
-	if err != nil {
-		t.Fatalf("error creating expenses service: %v\n", err)
-	}
+	expensesHandlers := NewExpenses(&expensesCache, &subCategoriesCache, &cardsCache)
 
 	type fields struct {
 		ExpensesRepository            repository.ExpenseRepo
@@ -1193,7 +1102,7 @@ func TestExpenses_DeleteExpense(t *testing.T) {
 			}
 
 			// WHEN
-			expensesController.DeleteExpense(ginCtx)
+			expensesHandlers.DeleteExpense(ginCtx)
 
 			// THEN
 			assert.EqualValues(t, tt.want.statusCode, w.Code)
@@ -1202,7 +1111,7 @@ func TestExpenses_DeleteExpense(t *testing.T) {
 			case http.StatusNoContent:
 			case http.StatusBadRequest:
 				var r models.ErrorResponse
-				err = json.NewDecoder(w.Body).Decode(&r)
+				err := json.NewDecoder(w.Body).Decode(&r)
 				if err != nil {
 					t.Fatalf("error decoding response: %v\n", err)
 				}

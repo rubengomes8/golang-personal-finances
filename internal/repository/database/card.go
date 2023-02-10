@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/rubengomes8/golang-personal-finances/internal/enums"
 	"github.com/rubengomes8/golang-personal-finances/internal/repository/models"
 )
 
@@ -100,7 +99,7 @@ func (c CardRepo) DeleteCard(ctx context.Context, id int64) error {
 	}
 
 	if numRowsAffected == 0 {
-		return enums.ErrNoRowsAffectedCardDelete
+		return ErrNoRowsAffectedCardDelete
 	}
 
 	return nil
