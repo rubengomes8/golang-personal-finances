@@ -1,4 +1,4 @@
-package postgres
+package tools
 
 import (
 	"database/sql"
@@ -9,7 +9,7 @@ import (
 	"github.com/rubengomes8/golang-personal-finances/internal/repository/database"
 )
 
-func Init() (*sql.DB, error) {
+func InitPostgres() (*sql.DB, error) {
 
 	dbPortEnv := os.Getenv("DB_PORT")
 	dbPort, err := strconv.Atoi(dbPortEnv)

@@ -36,7 +36,7 @@ func NewIncomesRepo(
 }
 
 // InsertIncome inserts an income on the incomes db table
-func (e *IncomesRepo) InsertIncome(ctx context.Context, inc models.IncomeTable) (int64, error) {
+func (e IncomesRepo) InsertIncome(ctx context.Context, inc models.IncomeTable) (int64, error) {
 
 	insertStmt := fmt.Sprintf(`INSERT INTO %s 
 	(value, date, description, category_id, card_id)
@@ -61,7 +61,7 @@ func (e *IncomesRepo) InsertIncome(ctx context.Context, inc models.IncomeTable) 
 }
 
 // UpdateIncome updates an income on the incomes db table
-func (e *IncomesRepo) UpdateIncome(ctx context.Context, inc models.IncomeTable) (int64, error) {
+func (e IncomesRepo) UpdateIncome(ctx context.Context, inc models.IncomeTable) (int64, error) {
 
 	updateStmt := fmt.Sprintf(`UPDATE %s SET 
 	(value, date, description, category_id, card_id) =
@@ -93,7 +93,7 @@ func (e *IncomesRepo) UpdateIncome(ctx context.Context, inc models.IncomeTable) 
 }
 
 // GetIncomeByID gets an income from the incomes db table by id
-func (e *IncomesRepo) GetIncomeByID(ctx context.Context, id int64) (models.IncomeView, error) {
+func (e IncomesRepo) GetIncomeByID(ctx context.Context, id int64) (models.IncomeView, error) {
 
 	selectStmt := fmt.Sprintf(`SELECT 
 	value, date, description, category_id, 
@@ -125,7 +125,7 @@ func (e *IncomesRepo) GetIncomeByID(ctx context.Context, id int64) (models.Incom
 }
 
 // GetIncomesByDates gets incomes from the incomes db table that matches the dates' range provided
-func (e *IncomesRepo) GetIncomesByDates(
+func (e IncomesRepo) GetIncomesByDates(
 	ctx context.Context,
 	minDate time.Time,
 	maxDate time.Time,
@@ -173,7 +173,7 @@ func (e *IncomesRepo) GetIncomesByDates(
 }
 
 // GetIncomesByCategory gets incomes from the incomes db table that matches the category provided
-func (e *IncomesRepo) GetIncomesByCategory(ctx context.Context, category string) ([]models.IncomeView, error) {
+func (e IncomesRepo) GetIncomesByCategory(ctx context.Context, category string) ([]models.IncomeView, error) {
 
 	selectStmt := fmt.Sprintf(`SELECT 
 	value, date, description, category_id, 
@@ -217,7 +217,7 @@ func (e *IncomesRepo) GetIncomesByCategory(ctx context.Context, category string)
 }
 
 // GetIncomesByCard gets incomes from the incomes db table that matches the card provided
-func (e *IncomesRepo) GetIncomesByCard(ctx context.Context, card string) ([]models.IncomeView, error) {
+func (e IncomesRepo) GetIncomesByCard(ctx context.Context, card string) ([]models.IncomeView, error) {
 
 	selectStmt := fmt.Sprintf(`SELECT 
 	value, date, description, category_id, 
@@ -260,7 +260,7 @@ func (e *IncomesRepo) GetIncomesByCard(ctx context.Context, card string) ([]mode
 }
 
 // DeleteIncome deletes an income from the incomes db table
-func (e *IncomesRepo) DeleteIncome(ctx context.Context, id int64) error {
+func (e IncomesRepo) DeleteIncome(ctx context.Context, id int64) error {
 
 	deleteStmt := fmt.Sprintf(`DELETE FROM %s 
 	WHERE id = $1`, incomesTable)

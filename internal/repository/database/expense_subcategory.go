@@ -26,7 +26,7 @@ func NewExpenseSubCategoryRepo(database *sql.DB) ExpenseSubCategoryRepo {
 }
 
 // InsertExpenseSubCategory inserts an expense subcategory on the expense subcategories db table
-func (es *ExpenseSubCategoryRepo) InsertExpenseSubCategory(
+func (es ExpenseSubCategoryRepo) InsertExpenseSubCategory(
 	ctx context.Context,
 	expenseSubCategory models.ExpenseSubCategoryTable,
 ) (int64, error) {
@@ -43,7 +43,7 @@ func (es *ExpenseSubCategoryRepo) InsertExpenseSubCategory(
 }
 
 // UpdateExpenseSubCategory updates an expense subcategory on the expense subcategories db table
-func (es *ExpenseSubCategoryRepo) UpdateExpenseSubCategory(
+func (es ExpenseSubCategoryRepo) UpdateExpenseSubCategory(
 	ctx context.Context,
 	expenseSubCategory models.ExpenseSubCategoryTable,
 ) (int64, error) {
@@ -59,7 +59,7 @@ func (es *ExpenseSubCategoryRepo) UpdateExpenseSubCategory(
 }
 
 // GetExpenseSubCategoryByID gets an expense subcategory from the expense categories db table by id
-func (es *ExpenseSubCategoryRepo) GetExpenseSubCategoryByID(
+func (es ExpenseSubCategoryRepo) GetExpenseSubCategoryByID(
 	ctx context.Context,
 	id int64,
 ) (models.ExpenseSubCategoryTable, error) {
@@ -78,7 +78,7 @@ func (es *ExpenseSubCategoryRepo) GetExpenseSubCategoryByID(
 }
 
 // GetExpenseSubCategoryByName gets an expense subcategory from the expense categories db table by name
-func (es *ExpenseSubCategoryRepo) GetExpenseSubCategoryByName(
+func (es ExpenseSubCategoryRepo) GetExpenseSubCategoryByName(
 	ctx context.Context,
 	name string,
 ) (models.ExpenseSubCategoryTable, error) {
@@ -97,7 +97,7 @@ func (es *ExpenseSubCategoryRepo) GetExpenseSubCategoryByName(
 }
 
 // DeleteExpenseSubCategory deletes an expense category from the expense subcategories db table
-func (es *ExpenseSubCategoryRepo) DeleteExpenseSubCategory(ctx context.Context, id int64) error {
+func (es ExpenseSubCategoryRepo) DeleteExpenseSubCategory(ctx context.Context, id int64) error {
 
 	deleteStmt := fmt.Sprintf("DELETE FROM %s WHERE id = $1", tableNameExpenseSubCategories)
 

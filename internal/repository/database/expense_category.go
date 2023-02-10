@@ -26,7 +26,7 @@ func NewExpenseCategoryRepo(database *sql.DB) ExpenseCategoryRepo {
 }
 
 // InsertExpenseCategory inserts an expense category on the expense categories db table
-func (ec *ExpenseCategoryRepo) InsertExpenseCategory(
+func (ec ExpenseCategoryRepo) InsertExpenseCategory(
 	ctx context.Context,
 	expenseCategory models.ExpenseCategoryTable,
 ) (int64, error) {
@@ -44,7 +44,7 @@ func (ec *ExpenseCategoryRepo) InsertExpenseCategory(
 }
 
 // UpdateExpenseCategory updates an expense category on the expense categories db table
-func (ec *ExpenseCategoryRepo) UpdateExpenseCategory(
+func (ec ExpenseCategoryRepo) UpdateExpenseCategory(
 	ctx context.Context,
 	expenseCategory models.ExpenseCategoryTable,
 ) (int64, error) {
@@ -60,7 +60,7 @@ func (ec *ExpenseCategoryRepo) UpdateExpenseCategory(
 }
 
 // GetExpenseCategoryByID gets an expense category from the expense categories db table by id
-func (ec *ExpenseCategoryRepo) GetExpenseCategoryByID(
+func (ec ExpenseCategoryRepo) GetExpenseCategoryByID(
 	ctx context.Context,
 	id int64,
 ) (models.ExpenseCategoryTable, error) {
@@ -80,7 +80,7 @@ func (ec *ExpenseCategoryRepo) GetExpenseCategoryByID(
 }
 
 // GetExpenseCategoryByName gets an expense category from the expense categories db table by name
-func (ec *ExpenseCategoryRepo) GetExpenseCategoryByName(
+func (ec ExpenseCategoryRepo) GetExpenseCategoryByName(
 	ctx context.Context,
 	name string,
 ) (models.ExpenseCategoryTable, error) {
@@ -99,7 +99,7 @@ func (ec *ExpenseCategoryRepo) GetExpenseCategoryByName(
 }
 
 // DeleteExpenseCategory deletes an expense category from the expense categories db table
-func (ec *ExpenseCategoryRepo) DeleteExpenseCategory(
+func (ec ExpenseCategoryRepo) DeleteExpenseCategory(
 	ctx context.Context,
 	id int64,
 ) error {

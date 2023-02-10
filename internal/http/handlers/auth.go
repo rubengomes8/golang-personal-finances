@@ -1,31 +1,31 @@
-package service
+package handlers
 
 import (
 	"log"
 	"net/http"
 
-	"github.com/rubengomes8/golang-personal-finances/internal/http/auth"
 	"github.com/rubengomes8/golang-personal-finances/internal/http/models"
+	"github.com/rubengomes8/golang-personal-finances/internal/http/auth"
 	"github.com/rubengomes8/golang-personal-finances/internal/repository"
 	dbModels "github.com/rubengomes8/golang-personal-finances/internal/repository/models"
 
 	"github.com/gin-gonic/gin"
 )
 
-// AuthService handles the authentication requests
-type AuthService struct {
+// Auth handles the authentication requests
+type Auth struct {
 	UserRepo repository.UserRepo
 }
 
-// NewAuthService creates a new AuthService
-func NewAuthService(userRepo repository.UserRepo) (AuthService, error) {
-	return AuthService{
+// NewAuth creates a new Auth
+func NewAuth(userRepo repository.UserRepo) Auth {
+	return Auth{
 		UserRepo: userRepo,
-	}, nil
+	}
 }
 
 // Register registers a user on the database
-func (a *AuthService) Register(ctx *gin.Context) {
+func (a Auth) Register(ctx *gin.Context) {
 
 	var input models.RegisterInput
 
@@ -65,7 +65,7 @@ func (a *AuthService) Register(ctx *gin.Context) {
 }
 
 // Login logs in a user
-func (a *AuthService) Login(ctx *gin.Context) {
+func (a Auth) Login(ctx *gin.Context) {
 
 	var input models.LoginInput
 

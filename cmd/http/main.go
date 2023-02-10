@@ -2,35 +2,25 @@ package main
 
 import (
 	"log"
-	"os"
-	"strconv"
 
+	"github.com/rubengomes8/golang-personal-finances/internal/http/handlers"
 	"github.com/rubengomes8/golang-personal-finances/internal/http/routes"
-	"github.com/rubengomes8/golang-personal-finances/internal/http/service"
 	"github.com/rubengomes8/golang-personal-finances/internal/repository/database"
+	service "github.com/rubengomes8/golang-personal-finances/internal/service/incomes"
+	"github.com/rubengomes8/golang-personal-finances/internal/tools"
 
 	_ "github.com/lib/pq"
 )
 
 func main() {
 
-	dbPortEnv := os.Getenv("DB_PORT")
-	dbPort, err := strconv.Atoi(dbPortEnv)
-	if err != nil {
-		log.Fatalf("Could not convert database port to interger: %v\n", err)
-	}
-
-	db, err := database.New(
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_USER"),
-		os.Getenv("DB_PWD"),
-		os.Getenv("DB_NAME"),
-		dbPort,
-	)
+	// DATABASE - TODO
+	db, err := tools.InitPostgres()
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v\n", err)
 	}
 
+	// REPOS
 	cardRepo := database.NewCardRepo(db)
 
 	expCategoryRepo := database.NewExpenseCategoryRepo(db)
@@ -40,23 +30,17 @@ func main() {
 	incCategoryRepo := database.NewIncomeCategoryRepo(db)
 	incomesRepo := database.NewIncomesRepo(db, cardRepo, incCategoryRepo)
 
-	expensesService, err := service.NewExpenses(&expensesRepo, &expSubCategoryRepo, &cardRepo)
-	if err != nil {
-		log.Fatalf("Could not create expenses http service: %v\n", err)
-	}
-
-	incomesService, err := service.NewIncomes(&incomesRepo, &incCategoryRepo, &cardRepo)
-	if err != nil {
-		log.Fatalf("Could not create incomes http service: %v\n", err)
-	}
-
 	userRepo := database.NewUserRepo(db)
-	authService, err := service.NewAuthService(&userRepo)
-	if err != nil {
-		log.Fatalf("Could not create auth http service: %v\n", err)
-	}
 
-	r := routes.SetupRouter(expensesService, incomesService, authService)
+	// SERVICES
+	incomesService := service.NewIncomes(incomesRepo, incCategoryRepo, cardRepo)
+
+	// HTTP HANDLERS
+	expensesHandlers := handlers.NewExpenses(expensesRepo, expSubCategoryRepo, cardRepo)
+	incomesHandlers := handlers.NewIncomes(incomesService)
+	authHandlers := handlers.NewAuth(userRepo)
+
+	r := routes.SetupRouter(expensesHandlers, incomesHandlers, authHandlers)
 	err = r.Run()
 	if err != nil {
 		log.Fatalf("Could not run http router: %v\n", err)
