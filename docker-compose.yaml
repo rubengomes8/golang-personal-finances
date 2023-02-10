@@ -30,8 +30,12 @@ services:
   #     - 50051:50051
 
   db:
-    build: ./docker/db
+    image: postgres:13.7
     networks:
       - core
     ports:
       - 5432:5432
+    environment:
+      POSTGRES_DB: finances
+      POSTGRES_PASSWORD: rub3nF!n4nc3s
+      POSTGRES_USER: finances@ruben

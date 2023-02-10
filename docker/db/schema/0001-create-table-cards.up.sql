@@ -1,4 +1,0 @@
-CREATE TABLE cards (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(20) NOT NULL UNIQUE
-);
