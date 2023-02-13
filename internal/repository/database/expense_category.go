@@ -12,20 +12,20 @@ const (
 	tableNameExpenseCategories = "expense_categories"
 )
 
-// ExpenseCategoryRepo implements the expense category repository methods
-type ExpenseCategoryRepo struct {
+// ExpenseCategory implements the expense category repository methods
+type ExpenseCategory struct {
 	database *sql.DB
 }
 
-// NewExpenseCategoryRepo creates a new ExpenseCategoryRepo
-func NewExpenseCategoryRepo(database *sql.DB) ExpenseCategoryRepo {
-	return ExpenseCategoryRepo{
+// NewExpenseCategory creates a new ExpenseCategory
+func NewExpenseCategory(database *sql.DB) ExpenseCategory {
+	return ExpenseCategory{
 		database: database,
 	}
 }
 
 // InsertExpenseCategory inserts an expense category on the expense categories db table
-func (ec ExpenseCategoryRepo) InsertExpenseCategory(
+func (ec ExpenseCategory) InsertExpenseCategory(
 	ctx context.Context,
 	expenseCategory models.ExpenseCategoryTable,
 ) (int64, error) {
@@ -43,7 +43,7 @@ func (ec ExpenseCategoryRepo) InsertExpenseCategory(
 }
 
 // UpdateExpenseCategory updates an expense category on the expense categories db table
-func (ec ExpenseCategoryRepo) UpdateExpenseCategory(
+func (ec ExpenseCategory) UpdateExpenseCategory(
 	ctx context.Context,
 	expenseCategory models.ExpenseCategoryTable,
 ) (int64, error) {
@@ -59,7 +59,7 @@ func (ec ExpenseCategoryRepo) UpdateExpenseCategory(
 }
 
 // GetExpenseCategoryByID gets an expense category from the expense categories db table by id
-func (ec ExpenseCategoryRepo) GetExpenseCategoryByID(
+func (ec ExpenseCategory) GetExpenseCategoryByID(
 	ctx context.Context,
 	id int64,
 ) (models.ExpenseCategoryTable, error) {
@@ -79,7 +79,7 @@ func (ec ExpenseCategoryRepo) GetExpenseCategoryByID(
 }
 
 // GetExpenseCategoryByName gets an expense category from the expense categories db table by name
-func (ec ExpenseCategoryRepo) GetExpenseCategoryByName(
+func (ec ExpenseCategory) GetExpenseCategoryByName(
 	ctx context.Context,
 	name string,
 ) (models.ExpenseCategoryTable, error) {
@@ -98,7 +98,7 @@ func (ec ExpenseCategoryRepo) GetExpenseCategoryByName(
 }
 
 // DeleteExpenseCategory deletes an expense category from the expense categories db table
-func (ec ExpenseCategoryRepo) DeleteExpenseCategory(
+func (ec ExpenseCategory) DeleteExpenseCategory(
 	ctx context.Context,
 	id int64,
 ) error {

@@ -12,14 +12,14 @@ import (
 )
 
 type Incomes struct {
-	repo         repository.IncomeRepo
+	repo         repository.Incomes
 	categoryRepo repository.IncomeCategoryRepo
 	cardRepo     repository.CardRepo
 }
 
 // NewIncomes creates a new Incomes service
 func NewIncomes(
-	repo repository.IncomeRepo,
+	repo repository.Incomes,
 	categoryRepo repository.IncomeCategoryRepo,
 	cardRepo repository.CardRepo,
 ) Incomes {
