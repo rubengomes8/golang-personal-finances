@@ -4,8 +4,10 @@ import (
 	"log"
 	"os"
 
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/rubengomes8/golang-personal-finances/internal/http/handlers"
 	"github.com/rubengomes8/golang-personal-finances/internal/http/routes"
+	"github.com/rubengomes8/golang-personal-finances/internal/instrumentation"
 	"github.com/rubengomes8/golang-personal-finances/internal/repository/database"
 	service "github.com/rubengomes8/golang-personal-finances/internal/service/incomes"
 	"github.com/rubengomes8/golang-personal-finances/internal/tools"
@@ -16,8 +18,11 @@ import (
 
 func main() {
 
+	// INSTRUMENTATION
+	instrumentation.Init()
+
 	// DATABASE
-	db, err := tools.InitPostgres(os.Getenv("DB_HOST"))
+	db, err := tools.InitPostgres(os.Getenv("DB_LOCALHOST"))
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v\n", err)
 	}
@@ -30,8 +35,19 @@ func main() {
 	expensesRepo := database.NewExpenses(db, cardRepo, expCategoryRepo, expSubCategoryRepo)
 
 	incCategoryRepo := database.NewIncomeCategory(db)
-	incomesRepo := database.NewIncomesWithLogs(database.NewIncomes(db, cardRepo, incCategoryRepo))
 
+	incomesRepo, err := database.NewIncomesWithRED(
+		database.NewIncomesWithLogs(
+			database.NewIncomes(db, cardRepo, incCategoryRepo),
+		),
+		"incomes",
+		prometheus.Labels{
+			"version": "v1",
+		},
+	)
+	if err != nil {
+		log.Fatalf("Failed to set up incomes repo with RED: %v\n", err)
+	}
 	userRepo := database.NewUserRepo(db)
 
 	// SERVICES

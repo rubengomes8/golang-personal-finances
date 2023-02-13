@@ -64,3 +64,7 @@ test:
 # GO GEN #
 gen:
 	go generate -x ./...
+
+# GET HTTP SERVER METRICS
+get-metrics:
+	curl http://localhost:8080/metrics
