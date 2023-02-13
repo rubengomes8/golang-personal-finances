@@ -17,16 +17,16 @@ import (
 func main() {
 
 	// DATABASE
-	db, err := tools.InitPostgres()
+	db, err := tools.InitPostgres(os.Getenv("DB_LOCALHOST"))
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v\n", err)
 	}
 
 	// REPOS
-	cardRepo := database.NewCardRepo(db)
-	expCategoryRepo := database.NewExpenseCategoryRepo(db)
-	expSubCategoryRepo := database.NewExpenseSubCategoryRepo(db)
-	expensesRepository := database.NewExpensesRepo(db, cardRepo, expCategoryRepo, expSubCategoryRepo)
+	cardRepo := database.NewCard(db)
+	expCategoryRepo := database.NewExpenseCategory(db)
+	expSubCategoryRepo := database.NewExpenseSubCategory(db)
+	expensesRepository := database.NewExpenses(db, cardRepo, expCategoryRepo, expSubCategoryRepo)
 
 	// HANDLERS / SERVICE
 	expensesHandlers, err := grpcHandlers.NewExpenses(expensesRepository, expSubCategoryRepo, cardRepo)
