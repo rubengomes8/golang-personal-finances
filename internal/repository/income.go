@@ -7,8 +7,9 @@ import (
 	"github.com/rubengomes8/golang-personal-finances/internal/repository/models"
 )
 
-// Incomes defines the expense repository interface.
-type Incomes interface {
+//go:generate gowrap gen -g -i IncomeRepo -t ./templates/log_template.go.tmpl -o ./database/income_with_log.go
+// IncomeRepo defines the incomes repository interface.
+type IncomeRepo interface {
 	InsertIncome(context.Context, models.IncomeTable) (int64, error)
 	UpdateIncome(context.Context, models.IncomeTable) (int64, error)
 	GetIncomeByID(context.Context, int64) (models.IncomeView, error)
