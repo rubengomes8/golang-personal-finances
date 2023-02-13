@@ -12,20 +12,20 @@ const (
 	tableNameIncomeCategories = "income_categories"
 )
 
-// IncomeCategoryRepo implements the income category repository methods
-type IncomeCategoryRepo struct {
+// IncomeCategory implements the income category repository methods
+type IncomeCategory struct {
 	database *sql.DB
 }
 
-// NewIncomeCategoryRepo creates a new IncomeCategoryRepo
-func NewIncomeCategoryRepo(database *sql.DB) IncomeCategoryRepo {
-	return IncomeCategoryRepo{
+// NewIncomeCategory creates a new IncomeCategory
+func NewIncomeCategory(database *sql.DB) IncomeCategory {
+	return IncomeCategory{
 		database: database,
 	}
 }
 
 // InsertIncomeCategory inserts an income category on the income categories db table
-func (ic IncomeCategoryRepo) InsertIncomeCategory(ctx context.Context, incomeCategory models.IncomeCategoryTable) (int64, error) {
+func (ic IncomeCategory) InsertIncomeCategory(ctx context.Context, incomeCategory models.IncomeCategoryTable) (int64, error) {
 
 	insertStmt := fmt.Sprintf("INSERT INTO %s (name) VALUES ($1) RETURNING id", tableNameIncomeCategories)
 
@@ -40,7 +40,7 @@ func (ic IncomeCategoryRepo) InsertIncomeCategory(ctx context.Context, incomeCat
 }
 
 // UpdateIncomeCategory updates an income category on the income categories db table
-func (ic IncomeCategoryRepo) UpdateIncomeCategory(
+func (ic IncomeCategory) UpdateIncomeCategory(
 	ctx context.Context,
 	incomeCategory models.IncomeCategoryTable,
 ) (int64, error) {
@@ -56,7 +56,7 @@ func (ic IncomeCategoryRepo) UpdateIncomeCategory(
 }
 
 // GetIncomeCategoryByID gets an income category from the income categories db table by id
-func (ic IncomeCategoryRepo) GetIncomeCategoryByID(
+func (ic IncomeCategory) GetIncomeCategoryByID(
 	ctx context.Context,
 	id int64,
 ) (models.IncomeCategoryTable, error) {
@@ -76,7 +76,7 @@ func (ic IncomeCategoryRepo) GetIncomeCategoryByID(
 }
 
 // GetIncomeCategoryByName gets an income category from the income categories db table by name
-func (ic IncomeCategoryRepo) GetIncomeCategoryByName(
+func (ic IncomeCategory) GetIncomeCategoryByName(
 	ctx context.Context,
 	name string,
 ) (models.IncomeCategoryTable, error) {
@@ -95,7 +95,7 @@ func (ic IncomeCategoryRepo) GetIncomeCategoryByName(
 }
 
 // DeleteIncomeCategory deletes an income category from the income categories db table
-func (ic IncomeCategoryRepo) DeleteIncomeCategory(
+func (ic IncomeCategory) DeleteIncomeCategory(
 	ctx context.Context,
 	id int64,
 ) error {

@@ -53,7 +53,7 @@ func runSQL(db *sql.DB, path string) error {
 }
 
 func extensionsDB(*cli.Context) error {
-	db, err := tools.InitPostgres()
+	db, err := tools.InitPostgres(os.Getenv("DB_LOCALHOST"))
 	if err != nil {
 		return err
 	}
@@ -79,7 +79,7 @@ func instance(pool *sql.DB, source string) (*migrate.Migrate, error) {
 }
 
 func buildInstance() (*migrate.Migrate, error) {
-	db, err := tools.InitPostgres()
+	db, err := tools.InitPostgres(os.Getenv("DB_LOCALHOST"))
 	if err != nil {
 		return nil, err
 	}

@@ -1,22 +1,6 @@
 version: '3'
 
-networks:
-  core:
-    driver: bridge
-
 services:
-  app-http:
-    build:
-      context: . 
-      dockerfile: docker/deploy-http/Dockerfile
-    restart: unless-stopped
-    networks:
-      - core
-    depends_on:
-      - db
-    ports:
-      - 8080:8080
-
   # app-grpc:
   #   build:
   #     context: . 
@@ -31,11 +15,21 @@ services:
 
   db:
     image: postgres:13.7
-    networks:
-      - core
     ports:
       - 5432:5432
     environment:
       POSTGRES_DB: finances
       POSTGRES_PASSWORD: rub3nF!n4nc3s
       POSTGRES_USER: finances@ruben
+
+  app-http:
+    build:
+      context: . 
+      dockerfile: docker/deploy-http/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - db
+    ports:
+      - 8080:8080
+      
+

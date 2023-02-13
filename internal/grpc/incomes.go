@@ -14,14 +14,14 @@ import (
 // Incomes implements IncomesServiceServer methods
 type Incomes struct {
 	incomes.ServiceServer
-	Repository         repository.IncomeRepo
+	Repository         repository.Incomes
 	CategoryRepository repository.IncomeCategoryRepo
 	CardRepository     repository.CardRepo
 }
 
 // NewIncomes creates a new Incomes service
 func NewIncomes(
-	repo repository.IncomeRepo,
+	repo repository.Incomes,
 	catRepo repository.IncomeCategoryRepo,
 	cardRepo repository.CardRepo,
 ) (Incomes, error) {
