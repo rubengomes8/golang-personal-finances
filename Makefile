@@ -60,3 +60,7 @@ lint:
 # TEST #
 test:
 	go test ./...
+
+# GO GEN #
+gen:
+	go generate -x ./...
