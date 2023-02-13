@@ -5,12 +5,13 @@ import (
 	"log"
 	"time"
 
+	"github.com/rubengomes8/golang-personal-finances/internal/repository"
 	"github.com/rubengomes8/golang-personal-finances/internal/repository/models"
 )
 
 // IncomesWithLogs is the Incomes decorator adding the logs
 type IncomesWithLogs struct {
-	repo Incomes
+	repo repository.IncomeRepo
 }
 
 func NewIncomesWithLogs(repo Incomes) IncomesWithLogs {

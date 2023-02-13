@@ -1,9 +1,12 @@
 package routes
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/rubengomes8/golang-personal-finances/internal/http/auth"
 	"github.com/rubengomes8/golang-personal-finances/internal/http/handlers"
+	"github.com/rubengomes8/golang-personal-finances/internal/instrumentation"
 )
 
 // SetupRouter sets up the http routes
@@ -12,7 +15,9 @@ func SetupRouter(
 	incomesHandlers handlers.Incomes,
 	authHandlers handlers.Auth,
 ) *gin.Engine {
+
 	r := gin.Default()
+	r.Handle(http.MethodGet, "/metrics", gin.WrapH(instrumentation.RegistryHandler()))
 
 	authentication := r.Group("/auth")
 	{
@@ -22,8 +27,10 @@ func SetupRouter(
 
 	v1 := r.Group("/v1")
 	{
+		// Use authentication
 		v1.Use(auth.JwtAuthMiddleware())
 
+		// Expenses
 		v1.GET("expense/:id", expensesHandlers.GetExpenseByID)
 		v1.POST("expense", expensesHandlers.CreateExpense)
 		v1.PUT("expense/:id", expensesHandlers.UpdateExpense)
@@ -33,6 +40,7 @@ func SetupRouter(
 		v1.GET("expenses/subcategory/:sub_category", expensesHandlers.GetExpensesBySubCategory)
 		v1.GET("expenses/card/:card", expensesHandlers.GetExpensesByCard)
 
+		// Incomes
 		v1.GET("income/:id", incomesHandlers.HandleGetByID)
 		v1.POST("income", incomesHandlers.HandleCreateIncome)
 		v1.PUT("income/:id", incomesHandlers.HandleUpdateIncome)

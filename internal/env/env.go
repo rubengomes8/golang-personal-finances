@@ -1,6 +1,8 @@
 package env
 
-import "github.com/joho/godotenv"
+import (
+	"github.com/joho/godotenv"
+)
 
 func init() {
 	err := godotenv.Load()
