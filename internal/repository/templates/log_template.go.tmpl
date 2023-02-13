@@ -1,0 +1,70 @@
+import (
+  "os"
+  "github.com/rs/zerolog"
+)
+
+{{ $decorator := (or .Vars.DecoratorName (printf "%sWithLog" .Interface.Name)) }}
+{{ $generic_type := (or .Vars.GenericType (printf "")) }}
+{{ $generic_vars := (or .Vars.GenericVars (printf "")) }}
+
+{{ $ctxInterface := (or .Vars.CtxInterface (printf "context.Context")) }}
+
+// {{$decorator}} implements {{.Interface.Type}} that is instrumented with zerolog logger
+type {{$decorator}}{{$generic_type}} struct {
+  base {{.Interface.Type}}{{$generic_vars}}
+}
+
+{{range $method := .Interface.Methods}}
+  // {{$method.Name}} implements {{$.Interface.Type}}
+  func (d {{$decorator}}{{$generic_vars}}) {{$method.Declaration}} {
+
+    {{ $hasCtx := false }}
+    {{ $ctxName := "" }}
+    {{range $param := $method.Params}}
+        {{if eq $param.Type $ctxInterface }}
+            {{ $hasCtx = true }}
+            {{ $ctxName = $param.Name }}
+        {{end}}
+    {{end}}
+
+    {{if $hasCtx}}
+        nl := zerolog.Ctx({{$ctxName}})
+    {{else}}
+        nl := zerolog.DefaultContextLogger
+    {{end}}
+    {{if $method.HasParams}}
+        logger := nl.With().Fields({{$method.ParamsMap}}).Logger()
+    {{else}}
+        logger := nl.Logger()
+    {{end}}
+
+      defer func() {
+        {{- if $method.HasResults}}
+          {{- if $method.ReturnsError}}
+            if err != nil {
+                logger.Error().Fields({{$method.ResultsMap}}).Err(err).Str("decorator", "{{$decorator}}").Str("method", "{{$method.Name}}").Msg("Error detected")
+            } else {
+                logger.Debug().Fields({{$method.ResultsMap}}).Str("decorator", "{{$decorator}}").Str("method", "{{$method.Name}}").Msg("Finish")
+            }
+          {{else}}
+            logger.Debug().Fields({{$method.ResultsMap}}).Str("decorator", "{{$decorator}}").Str("method", "{{$method.Name}}").Msg("Finish")
+          {{end -}}
+        {{else}}
+          logger.Debug().Str("decorator", "{{$decorator}}").Str("method", "{{$method.Name}}").Msg("Finish")
+        {{end -}}
+      }()
+      {{ $method.Pass "d.base." }}
+  }
+{{end}}
+
+// New{{$decorator}} instruments an implementation of the {{.Interface.Type}} with simple logging
+func New{{$decorator}}{{$generic_type}}(base {{.Interface.Type}}{{$generic_vars}}) {{.Interface.Type}}{{$generic_vars}} {
+  decorate := os.Getenv("DECORATE")
+  if decorate == "true" || decorate == "1" {
+    return {{$decorator}}{{$generic_vars}}{
+        base: base,
+    }
+  }
+  
+  return base
+}
