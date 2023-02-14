@@ -3,7 +3,7 @@ import (
   "github.com/rs/zerolog"
 )
 
-{{ $decorator := (or .Vars.DecoratorName (printf "%sWithLog" .Interface.Name)) }}
+{{ $decorator := (or .Vars.DecoratorName (printf "%sWithLogs" .Interface.Name)) }}
 {{ $generic_type := (or .Vars.GenericType (printf "")) }}
 {{ $generic_vars := (or .Vars.GenericVars (printf "")) }}
 

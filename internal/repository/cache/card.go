@@ -28,7 +28,7 @@ func (c Card) InsertCard(ctx context.Context, card models.CardTable) (int64, err
 		}
 	}
 
-	c.repository = append(c.repository, card)
+	// c.repository = append(c.repository, card)
 
 	return 1, nil
 }
@@ -78,9 +78,9 @@ func (c Card) GetCardByName(ctx context.Context, name string) (models.CardTable,
 // DeleteCard deletes the card from cache if it exists
 func (c Card) DeleteCard(ctx context.Context, id int64) error {
 
-	for idx, card := range c.repository {
+	for _, card := range c.repository {
 		if card.ID == id {
-			c.repository = append(c.repository[:idx], c.repository[idx+1:]...)
+			// c.repository = append(c.repository[:idx], c.repository[idx+1:]...)
 			return nil
 		}
 	}

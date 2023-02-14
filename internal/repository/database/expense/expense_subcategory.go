@@ -1,4 +1,4 @@
-package database
+package expense
 
 import (
 	"context"
@@ -12,20 +12,20 @@ const (
 	tableNameExpenseSubCategories = "expense_subcategories"
 )
 
-// ExpenseSubCategory implements the expense subcategory repository methods
-type ExpenseSubCategory struct {
+// SubCategoryDB implements the expense subcategory repository methods
+type SubCategoryDB struct {
 	database *sql.DB
 }
 
-// NewExpenseSubCategory creates a new ExpenseSubCategory
-func NewExpenseSubCategory(database *sql.DB) ExpenseSubCategory {
-	return ExpenseSubCategory{
+// NewSubCategoryDB creates a new ExpenseSubCategory
+func NewSubCategoryDB(database *sql.DB) SubCategoryDB {
+	return SubCategoryDB{
 		database: database,
 	}
 }
 
 // InsertExpenseSubCategory inserts an expense subcategory on the expense subcategories db table
-func (es ExpenseSubCategory) InsertExpenseSubCategory(
+func (es SubCategoryDB) InsertExpenseSubCategory(
 	ctx context.Context,
 	expenseSubCategory models.ExpenseSubCategoryTable,
 ) (int64, error) {
@@ -42,7 +42,7 @@ func (es ExpenseSubCategory) InsertExpenseSubCategory(
 }
 
 // UpdateExpenseSubCategory updates an expense subcategory on the expense subcategories db table
-func (es ExpenseSubCategory) UpdateExpenseSubCategory(
+func (es SubCategoryDB) UpdateExpenseSubCategory(
 	ctx context.Context,
 	expenseSubCategory models.ExpenseSubCategoryTable,
 ) (int64, error) {
@@ -58,7 +58,7 @@ func (es ExpenseSubCategory) UpdateExpenseSubCategory(
 }
 
 // GetExpenseSubCategoryByID gets an expense subcategory from the expense categories db table by id
-func (es ExpenseSubCategory) GetExpenseSubCategoryByID(
+func (es SubCategoryDB) GetExpenseSubCategoryByID(
 	ctx context.Context,
 	id int64,
 ) (models.ExpenseSubCategoryTable, error) {
@@ -77,7 +77,7 @@ func (es ExpenseSubCategory) GetExpenseSubCategoryByID(
 }
 
 // GetExpenseSubCategoryByName gets an expense subcategory from the expense categories db table by name
-func (es ExpenseSubCategory) GetExpenseSubCategoryByName(
+func (es SubCategoryDB) GetExpenseSubCategoryByName(
 	ctx context.Context,
 	name string,
 ) (models.ExpenseSubCategoryTable, error) {
@@ -96,7 +96,7 @@ func (es ExpenseSubCategory) GetExpenseSubCategoryByName(
 }
 
 // DeleteExpenseSubCategory deletes an expense category from the expense subcategories db table
-func (es ExpenseSubCategory) DeleteExpenseSubCategory(ctx context.Context, id int64) error {
+func (es SubCategoryDB) DeleteExpenseSubCategory(ctx context.Context, id int64) error {
 
 	deleteStmt := fmt.Sprintf("DELETE FROM %s WHERE id = $1", tableNameExpenseSubCategories)
 
@@ -111,7 +111,7 @@ func (es ExpenseSubCategory) DeleteExpenseSubCategory(ctx context.Context, id in
 	}
 
 	if numRowsAffected == 0 {
-		return ErrNoRowsAffectedExpSubcategoryDelete
+		return ErrNoRowsAffectedOnSubcategoryDelete
 	}
 
 	return nil
