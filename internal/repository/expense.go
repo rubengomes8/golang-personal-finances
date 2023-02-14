@@ -7,6 +7,8 @@ import (
 	"github.com/rubengomes8/golang-personal-finances/internal/repository/models"
 )
 
+//go:generate gowrap gen -g -i ExpenseRepo -t ./templates/log_template.go.tmpl -o ./database/expense/with_logs_by_template.go
+//go:generate gowrap gen -g -i ExpenseRepo -t ./templates/red_template.go.tmpl -o ./database/expense/with_red_by_template.go
 // ExpenseRepo defines the expense repository interface.
 type ExpenseRepo interface {
 	InsertExpense(context.Context, models.ExpenseTable) (int64, error)

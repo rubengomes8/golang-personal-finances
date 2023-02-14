@@ -1,0 +1,81 @@
+import (
+	"context"
+	"fmt"
+	"strings"
+	"time"
+
+	"github.com/rubengomes8/golang-personal-finances/internal/instrumentation"
+	"github.com/prometheus/client_golang/prometheus"
+)
+
+{{ $decorator := (or .Vars.DecoratorName (printf "%sWithRED" .Interface.Name)) }}
+
+{{ $namespace := (or .Vars.Namespace (printf "system")) }}
+{{ $metric_name := (or .Vars.MetricName (printf "%s_red" (snake .Interface.Name))) }}
+{{ $metric_help := (or .Vars.MetricHelp (printf "%s RED histogram (rate, errors and duration)." (.Interface.Name))) }}
+{{ $bucket_func := (or .Vars.BucketFunc (printf "ExponentialBuckets(100, 2, 5)")) }}
+
+type {{$decorator}} struct {
+	base         {{.Interface.Type}}
+	histogramVec *prometheus.HistogramVec
+}
+
+{{range $method := .Interface.Methods}}
+    // {{$method.Name}} implements {{$.Interface.Type}}
+    func (d {{$decorator}}) {{$method.Declaration}} {
+        since := time.Now()
+        defer func() {
+            status := "ok"
+            if err != nil {
+                status = "error"
+            }
+
+            labels := prometheus.Labels{
+                "status": status,
+                "method": "{{$method.Name}}",
+            }
+
+            observer, err := d.histogramVec.GetMetricWith(labels)
+            if err != nil {
+                fmt.Printf("Metric: Error to get metric with labels %v\n", labels)
+            }
+
+            observer.Observe(float64(time.Since(since).Milliseconds()))
+        }()       
+        {{$method.Pass "d.base."}}
+    }
+{{end}}
+
+
+// New{{$decorator}} returns an instance of the {{.Interface.Type}} decorated with red histogram metric
+func New{{$decorator}}(base {{.Interface.Type}}, constLabels prometheus.Labels) (decorator {{.Interface.Type}}, err error) {
+    decorate := os.Getenv("DECORATE")
+    if !(decorate == "true" || decorate == "1") {
+        return base, nil
+    }
+
+    {{ $sub_system := (printf "%s" (snake .Interface.Name)) }}
+
+    subSystem := "{{$sub_system}}"
+
+	metricConfig := prometheus.HistogramOpts{
+		Namespace:   strings.TrimSpace("{{$namespace}}"),
+		Subsystem:   subSystem,
+		Name:        fmt.Sprintf("%s_red", subSystem),
+		Help:        "{{$metric_help}}",
+		ConstLabels: constLabels,
+		Buckets:     prometheus.{{$bucket_func}},
+	}
+
+    red := {{$decorator}}{
+		base:         base,
+		histogramVec: prometheus.NewHistogramVec(metricConfig, []string{"status", "method"}),
+	}
+
+	err = instrumentation.Registry.Register(red.histogramVec)
+	if err != nil {
+		return nil, err
+	}
+
+    return red,  nil
+}

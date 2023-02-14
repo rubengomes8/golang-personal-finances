@@ -6,6 +6,8 @@ import (
 	"github.com/rubengomes8/golang-personal-finances/internal/repository/models"
 )
 
+//go:generate gowrap gen -g -i IncomeCategoryRepo -t ./templates/log_template.go.tmpl -o ./database/income/category_with_logs_by_template.go
+//go:generate gowrap gen -g -i IncomeCategoryRepo -t ./templates/red_template.go.tmpl -o ./database/income/category_with_red_by_template.go
 // IncomeCategoryRepo defines the income category repository interface.
 type IncomeCategoryRepo interface {
 	InsertIncomeCategory(context.Context, models.IncomeCategoryTable) (int64, error)

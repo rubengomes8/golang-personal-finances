@@ -8,7 +8,10 @@ import (
 	"github.com/rubengomes8/golang-personal-finances/internal/http/handlers"
 	"github.com/rubengomes8/golang-personal-finances/internal/http/routes"
 	"github.com/rubengomes8/golang-personal-finances/internal/instrumentation"
-	"github.com/rubengomes8/golang-personal-finances/internal/repository/database"
+	"github.com/rubengomes8/golang-personal-finances/internal/repository/database/card"
+	"github.com/rubengomes8/golang-personal-finances/internal/repository/database/expense"
+	"github.com/rubengomes8/golang-personal-finances/internal/repository/database/income"
+	"github.com/rubengomes8/golang-personal-finances/internal/repository/database/user"
 	service "github.com/rubengomes8/golang-personal-finances/internal/service/incomes"
 	"github.com/rubengomes8/golang-personal-finances/internal/tools"
 
@@ -28,30 +31,74 @@ func main() {
 	}
 
 	// REPOS
-	cardRepo := database.NewCardWithLogs(database.NewCard(db))
+	prometheusLabels := prometheus.Labels{"version": "v1"}
+	cardDB, err := card.NewCardRepoWithRED(
+		card.NewDBWithLogs(card.NewDatabase(db)),
+		prometheusLabels,
+	)
+	if err != nil {
+		log.Fatalf("Failed to set up card repo with RED: %v\n", err)
+	}
 
-	expCategoryRepo := database.NewExpenseCategory(db)
-	expSubCategoryRepo := database.NewExpenseSubCategory(db)
-	expensesRepo := database.NewExpenses(db, cardRepo, expCategoryRepo, expSubCategoryRepo)
+	expCategoryDB, err := expense.NewExpenseCategoryRepoWithRED(
+		expense.NewExpenseCategoryRepoWithLogs(
+			expense.NewCategoryDB(db)),
+		prometheusLabels,
+	)
+	if err != nil {
+		log.Fatalf("Failed to set up expense category repo with RED: %v\n", err)
+	}
 
-	incCategoryRepo := database.NewIncomeCategory(db)
+	expSubCategoryDB, err := expense.NewExpenseSubCategoryRepoWithRED(
+		expense.NewExpenseSubCategoryRepoWithLogs(
+			expense.NewSubCategoryDB(db)),
+		prometheusLabels,
+	)
+	if err != nil {
+		log.Fatalf("Failed to set up expense subcategory repo with RED: %v\n", err)
+	}
 
-	incomesRepo, err := database.NewIncomesWithRED(
-		database.NewIncomesWithLogs(database.NewIncomes(db, cardRepo, incCategoryRepo)),
-		prometheus.Labels{"version": "v1"},
+	expensesDB, err := expense.NewExpenseRepoWithRED(
+		expense.NewExpenseRepoWithLogs(
+			expense.NewDB(db, cardDB, expCategoryDB, expSubCategoryDB),
+		),
+		prometheusLabels,
+	)
+	if err != nil {
+		log.Fatalf("Failed to set up expense repo with RED: %v\n", err)
+	}
+
+	incCategoryDB, err := income.NewIncomeCategoryRepoWithRED(
+		income.NewIncomeCategoryRepoWithLogs(income.NewCategoryDB(db)),
+		prometheusLabels,
+	)
+	if err != nil {
+		log.Fatalf("Failed to set up income category repo with RED: %v\n", err)
+	}
+
+	incomesDB, err := income.NewIncomeRepoWithRED(
+		income.NewIncomeRepoWithLogs(income.NewDB(db, cardDB, incCategoryDB)),
+		prometheusLabels,
 	)
 	if err != nil {
 		log.Fatalf("Failed to set up incomes repo with RED: %v\n", err)
 	}
-	userRepo := database.NewUserRepo(db)
+
+	userDB, err := user.NewUserRepoWithRED(
+		user.NewUserRepoWithLogs(user.NewDB(db)),
+		prometheusLabels,
+	)
+	if err != nil {
+		log.Fatalf("Failed to set up user repo with RED: %v\n", err)
+	}
 
 	// SERVICES
-	incomesService := service.NewIncomes(incomesRepo, incCategoryRepo, cardRepo)
+	incomesService := service.NewIncomes(incomesDB, incCategoryDB, cardDB)
 
 	// HTTP HANDLERS
-	expensesHandlers := handlers.NewExpenses(expensesRepo, expSubCategoryRepo, cardRepo)
+	expensesHandlers := handlers.NewExpenses(expensesDB, expSubCategoryDB, cardDB)
 	incomesHandlers := handlers.NewIncomes(incomesService)
-	authHandlers := handlers.NewAuth(userRepo)
+	authHandlers := handlers.NewAuth(userDB)
 
 	r := routes.SetupRouter(expensesHandlers, incomesHandlers, authHandlers)
 	err = r.Run()

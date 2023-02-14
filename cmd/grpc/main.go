@@ -7,7 +7,8 @@ import (
 
 	grpcHandlers "github.com/rubengomes8/golang-personal-finances/internal/grpc"
 	"github.com/rubengomes8/golang-personal-finances/internal/pb/expenses"
-	"github.com/rubengomes8/golang-personal-finances/internal/repository/database"
+	"github.com/rubengomes8/golang-personal-finances/internal/repository/database/card"
+	"github.com/rubengomes8/golang-personal-finances/internal/repository/database/expense"
 	"github.com/rubengomes8/golang-personal-finances/internal/tools"
 
 	_ "github.com/lib/pq"
@@ -23,13 +24,13 @@ func main() {
 	}
 
 	// REPOS
-	cardRepo := database.NewCard(db)
-	expCategoryRepo := database.NewExpenseCategory(db)
-	expSubCategoryRepo := database.NewExpenseSubCategory(db)
-	expensesRepository := database.NewExpenses(db, cardRepo, expCategoryRepo, expSubCategoryRepo)
+	cardDB := card.NewDatabase(db)
+	expCategoryDB := expense.NewCategoryDB(db)
+	expSubCategoryDB := expense.NewSubCategoryDB(db)
+	expensesDB := expense.NewDB(db, cardDB, expCategoryDB, expSubCategoryDB)
 
 	// HANDLERS / SERVICE
-	expensesHandlers, err := grpcHandlers.NewExpenses(expensesRepository, expSubCategoryRepo, cardRepo)
+	expensesHandlers, err := grpcHandlers.NewExpenses(expensesDB, expSubCategoryDB, cardDB)
 	if err != nil {
 		log.Fatalf("Failed to create the finances server: %v\n", err)
 	}

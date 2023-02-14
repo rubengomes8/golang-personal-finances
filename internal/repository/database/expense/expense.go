@@ -1,4 +1,4 @@
-package database
+package expense
 
 import (
 	"context"
@@ -15,22 +15,22 @@ const (
 	expensesView  = "expenses_view"
 )
 
-// Expenses implements the expense repository methods
-type Expenses struct {
+// DB implements the expense repository methods
+type DB struct {
 	database     *sql.DB
 	cardRepo     repository.CardRepo
 	categoryRepo repository.ExpenseCategoryRepo
 	subCategory  repository.ExpenseSubCategoryRepo
 }
 
-// NewExpenses creates a new Expenses
-func NewExpenses(
+// NewDB creates a new Expenses
+func NewDB(
 	database *sql.DB,
 	cardRepo repository.CardRepo,
 	categoryRepo repository.ExpenseCategoryRepo,
 	subCategory repository.ExpenseSubCategoryRepo,
-) Expenses {
-	return Expenses{
+) DB {
+	return DB{
 		database:     database,
 		cardRepo:     cardRepo,
 		categoryRepo: categoryRepo,
@@ -39,7 +39,7 @@ func NewExpenses(
 }
 
 // InsertExpense inserts an expense on the expenses db table
-func (e Expenses) InsertExpense(ctx context.Context, exp models.ExpenseTable) (int64, error) {
+func (e DB) InsertExpense(ctx context.Context, exp models.ExpenseTable) (int64, error) {
 
 	insertStmt := fmt.Sprintf(`INSERT INTO %s 
 	(value, date, description, subcategory_id, card_id)
@@ -64,7 +64,7 @@ func (e Expenses) InsertExpense(ctx context.Context, exp models.ExpenseTable) (i
 }
 
 // UpdateExpense updates an expense on the expenses db table
-func (e Expenses) UpdateExpense(ctx context.Context, exp models.ExpenseTable) (int64, error) {
+func (e DB) UpdateExpense(ctx context.Context, exp models.ExpenseTable) (int64, error) {
 
 	updateStmt := fmt.Sprintf(`UPDATE %s SET 
 	(value, date, description, subcategory_id, card_id) =
@@ -89,14 +89,14 @@ func (e Expenses) UpdateExpense(ctx context.Context, exp models.ExpenseTable) (i
 	}
 
 	if numRowsAffected == 0 {
-		return 0, ErrNoRowsAffectedExpenseUpdate
+		return 0, ErrNoRowsAffectedOnUpdate
 	}
 
 	return exp.ID, nil
 }
 
 // GetExpenseByID gets an expense from the expenses db table by id
-func (e Expenses) GetExpenseByID(ctx context.Context, id int64) (models.ExpenseView, error) {
+func (e DB) GetExpenseByID(ctx context.Context, id int64) (models.ExpenseView, error) {
 
 	selectStmt := fmt.Sprintf(`SELECT 
 	value, date, description, category_id, category_name, 
@@ -130,7 +130,7 @@ func (e Expenses) GetExpenseByID(ctx context.Context, id int64) (models.ExpenseV
 }
 
 // GetExpensesByDates gets expenses from the expenses db table that matches the dates' range provided
-func (e Expenses) GetExpensesByDates(
+func (e DB) GetExpensesByDates(
 	ctx context.Context,
 	minDate time.Time,
 	maxDate time.Time,
@@ -180,7 +180,7 @@ func (e Expenses) GetExpensesByDates(
 }
 
 // GetExpensesByCategory gets expenses from the expenses db table that matches the category provided
-func (e Expenses) GetExpensesByCategory(ctx context.Context, category string) ([]models.ExpenseView, error) {
+func (e DB) GetExpensesByCategory(ctx context.Context, category string) ([]models.ExpenseView, error) {
 
 	selectStmt := fmt.Sprintf(`SELECT 
 	value, date, description, category_id, category_name, 
@@ -226,7 +226,7 @@ func (e Expenses) GetExpensesByCategory(ctx context.Context, category string) ([
 }
 
 // GetExpensesBySubCategory gets expenses from the expenses db table that matches the subcategory provided
-func (e Expenses) GetExpensesBySubCategory(ctx context.Context, subCategory string) ([]models.ExpenseView, error) {
+func (e DB) GetExpensesBySubCategory(ctx context.Context, subCategory string) ([]models.ExpenseView, error) {
 
 	selectStmt := fmt.Sprintf(`SELECT 
 	value, date, description, category_id, category_name, 
@@ -272,7 +272,7 @@ func (e Expenses) GetExpensesBySubCategory(ctx context.Context, subCategory stri
 }
 
 // GetExpensesByCard gets expenses from the expenses db table that matches the card provided
-func (e Expenses) GetExpensesByCard(ctx context.Context, card string) ([]models.ExpenseView, error) {
+func (e DB) GetExpensesByCard(ctx context.Context, card string) ([]models.ExpenseView, error) {
 
 	selectStmt := fmt.Sprintf(`SELECT 
 	value, date, description, category_id, category_name, 
@@ -317,7 +317,7 @@ func (e Expenses) GetExpensesByCard(ctx context.Context, card string) ([]models.
 }
 
 // DeleteExpense deletes an expense from the expenses db table
-func (e Expenses) DeleteExpense(ctx context.Context, id int64) error {
+func (e DB) DeleteExpense(ctx context.Context, id int64) error {
 
 	deleteStmt := fmt.Sprintf(`DELETE FROM %s 
 	WHERE id = $1`, expensesTable)
@@ -333,7 +333,7 @@ func (e Expenses) DeleteExpense(ctx context.Context, id int64) error {
 	}
 
 	if numRowsAffected == 0 {
-		return ErrNoRowsAffectedExpenseDelete
+		return ErrNoRowsAffectedOnDelete
 	}
 
 	return nil

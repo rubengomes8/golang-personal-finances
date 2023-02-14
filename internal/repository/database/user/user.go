@@ -1,4 +1,4 @@
-package database
+package user
 
 import (
 	"context"
@@ -12,19 +12,19 @@ const (
 	tableNameUsers = "users"
 )
 
-// UserRepo implements the user repository methods
-type UserRepo struct {
+// DB implements the user repository methods
+type DB struct {
 	database *sql.DB
 }
 
-// NewUserRepo creates a new UserRepo
-func NewUserRepo(database *sql.DB) UserRepo {
-	return UserRepo{
+// NewDB creates a new UserRepo
+func NewDB(database *sql.DB) DB {
+	return DB{
 		database: database,
 	}
 }
 
-func (u UserRepo) InsertUser(ctx context.Context, user models.UserTable) (int64, error) {
+func (u DB) InsertUser(ctx context.Context, user models.UserTable) (int64, error) {
 
 	insertStmt := fmt.Sprintf("INSERT INTO %s (username, passhash) VALUES ($1, $2) RETURNING id", tableNameUsers)
 
@@ -38,7 +38,7 @@ func (u UserRepo) InsertUser(ctx context.Context, user models.UserTable) (int64,
 	return id, nil
 }
 
-func (u UserRepo) GetUserByUsername(ctx context.Context, username string) (models.UserTable, error) {
+func (u DB) GetUserByUsername(ctx context.Context, username string) (models.UserTable, error) {
 
 	selectStmt := fmt.Sprintf("SELECT id, username, passhash FROM %s WHERE username = $1", tableNameUsers)
 
