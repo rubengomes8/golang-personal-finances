@@ -37,13 +37,8 @@ func main() {
 	incCategoryRepo := database.NewIncomeCategory(db)
 
 	incomesRepo, err := database.NewIncomesWithRED(
-		database.NewIncomesWithLogs(
-			database.NewIncomes(db, cardRepo, incCategoryRepo),
-		),
-		"incomes",
-		prometheus.Labels{
-			"version": "v1",
-		},
+		database.NewIncomesWithLogs(database.NewIncomes(db, cardRepo, incCategoryRepo)),
+		prometheus.Labels{"version": "v1"},
 	)
 	if err != nil {
 		log.Fatalf("Failed to set up incomes repo with RED: %v\n", err)
