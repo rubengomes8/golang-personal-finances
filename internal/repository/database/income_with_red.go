@@ -13,6 +13,10 @@ import (
 	"github.com/rubengomes8/golang-personal-finances/internal/repository/models"
 )
 
+const (
+	incomesSubsystem = "incomes"
+)
+
 // IncomesWithRED is the Incomes decorator adding the RED
 type IncomesWithRED struct {
 	repo         repository.IncomeRepo
@@ -187,7 +191,7 @@ func (i IncomesWithRED) DeleteIncome(ctx context.Context, id int64) (err error) 
 }
 
 // NewIncomesWithRED returns an instance of the repository.IncomeRepo decorated with red histogram metric
-func NewIncomesWithRED(base repository.IncomeRepo, subsystem string, constLabels prometheus.Labels) (repository.IncomeRepo, error) {
+func NewIncomesWithRED(base repository.IncomeRepo, constLabels prometheus.Labels) (repository.IncomeRepo, error) {
 	decorate := os.Getenv("DECORATE")
 	if !(decorate == "true" || decorate == "1") {
 		return base, nil
@@ -195,8 +199,8 @@ func NewIncomesWithRED(base repository.IncomeRepo, subsystem string, constLabels
 
 	metricConfig := prometheus.HistogramOpts{
 		Namespace:   strings.TrimSpace("personal_finances"),
-		Subsystem:   strings.TrimSpace(subsystem),
-		Name:        strings.TrimSpace("repository_red"),
+		Subsystem:   strings.TrimSpace(incomesSubsystem),
+		Name:        strings.TrimSpace("database"),
 		Help:        "Repository RED histogram (rate, errors and duration)",
 		ConstLabels: constLabels,
 		Buckets:     prometheus.ExponentialBuckets(100, 2, 5),
