@@ -25,7 +25,7 @@ func main() {
 	instrumentation.Init()
 
 	// DATABASE
-	db, err := tools.InitPostgres(os.Getenv("DB_LOCALHOST"))
+	db, err := tools.InitPostgres(os.Getenv("DB_HOST"))
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v\n", err)
 	}

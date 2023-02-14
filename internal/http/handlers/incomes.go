@@ -136,9 +136,9 @@ func (i *Incomes) HandleGetIncomesByCategory(ctx *gin.Context) {
 
 	incomes, err := i.service.GetAllByCategory(ctx, paramCategory)
 	if err != nil {
-		log.Printf("could not get incomes by card - card is %v - %v", paramCategory, err)
+		log.Printf("could not get incomes by category - category is %v - %v", paramCategory, err)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
-			ErrorMsg: "income card does not exist",
+			ErrorMsg: "income category does not exist",
 		})
 		return
 	}

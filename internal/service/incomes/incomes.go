@@ -142,7 +142,7 @@ func (i Incomes) GetAllByCard(ctx context.Context, card string) ([]models.Income
 
 func (i Incomes) GetAllByCategory(ctx context.Context, category string) ([]models.Income, error) {
 
-	incomeViewRecords, err := i.repo.GetIncomesByCard(ctx, category)
+	incomeViewRecords, err := i.repo.GetIncomesByCategory(ctx, category)
 	if err != nil {
 		log.Printf("could not get incomes by category - category is %v - %v", category, err)
 		return []models.Income{}, ErrIncomeCategoryNotFoundByName
