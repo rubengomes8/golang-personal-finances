@@ -93,13 +93,22 @@ func main() {
 	}
 
 	// SERVICES
-	incomesService := service.NewIncomes(incomesDB, incCategoryDB, cardDB)
+	// incomes service factory is using configuration pattern
+	incomesService, err := service.NewIncomesWithConfiguration(
+		service.WithIncomesRepository(incomesDB),
+		service.WithCategoryRepository(incCategoryDB),
+		service.WithCardRepository(cardDB),
+	)
+	if err != nil {
+		log.Fatalf("Failed to set up incomes service with configuration patterns: %v\n", err)
+	}
 
 	// HTTP HANDLERS
 	expensesHandlers := handlers.NewExpenses(expensesDB, expSubCategoryDB, cardDB)
 	incomesHandlers := handlers.NewIncomes(incomesService)
 	authHandlers := handlers.NewAuth(userDB)
 
+	// HTTP ROUTER
 	r := routes.SetupRouter(expensesHandlers, incomesHandlers, authHandlers)
 	err = r.Run()
 	if err != nil {
