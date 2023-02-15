@@ -93,6 +93,7 @@ func main() {
 	}
 
 	// SERVICES
+	// incomes service factory is using configuration pattern
 	incomesService, err := service.NewIncomesWithConfiguration(
 		service.WithIncomesRepository(incomesDB),
 		service.WithCategoryRepository(incCategoryDB),

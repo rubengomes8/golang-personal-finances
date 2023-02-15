@@ -33,6 +33,11 @@ func NewIncomes(
 // Create is the create income usecase
 func (i Incomes) Create(ctx context.Context, income models.Income) (int, error) {
 
+	err := validateNewIncome(income)
+	if err != nil {
+		return 0, ErrInvalidIncome
+	}
+
 	card, err := i.cardRepo.GetCardByName(ctx, income.Card)
 	if err != nil {
 		log.Printf("could not get card by name: %v", err)
@@ -70,6 +75,11 @@ func (i Incomes) Create(ctx context.Context, income models.Income) (int, error) 
 
 // Update is the update income usecase
 func (i Incomes) Update(ctx context.Context, income models.Income) error {
+
+	err := validateNewIncome(income)
+	if err != nil {
+		return ErrInvalidIncome
+	}
 
 	card, err := i.cardRepo.GetCardByName(ctx, income.Card)
 	if err != nil {
@@ -187,7 +197,7 @@ func mapIncomeViewToIncome(incomeView dbModels.IncomeView) models.Income {
 }
 
 func mapIncomeViewsToIncomes(incomeViewRecords []dbModels.IncomeView) []models.Income {
-	var responseIncomes []models.Income
+	responseIncomes := []models.Income{}
 	for _, incomeView := range incomeViewRecords {
 		responseIncomes = append(responseIncomes, mapIncomeViewToIncome(incomeView))
 	}

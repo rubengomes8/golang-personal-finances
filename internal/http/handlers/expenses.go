@@ -334,7 +334,7 @@ func expenseViewToExpenseGetResponse(expenseView dbModels.ExpenseView) models.Ex
 }
 
 func expensesViewToExpensesGetResponse(expenseViewRecords []dbModels.ExpenseView) []models.ExpenseCreateRequest {
-	var responseExpenses []models.ExpenseCreateRequest
+	responseExpenses := []models.ExpenseCreateRequest{}
 	for _, exp := range expenseViewRecords {
 		responseExpenses = append(responseExpenses, expenseViewToExpenseGetResponse(exp))
 	}

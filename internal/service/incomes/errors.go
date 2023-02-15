@@ -3,6 +3,7 @@ package service
 import "errors"
 
 var (
+	ErrInvalidIncome                = errors.New("income is not valid")
 	ErrCardNotFoundByName           = errors.New("could not get card by name")
 	ErrIncomeCategoryNotFoundByName = errors.New("could not get income category by name")
 	ErrCouldNotParseDate            = errors.New("could not parse date")
