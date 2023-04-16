@@ -25,7 +25,19 @@ func NewIncomes(
 	}
 }
 
-// HandleCreateIncome handles a create income request
+// HandleCreateIncome handles a create income request.
+// ShowEntity godoc
+// @tags Incomes
+// @Summary Creates a new income.
+// @Description Endpoint to create an income.
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param body body models.Income true "Create income request"
+// @Success 201 {object} models.IncomeCreateResponse
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /v1/income [post]
 func (i *Incomes) HandleCreateIncome(ctx *gin.Context) {
 
 	var income models.Income
@@ -50,7 +62,19 @@ func (i *Incomes) HandleCreateIncome(ctx *gin.Context) {
 	ctx.Writer.Flush()
 }
 
-// HandleUpdateIncome handles an update income request
+// HandleUpdateIncome handles an update income request.
+// ShowEntity godoc
+// @tags Incomes
+// @Summary Updates a new income.
+// @Description Endpoint to update an income.
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param body body models.Income true "Update income request"
+// @Param id query string true "The income id"
+// @Success 204 "No content"
+// @Failure 400 {object} models.ErrorResponse
+// @Router /v1/income/{id} [put]
 func (i *Incomes) HandleUpdateIncome(ctx *gin.Context) {
 
 	var income models.Income
@@ -75,7 +99,18 @@ func (i *Incomes) HandleUpdateIncome(ctx *gin.Context) {
 	ctx.Writer.Flush()
 }
 
-// HandleDeleteIncome handles an income delete request
+// HandleDeleteIncome handles an income delete request.
+// ShowEntity godoc
+// @tags Incomes
+// @Summary Deletes a new income.
+// @Description Endpoint to delete an income.
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id query string true "The income id"
+// @Success 204 "No content"
+// @Failure 400 {object} models.ErrorResponse
+// @Router /v1/income/{id} [delete]
 func (i *Incomes) HandleDeleteIncome(ctx *gin.Context) {
 
 	paramID := ctx.Param("id")
@@ -102,7 +137,18 @@ func (i *Incomes) HandleDeleteIncome(ctx *gin.Context) {
 	ctx.Writer.Flush()
 }
 
-// HandleGetByID handles a get income by id request
+// HandleGetByID handles a get income by id request.
+// ShowEntity godoc
+// @tags Incomes
+// @Summary Gets an income by id.
+// @Description Endpoint to get an income by its id.
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id query string true "The income id"
+// @Success 200 {object} models.Income
+// @Failure 400 {object} models.ErrorResponse
+// @Router /v1/income/{id} [get]
 func (i *Incomes) HandleGetByID(ctx *gin.Context) {
 
 	paramID := ctx.Param("id")
@@ -129,7 +175,18 @@ func (i *Incomes) HandleGetByID(ctx *gin.Context) {
 	ctx.Writer.Flush()
 }
 
-// HandleGetIncomesByCategory handles a get incomes by category request
+// HandleGetIncomesByCategory handles a get incomes by category request.
+// ShowEntity godoc
+// @tags Incomes
+// @Summary Gets a list of incomes by category.
+// @Description Endpoint to get a list of incomes by its category.
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id query string true "The income category"
+// @Success 200 {object} []models.Income
+// @Failure 400 {object} models.ErrorResponse
+// @Router /v1/incomes/category/{category} [get]
 func (i *Incomes) HandleGetIncomesByCategory(ctx *gin.Context) {
 
 	paramCategory := ctx.Param("category")
@@ -147,7 +204,18 @@ func (i *Incomes) HandleGetIncomesByCategory(ctx *gin.Context) {
 	ctx.Writer.Flush()
 }
 
-// HandleGetIncomesByCard handles a get incomes by card request
+// HandleGetIncomesByCard handles a get incomes by card request.
+// ShowEntity godoc
+// @tags Incomes
+// @Summary Gets a list of incomes by payment card.
+// @Description Endpoint to get a list of incomes by payment card.
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id query string true "The payment card"
+// @Success 200 {object} []models.Income
+// @Failure 400 {object} models.ErrorResponse
+// @Router /v1/incomes/card/{card} [get]
 func (i *Incomes) HandleGetIncomesByCard(ctx *gin.Context) {
 
 	paramCard := ctx.Param("card")
@@ -165,7 +233,19 @@ func (i *Incomes) HandleGetIncomesByCard(ctx *gin.Context) {
 	ctx.Writer.Flush()
 }
 
-// HandleGetIncomesByDates handles a get incomes by dates request
+// HandleGetIncomesByDates handles a get incomes by dates request.
+// ShowEntity godoc
+// @tags Incomes
+// @Summary Gets a list of incomes by payment card.
+// @Description Endpoint to get a list of incomes created on the provided range of dates.
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param min_date query string true "The minimum date to consider"
+// @Param max_date query string true "The maximum date to consider"
+// @Success 200 {object} []models.Income
+// @Failure 400 {object} models.ErrorResponse
+// @Router /v1/incomes/dates/{min_date}/{max_date} [get]
 func (i *Incomes) HandleGetIncomesByDates(ctx *gin.Context) {
 
 	paramMinDate := ctx.Param("min_date")

@@ -1,5 +1,14 @@
 GO_MODULE=github.com/rubengomes8/golang-personal-finances
 BIN_DIR=bin
+SWAGCMD = swag
+SWAG_PARAMS = init --parseInternal --parseDependency --parseDepth 3
+SWAG_EXCLUDE = --exclude ./infra,./docker
+SWAG_EXCLUDE_API = $(SWAG_EXCLUDE)
+
+# DEPS #
+deps:
+	go mod tidy
+	go mod vendor
 
 # DATABASE #
 database-extensions:
@@ -68,3 +77,7 @@ gen:
 # GET HTTP SERVER METRICS
 get-metrics:
 	curl http://localhost:8080/metrics
+
+.PHONY: swagger
+swagger:
+	$(SWAGCMD) $(SWAG_PARAMS) $(SWAG_EXCLUDE_API) -o ./docs -g ./cmd/http/main.go
