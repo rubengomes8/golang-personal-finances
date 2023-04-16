@@ -44,12 +44,11 @@ func SetupRouter(
 	r := gin.Default()
 	r.Handle(http.MethodGet, "/metrics", gin.WrapH(instrumentation.RegistryHandler()))
 
-	// programmatically set swagger info
 	docs.SwaggerInfo.Title = "Finances API"
 	docs.SwaggerInfo.Description = "This is a REST API to CRUD expenses and incomes."
 	docs.SwaggerInfo.Version = "1.0"
-	docs.SwaggerInfo.Host = "petstore.swagger.io"
-	docs.SwaggerInfo.BasePath = "/v1"
+	docs.SwaggerInfo.Host = "localhost:8080" // TODO: host should be set according to the environment
+	docs.SwaggerInfo.BasePath = ""
 	docs.SwaggerInfo.Schemes = []string{"http", "https"}
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
@@ -61,7 +60,7 @@ func SetupRouter(
 
 	v1 := r.Group("/v1")
 	{
-		// Use authentication
+		// Use authentication TODO: depending on environment, could be not set
 		v1.Use(auth.JwtAuthMiddleware())
 
 		// Expenses
