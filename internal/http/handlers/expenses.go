@@ -35,7 +35,19 @@ func NewExpenses(
 	}
 }
 
-// CreateExpense creates an expense on the database
+// CreateExpense is used to create a new expense.
+// ShowEntity godoc
+// @tags Expenses
+// @Summary Creates a new expense.
+// @Description Endpoint to create an expense.
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param body body models.ExpenseCreateRequest true "Create expense request"
+// @Success 201 {object} models.ExpenseCreateResponse
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /v1/expense [post]
 func (e *Expenses) CreateExpense(ctx *gin.Context) {
 
 	var expense models.ExpenseCreateRequest
@@ -87,7 +99,20 @@ func (e *Expenses) CreateExpense(ctx *gin.Context) {
 	ctx.Writer.Flush()
 }
 
-// UpdateExpense updates an expense on the database
+// UpdateExpense updates an expense on the database.
+// ShowEntity godoc
+// @tags Expenses
+// @Summary Updates an existing expense.
+// @Description Endpoint to update an expense.
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id query string true "The expense id"
+// @Param body body models.ExpenseCreateRequest true "Update expense request"
+// @Success 204 "No content"
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /v1/expense/{id} [put]
 func (e *Expenses) UpdateExpense(ctx *gin.Context) {
 
 	var expense models.ExpenseCreateRequest
@@ -150,7 +175,18 @@ func (e *Expenses) UpdateExpense(ctx *gin.Context) {
 	ctx.Writer.Flush()
 }
 
-// GetExpenseByID gets an expense from the database that match the id provided
+// GetExpenseByID gets an expense from the database that match the id provided.
+// ShowEntity godoc
+// @tags Expenses
+// @Summary Gets an expense by its id.
+// @Description Endpoint to get an expense by id.
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id query string true "The expense id"
+// @Success 201 {object} models.ExpenseCreateRequest
+// @Failure 400 {object} models.ErrorResponse
+// @Router /v1/expense/{id} [get]
 func (e *Expenses) GetExpenseByID(ctx *gin.Context) {
 
 	paramID := ctx.Param("id")
@@ -179,7 +215,18 @@ func (e *Expenses) GetExpenseByID(ctx *gin.Context) {
 	ctx.Writer.Flush()
 }
 
-// GetExpensesByCategory gets a list of expenses from the database that match the category provided
+// GetExpensesByCategory gets a list of expenses from the database that match the category provided.
+// ShowEntity godoc
+// @tags Expenses
+// @Summary Gets a list of expenses by a category.
+// @Description Endpoint to get a list of expenses by category.
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param category query string true "The expense category"
+// @Success 201 {object} []models.ExpenseCreateRequest
+// @Failure 400 {object} models.ErrorResponse
+// @Router /v1/expenses/category/{category} [get]
 func (e *Expenses) GetExpensesByCategory(ctx *gin.Context) {
 
 	paramCategory := ctx.Param("category")
@@ -199,7 +246,18 @@ func (e *Expenses) GetExpensesByCategory(ctx *gin.Context) {
 	ctx.Writer.Flush()
 }
 
-// GetExpensesBySubCategory gets a list of expenses from the database that match the subcategory provided
+// GetExpensesBySubCategory gets a list of expenses from the database that match the subcategory provided.
+// ShowEntity godoc
+// @tags Expenses
+// @Summary Gets a list of expenses by subcategory.
+// @Description Endpoint to get a list of expenses by subcategory.
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param category query string true "The expense subcategory"
+// @Success 201 {object} []models.ExpenseCreateRequest
+// @Failure 400 {object} models.ErrorResponse
+// @Router /v1/expenses/subcategory/{sub_category} [get]
 func (e *Expenses) GetExpensesBySubCategory(ctx *gin.Context) {
 
 	paramSubCategory := ctx.Param("sub_category")
@@ -219,7 +277,18 @@ func (e *Expenses) GetExpensesBySubCategory(ctx *gin.Context) {
 	ctx.Writer.Flush()
 }
 
-// GetExpensesByCard gets a list of expenses from the database that match the card provided
+// GetExpensesByCard gets a list of expenses from the database that match the card provided.
+// ShowEntity godoc
+// @tags Expenses
+// @Summary Gets a list of expenses by card.
+// @Description Endpoint to get a list of expense by card.
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param category query string true "The card"
+// @Success 201 {object} []models.ExpenseCreateRequest
+// @Failure 400 {object} models.ErrorResponse
+// @Router /v1/expenses/card/{card} [get]
 func (e *Expenses) GetExpensesByCard(ctx *gin.Context) {
 
 	paramCard := ctx.Param("card")
@@ -240,6 +309,18 @@ func (e *Expenses) GetExpensesByCard(ctx *gin.Context) {
 }
 
 // GetExpensesByDates gets a list of expenses from the database that match the dates' range provided
+// ShowEntity godoc
+// @tags Expenses
+// @Summary Gets a list of expenses created on a range of dates.
+// @Description Endpoint to get a list of expenses created on the provided range of dates.
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param min_date query string true "The minimum date to consider"
+// @Param max_date query string true "The maximum date to consider"
+// @Success 201 {object} []models.ExpenseCreateRequest
+// @Failure 400 {object} models.ErrorResponse
+// @Router /v1/expenses/dates/{min_date}/{max_date} [get]
 func (e *Expenses) GetExpensesByDates(ctx *gin.Context) {
 
 	paramMinDate := ctx.Param("min_date")
@@ -278,7 +359,18 @@ func (e *Expenses) GetExpensesByDates(ctx *gin.Context) {
 	ctx.Writer.Flush()
 }
 
-// DeleteExpense deletes an expense from the database that match the id provided
+// DeleteExpense deletes an expense from the database that match the id provided.
+// ShowEntity godoc
+// @tags Expenses
+// @Summary Deletes an expense by its id.
+// @Description Endpoint to delete an expense by id.
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id query string true "The expense id"
+// @Success 204 "No Content"
+// @Failure 400 {object} models.ErrorResponse
+// @Router /v1/expense/{id} [delete]
 func (e *Expenses) DeleteExpense(ctx *gin.Context) {
 
 	paramID := ctx.Param("id")

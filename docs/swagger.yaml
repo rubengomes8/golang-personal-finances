@@ -1,0 +1,497 @@
+definitions:
+  github_com_rubengomes8_golang-personal-finances_internal_http_models.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  github_com_rubengomes8_golang-personal-finances_internal_http_models.ExpenseCreateRequest:
+    properties:
+      card:
+        type: string
+      date:
+        description: Should be on this format YYYY-MM-DD
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      sub_category:
+        type: string
+      value:
+        type: number
+    type: object
+  github_com_rubengomes8_golang-personal-finances_internal_http_models.ExpenseCreateResponse:
+    properties:
+      id:
+        type: integer
+    type: object
+  github_com_rubengomes8_golang-personal-finances_internal_http_models.Income:
+    properties:
+      card:
+        type: string
+      category:
+        type: string
+      date:
+        description: Should be on this format YYYY-MM-DD
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      value:
+        type: number
+    type: object
+  github_com_rubengomes8_golang-personal-finances_internal_http_models.IncomeCreateResponse:
+    properties:
+      id:
+        type: integer
+    type: object
+info:
+  contact: {}
+paths:
+  /v1/expense:
+    post:
+      consumes:
+      - application/json
+      description: Endpoint to create an expense.
+      parameters:
+      - description: Create expense request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ExpenseCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ExpenseCreateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Creates a new expense.
+      tags:
+      - Expenses
+  /v1/expense/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Endpoint to delete an expense by id.
+      parameters:
+      - description: The expense id
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Deletes an expense by its id.
+      tags:
+      - Expenses
+    get:
+      consumes:
+      - application/json
+      description: Endpoint to get an expense by id.
+      parameters:
+      - description: The expense id
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ExpenseCreateRequest'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Gets an expense by its id.
+      tags:
+      - Expenses
+    put:
+      consumes:
+      - application/json
+      description: Endpoint to update an expense.
+      parameters:
+      - description: The expense id
+        in: query
+        name: id
+        required: true
+        type: string
+      - description: Update expense request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ExpenseCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Updates an existing expense.
+      tags:
+      - Expenses
+  /v1/expenses/card/{card}:
+    get:
+      consumes:
+      - application/json
+      description: Endpoint to get a list of expense by card.
+      parameters:
+      - description: The card
+        in: query
+        name: category
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            items:
+              $ref: '#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ExpenseCreateRequest'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Gets a list of expenses by card.
+      tags:
+      - Expenses
+  /v1/expenses/category/{category}:
+    get:
+      consumes:
+      - application/json
+      description: Endpoint to get a list of expenses by category.
+      parameters:
+      - description: The expense category
+        in: query
+        name: category
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            items:
+              $ref: '#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ExpenseCreateRequest'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Gets a list of expenses by a category.
+      tags:
+      - Expenses
+  /v1/expenses/dates/{min_date}/{max_date}:
+    get:
+      consumes:
+      - application/json
+      description: Endpoint to get a list of expenses created on the provided range
+        of dates.
+      parameters:
+      - description: The minimum date to consider
+        in: query
+        name: min_date
+        required: true
+        type: string
+      - description: The maximum date to consider
+        in: query
+        name: max_date
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            items:
+              $ref: '#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ExpenseCreateRequest'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Gets a list of expenses created on a range of dates.
+      tags:
+      - Expenses
+  /v1/expenses/subcategory/{sub_category}:
+    get:
+      consumes:
+      - application/json
+      description: Endpoint to get a list of expenses by subcategory.
+      parameters:
+      - description: The expense subcategory
+        in: query
+        name: category
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            items:
+              $ref: '#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ExpenseCreateRequest'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Gets a list of expenses by subcategory.
+      tags:
+      - Expenses
+  /v1/income:
+    post:
+      consumes:
+      - application/json
+      description: Endpoint to create an income.
+      parameters:
+      - description: Create income request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.Income'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.IncomeCreateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Creates a new income.
+      tags:
+      - Incomes
+  /v1/income/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Endpoint to delete an income.
+      parameters:
+      - description: The income id
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Deletes a new income.
+      tags:
+      - Incomes
+    get:
+      consumes:
+      - application/json
+      description: Endpoint to get an income by its id.
+      parameters:
+      - description: The income id
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.Income'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Gets an income by id.
+      tags:
+      - Incomes
+    put:
+      consumes:
+      - application/json
+      description: Endpoint to update an income.
+      parameters:
+      - description: Update income request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.Income'
+      - description: The income id
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Updates a new income.
+      tags:
+      - Incomes
+  /v1/incomes/card/{card}:
+    get:
+      consumes:
+      - application/json
+      description: Endpoint to get a list of incomes by payment card.
+      parameters:
+      - description: The payment card
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.Income'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Gets a list of incomes by payment card.
+      tags:
+      - Incomes
+  /v1/incomes/category/{category}:
+    get:
+      consumes:
+      - application/json
+      description: Endpoint to get a list of incomes by its category.
+      parameters:
+      - description: The income category
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.Income'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Gets a list of incomes by category.
+      tags:
+      - Incomes
+  /v1/incomes/dates/{min_date}/{max_date}:
+    get:
+      consumes:
+      - application/json
+      description: Endpoint to get a list of incomes created on the provided range
+        of dates.
+      parameters:
+      - description: The minimum date to consider
+        in: query
+        name: min_date
+        required: true
+        type: string
+      - description: The maximum date to consider
+        in: query
+        name: max_date
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.Income'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Gets a list of incomes by payment card.
+      tags:
+      - Incomes
+swagger: "2.0"

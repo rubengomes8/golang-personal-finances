@@ -1,0 +1,782 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {}
+    },
+    "paths": {
+        "/v1/expense": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Endpoint to create an expense.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Expenses"
+                ],
+                "summary": "Creates a new expense.",
+                "parameters": [
+                    {
+                        "description": "Create expense request",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ExpenseCreateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ExpenseCreateResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/expense/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Endpoint to get an expense by id.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Expenses"
+                ],
+                "summary": "Gets an expense by its id.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The expense id",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ExpenseCreateRequest"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Endpoint to update an expense.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Expenses"
+                ],
+                "summary": "Updates an existing expense.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The expense id",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "description": "Update expense request",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ExpenseCreateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Endpoint to delete an expense by id.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Expenses"
+                ],
+                "summary": "Deletes an expense by its id.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The expense id",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/expenses/card/{card}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Endpoint to get a list of expense by card.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Expenses"
+                ],
+                "summary": "Gets a list of expenses by card.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The card",
+                        "name": "category",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ExpenseCreateRequest"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/expenses/category/{category}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Endpoint to get a list of expenses by category.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Expenses"
+                ],
+                "summary": "Gets a list of expenses by a category.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The expense category",
+                        "name": "category",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ExpenseCreateRequest"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/expenses/dates/{min_date}/{max_date}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Endpoint to get a list of expenses created on the provided range of dates.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Expenses"
+                ],
+                "summary": "Gets a list of expenses created on a range of dates.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The minimum date to consider",
+                        "name": "min_date",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The maximum date to consider",
+                        "name": "max_date",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ExpenseCreateRequest"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/expenses/subcategory/{sub_category}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Endpoint to get a list of expenses by subcategory.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Expenses"
+                ],
+                "summary": "Gets a list of expenses by subcategory.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The expense subcategory",
+                        "name": "category",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ExpenseCreateRequest"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/income": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Endpoint to create an income.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Incomes"
+                ],
+                "summary": "Creates a new income.",
+                "parameters": [
+                    {
+                        "description": "Create income request",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.Income"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.IncomeCreateResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/income/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Endpoint to get an income by its id.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Incomes"
+                ],
+                "summary": "Gets an income by id.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The income id",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.Income"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Endpoint to update an income.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Incomes"
+                ],
+                "summary": "Updates a new income.",
+                "parameters": [
+                    {
+                        "description": "Update income request",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.Income"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "The income id",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Endpoint to delete an income.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Incomes"
+                ],
+                "summary": "Deletes a new income.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The income id",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/incomes/card/{card}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Endpoint to get a list of incomes by payment card.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Incomes"
+                ],
+                "summary": "Gets a list of incomes by payment card.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The payment card",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.Income"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/incomes/category/{category}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Endpoint to get a list of incomes by its category.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Incomes"
+                ],
+                "summary": "Gets a list of incomes by category.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The income category",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.Income"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/incomes/dates/{min_date}/{max_date}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Endpoint to get a list of incomes created on the provided range of dates.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Incomes"
+                ],
+                "summary": "Gets a list of incomes by payment card.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The minimum date to consider",
+                        "name": "min_date",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The maximum date to consider",
+                        "name": "max_date",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.Income"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rubengomes8_golang-personal-finances_internal_http_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "github_com_rubengomes8_golang-personal-finances_internal_http_models.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_rubengomes8_golang-personal-finances_internal_http_models.ExpenseCreateRequest": {
+            "type": "object",
+            "properties": {
+                "card": {
+                    "type": "string"
+                },
+                "date": {
+                    "description": "Should be on this format YYYY-MM-DD",
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "sub_category": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "number"
+                }
+            }
+        },
+        "github_com_rubengomes8_golang-personal-finances_internal_http_models.ExpenseCreateResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_rubengomes8_golang-personal-finances_internal_http_models.Income": {
+            "type": "object",
+            "properties": {
+                "card": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "date": {
+                    "description": "Should be on this format YYYY-MM-DD",
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "value": {
+                    "type": "number"
+                }
+            }
+        },
+        "github_com_rubengomes8_golang-personal-finances_internal_http_models.IncomeCreateResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                }
+            }
+        }
+    }
+}
